@@ -1,9 +1,12 @@
 #include <iostream>
 #include <gtkmm.h>
 #include "view.h"
+#include "model.h"
 
 using namespace std;
 #define UI_FILE "glade.ui"
+
+enum state_t { Run, Stop, BeServer, BeClient } state;
 
 class MyImageMenuItem : public Gtk::ImageMenuItem {
 public:
@@ -18,12 +21,16 @@ Gtk::Window *mainWindow;
 MyDrawingArea *drawingArea;
 Gtk::Statusbar *statusBar;
 MyImageMenuItem *menu[5];
-int state;
+Model model;
 
 gboolean tick(void *p){
-    cout << "Tick" << endl;
-    drawingArea->update();
-    if(state==1){
+	input_t input;
+	scene_t *scene;
+//    cout << "Tick" << endl;
+	drawingArea->getInput(&input);
+	scene=model.doModel(&input);
+    drawingArea->setScene(scene);
+    if(state==Run){ // trueを返すとタイマーを再設定し、falseならタイマーを停止する
     	return true;
     }else{
     	return false;
@@ -39,27 +46,21 @@ void MyImageMenuItem::on_activate(void){
 	Gtk::ImageMenuItem::on_activate();
 	switch(id){
 	case 0:
-		state=1;
-		g_timeout_add(1000, tick, NULL);
+		state=Run;
+		g_timeout_add(30, tick, NULL);
 		break;
 	case 1:
-		state=0;
+		state=Stop;
 		break;
 	case 2:
-		state=0;
+		state=BeServer;
 		break;
 	case 3:
-		state=0;
+		state=BeClient;
 		break;
 	case 4:
 		exit(0);
 	}
-}
-
-void on_menu_test1(void)
-{
-	cout << "Called" << endl;
-    return;
 }
 
 int main(int argc, char *argv[]){
@@ -77,7 +78,7 @@ int main(int argc, char *argv[]){
 	builder->get_widget_derived("Start", menu[0]);
 	builder->get_widget_derived("Stop", menu[1]);
 	builder->get_widget_derived("BeServer", menu[2]);
-	builder->get_widget_derived("Connect", menu[3]);
+	builder->get_widget_derived("BeClient", menu[3]);
 	builder->get_widget_derived("Quit", menu[4]);
 	for(int i=0; i<5; ++i){
 		menu[i]->id=i;
