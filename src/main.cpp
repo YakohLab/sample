@@ -2,6 +2,7 @@
 #include <gtkmm.h>
 #include "view.h"
 #include "model.h"
+#include "network.h"
 
 using namespace std;
 #define UI_FILE "glade.ui"
@@ -29,6 +30,7 @@ MyImageMenuItem *menu[4];
 Model *model;
 scene_t *scene;
 input_t input[max_players];
+Network *network;
 
 gboolean tick(void *p){
 //    cout << "Tick" << endl;
@@ -57,7 +59,7 @@ gboolean tickServer(void *p){
 	}
 	model->postAction();
 	for(int i=0; i<max_players; ++i){
-//		send(i, scene);
+		network->sendScene(i, scene);
 	}
 	return true;
 }
@@ -116,9 +118,16 @@ void subHide(void){
 	if(server->get_active()){
 		comm=Server;
 //		cout << sip->get_text() << ":" << sport->get_text() << endl;
+		if(network->startServer(sport->get_text().c_str(), name->get_text().c_str())){
+			comm=Standalone;
+		}
 	}else if(client->get_active()){
 		comm=Client;
 //		cout << cip->get_text() << ":" << cport->get_text() << endl;
+		if(network->connectServer(cip->get_text().c_str(), cport->get_text().c_str(),
+				name->get_text().c_str())==false){
+			comm=Standalone;
+		}
 	}else{
 		comm=Standalone;
 	}
