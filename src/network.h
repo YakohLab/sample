@@ -1,36 +1,37 @@
+/* -*- Mode: C; indent-tabs-mode: t; c-basic-offset: 4; tab-width: 4 -*- */
 /*
  * network.h
- *
- *  Created on: 2013/12/10
- *      Author: yakoh
+ * Copyright (C) Takahiro Yakoh 2011 <yakoh@sd.keio.ac.jp>
+ * $Revision: 1.12 $
  */
 
-#ifndef NETWORK_H_
-#define NETWORK_H_
-#include <glib.h>
-#include "common.h"
-
-struct member_t {
-        int attend, ready;
-        char name[20];
-        struct input_t input;
-        GIOChannel *gioc;
-        guint sid;
+// From client to server
+#define SCMD_CONNECT	0	// username is stored in data area
+#define SCMD_START		1	// no data
+#define SCMD_STOP		2	// no data
+#define SCMD_DISCONNECT	3	// no data
+#define SCMD_INPUT		4	// input structure is stored
+// From server to client
+#define SCMD_STATUS		10	// # of connected users and ready to start users are stored
+#define SCMD_DRAW		11	// scene data structure is stored
+struct message_t {
+	int command;
+	int length;
 };
 
-class Network {
-public:
-	Network();
-	virtual ~Network();
-	bool startServer(const char *, const char *);
-	bool connectServer(const char *, const char *, const char *);
-	void sendScene(int, scene_t *);
-private:
-	bool isServerStart, isConnect;
-	member_t members[max_players];
-	int num_attend;
-	gboolean server_accept(GIOChannel *gioc, GIOCondition cond, void *arg);
+unsigned int get_myip(void);
 
-};
+void sendScene(int i, scene_t *);
 
-#endif /* NETWORK_H_ */
+bool server_setup(const char *, const char *);
+void server_start(void);
+gboolean server_receive(GIOChannel*, GIOCondition, void*);
+void server_stop(void);
+bool server_terminate(void);
+
+bool client_setup(const char *, const char *, const char *);
+void client_start(void);
+gboolean client_receive(GIOChannel*, GIOCondition, void*);
+void client_stop(void);
+bool client_terminate(void);
+void process_cmd(int id, int command, int length, GIOChannel* gioc);

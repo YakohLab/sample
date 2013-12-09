@@ -19,18 +19,18 @@ protected:
 	virtual void on_activate();
 };
 
-Gtk::Window *mainWindow, *subWindow;
-MyDrawingArea *drawingArea;
+static Gtk::Window *mainWindow, *subWindow;
+static MyDrawingArea *drawingArea;
+static Gtk::Entry *sip, *sport, *cip, *cport, *name;
+static Gtk::RadioButton *standalone, *server, *client;
+static Gtk::Button *ok;
+static MyImageMenuItem *menu[4];
+static Model *model;
+static input_t input[max_players];
+
 Gtk::Statusbar *statusBar;
-Gtk::Entry *sip, *sport, *cip, *cport, *name;
-Gtk::RadioButton *standalone, *server, *client;
-Gtk::Button *ok;
 int statusId, statusEraseId;
-MyImageMenuItem *menu[4];
-Model *model;
 scene_t *scene;
-input_t input[max_players];
-Network *network;
 
 gboolean tick(void *p){
 //    cout << "Tick" << endl;
@@ -58,10 +58,17 @@ gboolean tickServer(void *p){
 		}
 	}
 	model->postAction();
-	for(int i=0; i<max_players; ++i){
-		network->sendScene(i, scene);
+	for(int i=1; i<max_players; ++i){ // 自分には送る必要ないので1から
+		if(scene->p[i].attend){
+			sendScene(i, scene);
+		}
 	}
 	return true;
+}
+
+void process_a_step(scene_t *s, input_t *in) {
+	drawingArea->setScene(s);
+	drawingArea->getInput(in);
 }
 
 gboolean eraseStatusbar(void *p){
@@ -90,6 +97,10 @@ void MyImageMenuItem::on_activate(void){
 				g_timeout_add(5000, eraseStatusbar, 0);
 				break;
 			case Server:
+				scene=new scene_t;
+				model->initModel(scene);
+				scene->p[0].attend=1;
+				process_cmd(0, SCMD_START, 0, NULL);
 				break;
 			case Client:
 				break;
@@ -118,13 +129,13 @@ void subHide(void){
 	if(server->get_active()){
 		comm=Server;
 //		cout << sip->get_text() << ":" << sport->get_text() << endl;
-		if(network->startServer(sport->get_text().c_str(), name->get_text().c_str())){
+		if(server_setup(sport->get_text().c_str(), name->get_text().c_str())){
 			comm=Standalone;
 		}
 	}else if(client->get_active()){
 		comm=Client;
 //		cout << cip->get_text() << ":" << cport->get_text() << endl;
-		if(network->connectServer(cip->get_text().c_str(), cport->get_text().c_str(),
+		if(client_setup(cip->get_text().c_str(), cport->get_text().c_str(),
 				name->get_text().c_str())==false){
 			comm=Standalone;
 		}
