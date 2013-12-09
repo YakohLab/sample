@@ -54,4 +54,7 @@ void Model::stepPlayer(int id, input_t *input){
 		scene->p[id].dots[scene->p[id].curDots].visible=1;
 		scene->p[id].curDots=(scene->p[id].curDots+1)%max_dots;
 	}
+	if(input->key!=0){
+		scene->c[0]=input->key;
+	}
 }

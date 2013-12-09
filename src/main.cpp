@@ -6,7 +6,8 @@
 using namespace std;
 #define UI_FILE "glade.ui"
 
-enum state_t { Run, Stop, BeServer, BeClient } state=Stop;
+enum state_t { Run, Stop } state;
+enum comm_t { Server, Client, Standalone } comm;
 
 class MyImageMenuItem : public Gtk::ImageMenuItem {
 public:
@@ -17,19 +18,23 @@ protected:
 	virtual void on_activate();
 };
 
-Gtk::Window *mainWindow;
+Gtk::Window *mainWindow, *subWindow;
 MyDrawingArea *drawingArea;
 Gtk::Statusbar *statusBar;
-MyImageMenuItem *menu[5];
+Gtk::Entry *sip, *sport, *cip, *cport, *name;
+Gtk::RadioButton *standalone, *server, *client;
+Gtk::Button *ok;
+int statusId, statusEraseId;
+MyImageMenuItem *menu[4];
 Model *model;
 scene_t *scene;
+input_t input[max_players];
 
 gboolean tick(void *p){
-	input_t input;
 //    cout << "Tick" << endl;
-	drawingArea->getInput(&input);
+	drawingArea->getInput(&input[0]);
 	model->preAction();
-	model->stepPlayer(0, &input);
+	model->stepPlayer(0, &input[0]);
 	model->postAction();
     drawingArea->setScene(scene);
     if(state==Run){ // trueを返すとタイマーを再設定し、falseならタイマーを停止する
@@ -40,6 +45,26 @@ gboolean tick(void *p){
 		scene=NULL;
     	return false;
     }
+}
+
+gboolean tickServer(void *p){
+	drawingArea->getInput(&input[0]); // 他のプレーヤーの入力は、通信で非同期に届いている
+	model->preAction();
+	for(int i=0; i<max_players; ++i){
+		if(scene->p[i].attend){
+			model->stepPlayer(i, &input[i]);
+		}
+	}
+	model->postAction();
+	for(int i=0; i<max_players; ++i){
+//		send(i, scene);
+	}
+	return true;
+}
+
+gboolean eraseStatusbar(void *p){
+    statusBar->pop(statusEraseId++);
+    return false;
 }
 
 MyImageMenuItem::MyImageMenuItem(BaseObjectType* o, const Glib::RefPtr<Gtk::Builder>& g):
@@ -53,30 +78,58 @@ void MyImageMenuItem::on_activate(void){
 	case 0:
 		if(state!=Run){
 			state=Run;
-			scene=new scene_t;
-			model->initModel(scene);
-			scene->p[0].attend=1;
-			g_timeout_add(period, tick, NULL);
+			switch(comm){
+			case Standalone:
+				scene=new scene_t;
+				model->initModel(scene);
+				scene->p[0].attend=1;
+				g_timeout_add(period, tick, NULL);
+				statusBar->push(Glib::ustring("Run"), statusId++);
+				g_timeout_add(5000, eraseStatusbar, 0);
+				break;
+			case Server:
+				break;
+			case Client:
+				break;
+			}
 		}
 		break;
 	case 1:
 		if(state!=Stop){
 			state=Stop;
+			statusBar->push(Glib::ustring("Stop"), statusId++);
+			g_timeout_add(5000, eraseStatusbar, 0);
 		}
 		break;
 	case 2:
-		state=BeServer;
+		if(state==Stop){
+			subWindow->show();
+		}
 		break;
 	case 3:
-		state=BeClient;
-		break;
-	case 4:
 		exit(0);
 	}
 }
 
+void subHide(void){
+//	cout << "name=" << name->get_text() << endl;
+	if(server->get_active()){
+		comm=Server;
+//		cout << sip->get_text() << ":" << sport->get_text() << endl;
+	}else if(client->get_active()){
+		comm=Client;
+//		cout << cip->get_text() << ":" << cport->get_text() << endl;
+	}else{
+		comm=Standalone;
+	}
+	subWindow->hide();
+}
+
 int main(int argc, char *argv[]){
+	state=Stop;
+	comm=Standalone;
 	model=new Model;
+	statusId=statusEraseId=0;
 	Gtk::Main kit(argc, argv);
 	Glib::RefPtr<Gtk::Builder> builder;
 	try {
@@ -86,14 +139,25 @@ int main(int argc, char *argv[]){
 		return 1;
 	}
 	builder->get_widget("window1", mainWindow);
+	builder->get_widget("window2", subWindow);
+	builder->get_widget("button1", ok);
+    ok->signal_clicked().connect(
+                    sigc::pointer_functor0<void>(subHide));
+    builder->get_widget("sip", sip);
+    builder->get_widget("sport", sport);
+    builder->get_widget("cip", cip);
+    builder->get_widget("cport", cport);
+    builder->get_widget("name", name);
+    builder->get_widget("standalone", standalone);
+    builder->get_widget("server", server);
+    builder->get_widget("client", client);
 	builder->get_widget_derived("drawingarea1", drawingArea);
 	builder->get_widget("statusbar1", statusBar);
 	builder->get_widget_derived("Start", menu[0]);
 	builder->get_widget_derived("Stop", menu[1]);
-	builder->get_widget_derived("BeServer", menu[2]);
-	builder->get_widget_derived("BeClient", menu[3]);
-	builder->get_widget_derived("Quit", menu[4]);
-	for(int i=0; i<5; ++i){
+	builder->get_widget_derived("SetMode", menu[2]);
+	builder->get_widget_derived("Quit", menu[3]);
+	for(int i=0; i<4; ++i){
 		menu[i]->id=i;
 	}
 

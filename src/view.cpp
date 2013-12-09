@@ -92,6 +92,8 @@ void MyDrawingArea::getInput(input_t *i){
 	clearInput();
 }
 
+// PressイベントとReleaseイベントの両方を見ることで
+// 押し続けている状態を把握できるようにしている
 bool MyDrawingArea::on_key_press_event(GdkEventKey* k){
 //	std::cout << "Pressed " << k->keyval << std::endl;
 	switch(k->keyval){
@@ -132,7 +134,7 @@ bool MyDrawingArea::on_key_release_event(GdkEventKey* k){
 		break;
 	default:
 		if(GDK_KEY_A<=k->keyval && k->keyval<=GDK_KEY_z){
-			input.key=k->keyval;
+			input.key=0;
 		}
 	}
 	return true;
