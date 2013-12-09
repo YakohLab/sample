@@ -6,7 +6,7 @@
 using namespace std;
 #define UI_FILE "glade.ui"
 
-enum state_t { Run, Stop, BeServer, BeClient } state;
+enum state_t { Run, Stop, BeServer, BeClient } state=Stop;
 
 class MyImageMenuItem : public Gtk::ImageMenuItem {
 public:
@@ -21,18 +21,23 @@ Gtk::Window *mainWindow;
 MyDrawingArea *drawingArea;
 Gtk::Statusbar *statusBar;
 MyImageMenuItem *menu[5];
-Model model;
+Model *model;
+scene_t *scene;
 
 gboolean tick(void *p){
 	input_t input;
-	scene_t *scene;
 //    cout << "Tick" << endl;
 	drawingArea->getInput(&input);
-	scene=model.doModel(&input);
+	model->preAction();
+	model->stepPlayer(0, &input);
+	model->postAction();
     drawingArea->setScene(scene);
     if(state==Run){ // trueを返すとタイマーを再設定し、falseならタイマーを停止する
     	return true;
     }else{
+	    drawingArea->setScene(NULL);
+		delete scene;
+		scene=NULL;
     	return false;
     }
 }
@@ -46,11 +51,18 @@ void MyImageMenuItem::on_activate(void){
 	Gtk::ImageMenuItem::on_activate();
 	switch(id){
 	case 0:
-		state=Run;
-		g_timeout_add(30, tick, NULL);
+		if(state!=Run){
+			state=Run;
+			scene=new scene_t;
+			model->initModel(scene);
+			scene->p[0].attend=1;
+			g_timeout_add(period, tick, NULL);
+		}
 		break;
 	case 1:
-		state=Stop;
+		if(state!=Stop){
+			state=Stop;
+		}
 		break;
 	case 2:
 		state=BeServer;
@@ -64,6 +76,7 @@ void MyImageMenuItem::on_activate(void){
 }
 
 int main(int argc, char *argv[]){
+	model=new Model;
 	Gtk::Main kit(argc, argv);
 	Glib::RefPtr<Gtk::Builder> builder;
 	try {

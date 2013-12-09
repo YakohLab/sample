@@ -5,34 +5,53 @@
  *      Author: yakoh
  */
 
+#include <iostream>
 #include "model.h"
 
 Model::Model() {
 	// TODO Auto-generated constructor stub
-	initModel();
 }
 
 Model::~Model() {
 	// TODO Auto-generated destructor stub
 }
 
-void Model::initModel(void){
-	scene.curDots=0;
-	for(int i=0; i<max_dots; ++i){
-		scene.dots[i].visible=0;
+void Model::initModel(scene_t *s){
+//	std::cout << "Init" << std::endl;
+	scene=s;
+	time_t t;
+	t=time(NULL);
+	localtime_r(&t, &scene->tm);
+	scene->c[0]=0;
+	scene->c[1]=0;
+	for(int i=0; i<max_players; ++i){
+		scene->p[i].attend=0;
+		scene->p[i].curDots=0;
+		for(int j=0; j<max_dots; ++j){
+			scene->p[i].dots[j].visible=0;
+		}
 	}
 }
 
-scene_t *Model::doModel(input_t *input){
+void Model::preAction(void){
+	time_t t;
+	t=time(NULL);
+	localtime_r(&t, &scene->tm);
+}
+
+void Model::postAction(void){
+
+}
+
+void Model::stepPlayer(int id, input_t *input){
 	for(int i=0; i<max_dots; ++i){
-		scene.dots[i].x+=(input->right-input->left)*5;
-		scene.dots[i].y+=(input->down-input->up)*5;
+		scene->p[id].dots[i].x+=(input->right-input->left)*5;
+		scene->p[id].dots[i].y+=(input->down-input->up)*5;
 	}
 	if(input->x!=(-1)){
-		scene.dots[scene.curDots].x=input->x;
-		scene.dots[scene.curDots].y=input->y;
-		scene.dots[scene.curDots].visible=1;
-		scene.curDots=(scene.curDots+1)%max_dots;
+		scene->p[id].dots[scene->p[id].curDots].x=input->x;
+		scene->p[id].dots[scene->p[id].curDots].y=input->y;
+		scene->p[id].dots[scene->p[id].curDots].visible=1;
+		scene->p[id].curDots=(scene->p[id].curDots+1)%max_dots;
 	}
-	return &scene;
 }

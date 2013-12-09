@@ -34,6 +34,7 @@
             <property name="can_focus">False</property>
             <child>
               <object class="GtkMenuItem" id="menuitem1">
+                <property name="use_action_appearance">False</property>
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="label" translatable="yes">ゲーム</property>
@@ -45,6 +46,7 @@
                     <child>
                       <object class="GtkImageMenuItem" id="Start">
                         <property name="label">Start</property>
+                        <property name="use_action_appearance">False</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="image">image1</property>
@@ -54,6 +56,7 @@
                     <child>
                       <object class="GtkImageMenuItem" id="Stop">
                         <property name="label">Stop</property>
+                        <property name="use_action_appearance">False</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="image">image2</property>
@@ -63,6 +66,7 @@
                     <child>
                       <object class="GtkImageMenuItem" id="BeServer">
                         <property name="label">BeServer</property>
+                        <property name="use_action_appearance">False</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="image">image3</property>
@@ -71,7 +75,8 @@
                     </child>
                     <child>
                       <object class="GtkImageMenuItem" id="BeClient">
-                        <property name="label">Connect</property>
+                        <property name="label">BeClient</property>
+                        <property name="use_action_appearance">False</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="image">image4</property>
@@ -87,6 +92,7 @@
                     <child>
                       <object class="GtkImageMenuItem" id="Quit">
                         <property name="label">gtk-quit</property>
+                        <property name="use_action_appearance">False</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="use_underline">True</property>

@@ -7,6 +7,7 @@
 
 #ifndef MODEL_H_
 #define MODEL_H_
+#include <time.h>
 
 #include "common.h"
 
@@ -15,10 +16,12 @@ public:
 	Model();
 	virtual ~Model();
 
-	void initModel(void);
-	scene_t *doModel(input_t *);
+	void initModel(scene_t *);
+	void preAction();
+	void stepPlayer(int, input_t *);
+	void postAction();
 private:
-	scene_t scene;
+	scene_t *scene;
 };
 
 #endif /* MODEL_H_ */
