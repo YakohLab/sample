@@ -42,6 +42,8 @@ struct scene_t {
 extern Gtk::Statusbar *statusBar;
 extern int statusId, statusEraseId;
 extern scene_t *scene;
+extern input_t input[max_players];
+
 gboolean eraseStatusbar(void *p);
 gboolean tickServer(void *p);
 void process_a_step(scene_t *s, input_t *in);

@@ -35,10 +35,11 @@
 struct member_t {
 	int attend, ready;
 	char name[20];
-	input_t input;
+//	input_t input;
 	GIOChannel *gioc;
 	guint sid;
 };
+int w;
 
 static int server_flag = 0;
 struct member_t members[max_players];
@@ -47,7 +48,6 @@ static bool is_server_start = false;
 static bool is_client_start = false;
 
 void sendScene(int id, scene_t *scene){
-	int i;
 	struct message_t m;
 	gsize n;
 	m.command = SCMD_DRAW;
@@ -57,9 +57,9 @@ void sendScene(int id, scene_t *scene){
 				<< " < max_msglenを見直してください。" << std::endl;
 		exit(0);
 	}
-	g_io_channel_write_chars(members[i].gioc, (char *) &m,
+	g_io_channel_write_chars(members[id].gioc, (char *) &m,
 			sizeof(message_t), &n, NULL);
-	g_io_channel_write_chars(members[i].gioc, (char *) &scene,
+	g_io_channel_write_chars(members[id].gioc, (char *) scene,
 			m.length, &n, NULL);
 }
 /*
@@ -210,7 +210,8 @@ void process_cmd(int id, int command, int length, GIOChannel* gioc) {
 		broadcast_message();
 		break;
 	case SCMD_INPUT:
-		channel_read(gioc, (gchar *) &members[id].input, length);
+		//		channel_read(gioc, (gchar *) &members[id].input, length);
+		channel_read(gioc, (gchar *) &input[id], length);
 		break;
 	case SCMD_STATUS:
 		channel_read(gioc, (gchar *) message, length);
@@ -218,14 +219,14 @@ void process_cmd(int id, int command, int length, GIOChannel* gioc) {
 		g_timeout_add(5000, eraseStatusbar, 0);
 		break;
 	case SCMD_DRAW:
-		channel_read(gioc, (gchar *) &scene, length);
-		process_a_step(&scene, &members[id].input);
-
+		channel_read(gioc, (gchar *) scene, length);
+		process_a_step(scene, &input[id]);
+//		std::cout << members[id].input.x << std::endl;
 		m.command = SCMD_INPUT;
-		m.length = sizeof(input);
+		m.length = sizeof(input_t);
 		g_io_channel_write_chars(members[0].gioc, (char *) &m,
 				sizeof(message_t), &s, NULL);
-		g_io_channel_write_chars(members[0].gioc, (char *) &input,
+		g_io_channel_write_chars(members[0].gioc, (char *) &input[id],
 				m.length, &s, NULL);
 		break;
 	}
@@ -273,8 +274,8 @@ gboolean server_accept(GIOChannel *gioc, GIOCondition cond, void *arg) {
 	return TRUE;
 }
 
-bool server_setup(const char *port, const char *name) {
-	int i, on, w;
+bool server_setup(const char *port, const char *name, input_t *input) {
+	int i, on;
 	struct sockaddr_in serv;
 
 	if (is_server_start)
@@ -307,6 +308,7 @@ bool server_setup(const char *port, const char *name) {
 		members[i].ready = 0;
 		members[i].gioc = NULL;
 		members[i].sid = 0;
+//		members[i].input=&input[i];
 	}
 
 	members[0].gioc = g_io_channel_unix_new(w);
@@ -338,6 +340,10 @@ bool server_terminate(void) {
 			g_source_remove(members[i].sid);
 			g_io_channel_shutdown(members[i].gioc, TRUE, NULL);
 		}
+	}
+	if(w){
+		close(w);
+		w=0;
 	}
 	is_server_start = false;
 	return true;
@@ -408,7 +414,7 @@ gboolean client_receive(GIOChannel *gioc, GIOCondition cond, void *arg) {
 		members[0].attend = 0;
 		members[0].ready = 0;
 		is_client_start = 0;
-		reset_mode();
+//		reset_mode();
 
 		statusBar->push(Glib::ustring("サーバが接続を切断したため、スタンドアローンモードに変更しました。"), statusId++);
 		g_timeout_add(5000, eraseStatusbar, 0);

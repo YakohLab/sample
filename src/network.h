@@ -23,7 +23,7 @@ unsigned int get_myip(void);
 
 void sendScene(int i, scene_t *);
 
-bool server_setup(const char *, const char *);
+bool server_setup(const char *, const char *, input_t *);
 void server_start(void);
 gboolean server_receive(GIOChannel*, GIOCondition, void*);
 void server_stop(void);

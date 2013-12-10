@@ -26,7 +26,7 @@ static Gtk::RadioButton *standalone, *server, *client;
 static Gtk::Button *ok;
 static MyImageMenuItem *menu[4];
 static Model *model;
-static input_t input[max_players];
+input_t input[max_players];
 
 Gtk::Statusbar *statusBar;
 int statusId, statusEraseId;
@@ -50,7 +50,7 @@ gboolean tick(void *p){
 }
 
 gboolean tickServer(void *p){
-	drawingArea->getInput(&input[0]); // 他のプレーヤーの入力は、通信で非同期に届いている
+	drawingArea->getInput(&input[0]); // 他のプレーヤーの入力は、既に通信で非同期に届いている
 	model->preAction();
 	for(int i=0; i<max_players; ++i){
 		if(scene->p[i].attend){
@@ -63,6 +63,15 @@ gboolean tickServer(void *p){
 			sendScene(i, scene);
 		}
 	}
+	drawingArea->setScene(scene);
+    if(state==Run){ // trueを返すとタイマーを再設定し、falseならタイマーを停止する
+    	return true;
+    }else{
+	    drawingArea->setScene(NULL);
+		delete scene;
+		scene=NULL;
+    	return false;
+    }
 	return true;
 }
 
@@ -87,22 +96,23 @@ void MyImageMenuItem::on_activate(void){
 	case 0:
 		if(state!=Run){
 			state=Run;
+			statusBar->push(Glib::ustring("Run"), statusId++);
+			g_timeout_add(5000, eraseStatusbar, 0);
 			switch(comm){
 			case Standalone:
 				scene=new scene_t;
 				model->initModel(scene);
 				scene->p[0].attend=1;
 				g_timeout_add(period, tick, NULL);
-				statusBar->push(Glib::ustring("Run"), statusId++);
-				g_timeout_add(5000, eraseStatusbar, 0);
 				break;
 			case Server:
 				scene=new scene_t;
 				model->initModel(scene);
-				scene->p[0].attend=1;
 				process_cmd(0, SCMD_START, 0, NULL);
 				break;
 			case Client:
+				scene=new scene_t;
+				client_start();
 				break;
 			}
 		}
@@ -112,6 +122,16 @@ void MyImageMenuItem::on_activate(void){
 			state=Stop;
 			statusBar->push(Glib::ustring("Stop"), statusId++);
 			g_timeout_add(5000, eraseStatusbar, 0);
+			switch(comm){
+			case Server:
+				server_stop();
+				break;
+			case Client:
+				client_stop();
+				break;
+			default:
+				break;
+			}
 		}
 		break;
 	case 2:
@@ -127,19 +147,24 @@ void MyImageMenuItem::on_activate(void){
 void subHide(void){
 //	cout << "name=" << name->get_text() << endl;
 	if(server->get_active()){
+		client_terminate();
 		comm=Server;
-//		cout << sip->get_text() << ":" << sport->get_text() << endl;
-		if(server_setup(sport->get_text().c_str(), name->get_text().c_str())){
+		if(!server_setup(sport->get_text().c_str(), name->get_text().c_str(), input)){
 			comm=Standalone;
 		}
+		scene=new scene_t;
+		model->initModel(scene);
+		scene->p[0].attend=1;
 	}else if(client->get_active()){
+		server_terminate();
 		comm=Client;
-//		cout << cip->get_text() << ":" << cport->get_text() << endl;
-		if(client_setup(cip->get_text().c_str(), cport->get_text().c_str(),
-				name->get_text().c_str())==false){
+		if(!client_setup(cip->get_text().c_str(), cport->get_text().c_str(),
+				name->get_text().c_str())){
 			comm=Standalone;
 		}
 	}else{
+		server_terminate();
+		client_terminate();
 		comm=Standalone;
 	}
 	subWindow->hide();

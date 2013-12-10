@@ -63,6 +63,7 @@ bool MyDrawingArea::on_expose_event( GdkEventExpose* e ){
 	cc->set_line_width(5.0);
 	cc->set_source_rgb(1.0, 0.0, 0.0);
 	for(int i=0; i<max_players; ++i){
+		cc->set_source_rgb(((i+1)&1)>0, ((i+1)&2)>0, ((i+1)&4)>0);
 		if(scene->p[i].attend){
 			for(int j=0; j<max_dots; ++j){
 				if(scene->p[i].dots[j].visible==1){
