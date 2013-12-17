@@ -251,7 +251,7 @@ gboolean server_receive(GIOChannel* gioc, GIOCondition cond, void *arg) {
 
 gboolean server_accept(GIOChannel *gioc, GIOCondition cond, void *arg) {
 	struct sockaddr_in cli;
-	unsigned int len;
+	unsigned int len=sizeof(cli);
 	int s, on;
 
 	s = accept(g_io_channel_unix_get_fd(gioc), (struct sockaddr *) &cli, &len);
