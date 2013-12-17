@@ -23,6 +23,7 @@ Scene *scene;
 
 void process_a_step(Scene *s, input_t *in) {
 	ViewManager &view =ViewManager::get_instance();
+	view.init_view_with_scene(s);
 	view.update();
 	view.get_input(in);
 }
