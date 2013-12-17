@@ -16,7 +16,7 @@ Model::~Model() {
 	// TODO Auto-generated destructor stub
 }
 
-void Model::initModel(scene_t *s){
+void Model::initModelWithScene(Scene *s){
 //	std::cout << "Init" << std::endl;
 	scene=s;
 	time_t t;
