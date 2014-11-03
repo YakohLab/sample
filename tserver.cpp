@@ -26,7 +26,7 @@ char *keyReply(const char *key){
 	char *cat, *sha1, *base64;
 
 	cat=g_strconcat(key, "258EAFA5-E914-47DA-95CA-C5AB0DC85B11", NULL);
-	sha1=g_compute_checksum_for_string(G_CHECKSUM_SHA1, cat, strlen(cat));
+	sha1=g_compute_checksum_for_string(G_CHECKSUM_SHA1, cat, (long int)strlen(cat));
 	g_free(cat);
 
 	l=strlen(sha1)/2;
@@ -158,11 +158,6 @@ int main(int argc, char *argv[]){
 									printf("%02x ", (unsigned char)buff[i]);
 								}
 								if(false){
-									gchar *output;
-									gsize bytes_read, bytes_written;
-									output=g_convert(&buff[6], size,
-										"UTF-8", "UTF-8",
-										&bytes_read, &bytes_written, NULL);
 									for(i=0; i<size; ++i){
 										if(i%8==0){
 											printf("\n");
@@ -197,7 +192,7 @@ int main(int argc, char *argv[]){
 								fflush(stdout);
 								break;
 							case 0x9: // Ping
-								buff[0]=buff[0]&0xf0 + 0x9;
+								buff[0]=(buff[0]&0xf0) + 0x9;
 								send(s, buff, n, 0);
 								break;
 							case 0xa: // Pong
