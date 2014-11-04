@@ -26,7 +26,7 @@
 #include "view.h"
 #include "model.h"
 #ifdef linux
-#define DEV_NAME "eth0"
+#define DEV_NAME "eth1"
 #endif
 #ifdef __APPLE__
 #define DEV_NAME "en0"
