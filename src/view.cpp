@@ -2,6 +2,8 @@
 #include "view.h"
 #include "manager.h"
 #include "network.h"
+//コメント　10:11
+
 
 MyDrawingArea::MyDrawingArea(BaseObjectType* o, const Glib::RefPtr<Gtk::Builder>& g):
 	Gtk::DrawingArea(o){
@@ -68,11 +70,11 @@ bool MyDrawingArea::on_expose_event( GdkEventExpose* e ){
 		cc->set_source_rgb(((i+1)&1)>0, ((i+1)&2)>0, ((i+1)&4)>0);
 		if(scene->p[i].attend){
 			for(int j=0; j<max_dots; ++j){
-				if(scene->p[i].dots[j].visible==1){
+/*			if(scene->p[i].dots[j].visible==1){
 					cc->arc(scene->p[i].dots[j].x, scene->p[i].dots[j].y, 5, 0, 2.0 * M_PI);
 					cc->stroke();
 				}
-			}
+*/			}
 		}
 	}
 
