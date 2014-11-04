@@ -1,5 +1,7 @@
 #include <iostream>
 #include "view.h"
+#include "manager.h"
+#include "network.h"
 
 MyDrawingArea::MyDrawingArea(BaseObjectType* o, const Glib::RefPtr<Gtk::Builder>& g):
 	Gtk::DrawingArea(o){
@@ -19,7 +21,7 @@ void MyDrawingArea::on_realize(void){
 }
 
 bool MyDrawingArea::on_expose_event( GdkEventExpose* e ){
-//	std::cout << "Exposed" << std::endl;
+	std::cout << "Exposed" << std::endl;
 
 	if(scene==NULL)return true;
 	Cairo::RefPtr<Cairo::Context> cc = this->get_window()->create_cairo_context();
@@ -77,8 +79,11 @@ bool MyDrawingArea::on_expose_event( GdkEventExpose* e ){
 	return true;
 }
 
-void MyDrawingArea::setScene(scene_t *s){
+void MyDrawingArea::setScene(Scene *s){
 	scene=s;
+}
+
+void MyDrawingArea::update(){
 	this->queue_draw();
 }
 
@@ -146,4 +151,65 @@ bool MyDrawingArea::on_button_press_event (GdkEventButton* event){
 	input.x=event->x;
 	input.y=event->y;
 	return true;
+}
+
+MyImageMenuItem::MyImageMenuItem(BaseObjectType* o, const Glib::RefPtr<Gtk::Builder>& g):
+	Gtk::ImageMenuItem(o){
+	g->get_widget("window2", subWindow);
+}
+
+MyImageMenuItem::~MyImageMenuItem(void){
+}
+
+void MyImageMenuItem::on_activate(void){
+	Gtk::ImageMenuItem::on_activate();
+
+	Manager &mgr = Manager::get_instance();
+	switch(id){
+	case 0:
+		if(mgr.get_state() != Manager::Run){
+			mgr.set_state(Manager::Run);
+			statusBar->push(Glib::ustring("Run"), statusId++);
+			g_timeout_add(5000, eraseStatusbar, 0);
+			switch(mgr.get_mode()){
+			case Manager::Standalone:
+				mgr.init_objects();
+				mgr.attend_single_player();
+				g_timeout_add(period, Manager::tick, NULL);
+				break;
+			case Manager::Server:
+				mgr.init_objects();
+				process_cmd(0, SCMD_START, 0, NULL);
+				break;
+			case Manager::Client:
+				client_start();
+				break;
+			}
+		}
+		break;
+	case 1:
+		if(mgr.get_state() != Manager::Stop){
+			mgr.set_state(Manager::Stop);
+			statusBar->push(Glib::ustring("Stop"), statusId++);
+			g_timeout_add(5000, eraseStatusbar, 0);
+			switch(mgr.get_mode()){
+			case Manager::Server:
+				server_stop();
+				break;
+			case Manager::Client:
+				client_stop();
+				break;
+			default:
+				break;
+			}
+		}
+		break;
+	case 2:
+		if(Manager::get_instance().get_state()==Manager::Stop){
+			subWindow->show();
+		}
+		break;
+	case 3:
+		exit(0);
+	}
 }

@@ -21,7 +21,7 @@ struct message_t {
 
 unsigned int get_myip(void);
 
-void sendScene(int i, scene_t *);
+void sendScene(int i, Scene *);
 
 bool server_setup(const char *, const char *, input_t *);
 void server_start(void);

@@ -10,6 +10,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <stdlib.h>
+
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/select.h>
@@ -19,12 +20,16 @@
 #include <net/if.h>
 #include <arpa/inet.h>
 #include <netdb.h>
+
 #include <glib.h>
 #include <gtkmm.h>
+
 #include "common.h"
 #include "network.h"
 #include "view.h"
 #include "model.h"
+#include "manager.h"
+
 #ifdef linux
 #define DEV_NAME "eth1"
 #endif
@@ -35,7 +40,6 @@
 struct member_t {
 	int attend, ready;
 	char name[20];
-//	input_t input;
 	GIOChannel *gioc;
 	guint sid;
 };
@@ -47,11 +51,11 @@ static int num_attend = 0;
 static bool is_server_start = false;
 static bool is_client_start = false;
 
-void sendScene(int id, scene_t *scene){
+void sendScene(int id, Scene *scene){
 	struct message_t m;
 	gsize n;
 	m.command = SCMD_DRAW;
-	m.length = sizeof(scene_t);
+	m.length = sizeof(Scene);
 	if (m.length > max_msglen) {
 		std::cout << "一度に送るデータ量が大き過ぎます。" << m.length
 				<< " < max_msglenを見直してください。" << std::endl;
@@ -62,52 +66,8 @@ void sendScene(int id, scene_t *scene){
 	g_io_channel_write_chars(members[id].gioc, (char *) scene,
 			m.length, &n, NULL);
 }
-/*
-gboolean server_play_tick(void *p) {
-	int i;
-	struct message_t m;
-	gsize n;
 
-	if (server_flag) {
-		m.command = SCMD_DRAW;
-		m.length = sizeof(scene_t);
-		if (m.length > max_msglen) {
-			std::cout << "一度に送るデータ量が大き過ぎます。" << m.length
-					<< " < max_msglenを見直してください。" << std::endl;
-			exit(0);
-		}
-		for (i = 1; i < max_players; ++i) {
-			if (members[i].attend) {
-				scene.id = i;
-				g_io_channel_write_chars(members[i].gioc, (char *) &m,
-						sizeof(message_t), &n, NULL);
-				g_io_channel_write_chars(members[i].gioc, (char *) &scene,
-						m.length, &n, NULL);
-			}
-		}
-		scene.id = 0;
-		process_a_step(&scene, &input);
-		bcopy(&input, &members[0].input, sizeof(input));
-	}
-	scene.time++;
-	model_global(&scene);
-	for (i = 0; i < max_players; ++i) {
-		if (members[i].attend) {
-			scene.id = i;
-			model_step(&scene, &members[i].input, i);
-		}
-	}
-	for (i = 0; i < max_players; ++i) {
-		if (members[i].attend) {
-			scene.id = i;
-			model_judge(&scene, &members[i].input, i);
-		}
-	}
-
-	return server_flag;
-}
-*/
-
+#if false
 unsigned int get_myip(void) {
 	int s;
 	struct ifreq ifr;
@@ -118,6 +78,7 @@ unsigned int get_myip(void) {
 	close(s);
 	return ntohl(((struct sockaddr_in *) &ifr.ifr_addr)->sin_addr.s_addr);
 }
+#endif
 
 bool channel_read(GIOChannel* gioc, gchar *buffer, int length) {
 	gsize s;
@@ -178,6 +139,7 @@ void process_cmd(int id, int command, int length, GIOChannel* gioc) {
 	char message[max_msglen];
 	struct message_t m;
 	gsize s;
+	Manager &mgr = Manager::get_instance();
 
 	switch (command) {
 	case SCMD_CONNECT:
@@ -191,13 +153,13 @@ void process_cmd(int id, int command, int length, GIOChannel* gioc) {
 			server_flag = 1;
 			for (i = 0; i < max_players; ++i) {
 				if (members[i].attend) {
-					scene->p[i].attend = 1;
-					strcpy(scene->p[i].name, members[i].name);
+					mgr.attend_player(i);
+					strcpy(mgr.get_scene().p[i].name, members[i].name);
 				} else {
-					scene->p[i].attend = 0;
+					mgr.absent_player(i);
 				}
 			}
-			g_timeout_add(period, tickServer, (gpointer) NULL);
+			g_timeout_add(period, Manager::tickServer, (gpointer) NULL);
 		}
 		break;
 	case SCMD_STOP:
@@ -219,8 +181,8 @@ void process_cmd(int id, int command, int length, GIOChannel* gioc) {
 		g_timeout_add(5000, eraseStatusbar, 0);
 		break;
 	case SCMD_DRAW:
-		channel_read(gioc, (gchar *) scene, length);
-		process_a_step(scene, &input[id]);
+		channel_read(gioc, (gchar *) &(mgr.get_scene()), length);
+		process_a_step(&(mgr.get_scene()), &input[id]);
 //		std::cout << members[id].input.x << std::endl;
 		m.command = SCMD_INPUT;
 		m.length = sizeof(input_t);
@@ -251,7 +213,7 @@ gboolean server_receive(GIOChannel* gioc, GIOCondition cond, void *arg) {
 
 gboolean server_accept(GIOChannel *gioc, GIOCondition cond, void *arg) {
 	struct sockaddr_in cli;
-	unsigned int len;
+	unsigned int len=sizeof(cli);
 	int s, on;
 
 	s = accept(g_io_channel_unix_get_fd(gioc), (struct sockaddr *) &cli, &len);

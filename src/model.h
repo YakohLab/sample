@@ -16,12 +16,12 @@ public:
 	Model();
 	virtual ~Model();
 
-	void initModel(scene_t *);
+	void initModelWithScene(Scene *);
 	void preAction();
 	void stepPlayer(int, input_t *);
 	void postAction();
 private:
-	scene_t *scene;
+	Scene *scene;
 };
 
 #endif /* MODEL_H_ */
