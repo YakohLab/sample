@@ -31,7 +31,7 @@
 #include "manager.h"
 
 #ifdef linux
-#define DEV_NAME "eth0"
+#define DEV_NAME "eth1"
 #endif
 #ifdef __APPLE__
 #define DEV_NAME "en0"
@@ -67,6 +67,7 @@ void sendScene(int id, Scene *scene){
 			m.length, &n, NULL);
 }
 
+#if false
 unsigned int get_myip(void) {
 	int s;
 	struct ifreq ifr;
@@ -77,6 +78,7 @@ unsigned int get_myip(void) {
 	close(s);
 	return ntohl(((struct sockaddr_in *) &ifr.ifr_addr)->sin_addr.s_addr);
 }
+#endif
 
 bool channel_read(GIOChannel* gioc, gchar *buffer, int length) {
 	gsize s;
