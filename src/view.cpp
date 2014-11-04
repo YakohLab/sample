@@ -2,6 +2,8 @@
 #include "view.h"
 #include "manager.h"
 #include "network.h"
+//コメント　10:11
+
 
 MyDrawingArea::MyDrawingArea(BaseObjectType* o, const Glib::RefPtr<Gtk::Builder>& g):
 	Gtk::DrawingArea(o){
