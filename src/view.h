@@ -4,6 +4,8 @@
 #ifndef VIEW_H_
 #define VIEW_H_
 
+#define GTKMM3	GTK_VERSION_GE(3,0)
+
 class ViewManager;
 
 class MyDrawingArea: public Gtk::DrawingArea {
@@ -11,14 +13,18 @@ class MyDrawingArea: public Gtk::DrawingArea {
 public:
 	MyDrawingArea(BaseObjectType*, const Glib::RefPtr<Gtk::Builder>&);
 	virtual ~MyDrawingArea();
+	void set_input(int x, int y);
 
 protected:
 	virtual void on_realize();
 	virtual bool on_key_press_event(GdkEventKey*);
 	virtual bool on_key_release_event(GdkEventKey*);
-	virtual bool on_expose_event(GdkEventExpose*);
 	virtual bool on_button_press_event(GdkEventButton*);
-
+#if GTKMM3
+	virtual bool on_draw(const Cairo::RefPtr<Cairo::Context>&);
+#else
+	virtual bool on_expose_event(GdkEventExpose*);
+#endif
 private:
 	input_t input;
 	Scene *scene;

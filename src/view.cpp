@@ -1,9 +1,8 @@
 #include <iostream>
+#include <cmath>
 #include "view.h"
 #include "manager.h"
 #include "network.h"
-//コメント　10:11
-
 
 MyDrawingArea::MyDrawingArea(BaseObjectType* o, const Glib::RefPtr<Gtk::Builder>& g):
 	Gtk::DrawingArea(o){
@@ -18,15 +17,26 @@ MyDrawingArea::MyDrawingArea(BaseObjectType* o, const Glib::RefPtr<Gtk::Builder>
 MyDrawingArea::~MyDrawingArea(void){
 }
 
+void MyDrawingArea::set_input(int x, int y){
+	input.x=x;
+	input.y=y;
+}
+
 void MyDrawingArea::on_realize(void){
+	std::cout << "Realized" << std::endl;
 	Gtk::DrawingArea::on_realize();
 }
 
+#if GTKMM3
+bool MyDrawingArea::on_draw(const Cairo::RefPtr<Cairo::Context>& cc ){
+	Gtk::DrawingArea::on_draw(cc);
+#else
 bool MyDrawingArea::on_expose_event( GdkEventExpose* e ){
-	std::cout << "Exposed" << std::endl;
-
-	if(scene==NULL)return true;
 	Cairo::RefPtr<Cairo::Context> cc = this->get_window()->create_cairo_context();
+	Gtk::DrawingArea::on_expose_event(e);
+#endif
+	if(scene==NULL)return true;
+//	std::cout << "Exposed" << std::endl;
 
 	int ls=fmin(this->get_width()*0.5, this->get_height()*0.5);
 	int lm=fmin(this->get_width()*0.4, this->get_height()*0.4);

@@ -88,6 +88,8 @@ void MySmartphone::recvBinary(float *array, int n){
 		}
 		std::cout << std::endl;
 		std::flush(std::cout);
+		if(drawingArea)drawingArea->set_input(w, h);
+
 		break;
 	case 4: // accelerometer
 		for(int i=1; i<n; i++){
