@@ -38,7 +38,9 @@ public:
 	virtual ~Smartphone(void);
 private:
 	Glib::RefPtr<Gio::Socket> w, s;
+#ifdef SocketSource // available from glibmm 2.42
 	Glib::RefPtr<Gio::SocketSource> ss, ws;
+#endif
 	int width, height;
 	char *keyReply(const char *key);
 	bool onAccept(Glib::IOCondition condition);

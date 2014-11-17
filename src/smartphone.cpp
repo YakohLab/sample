@@ -21,13 +21,17 @@ Smartphone::Smartphone(int p){
 
 	w=Gio::Socket::create(Gio::SOCKET_FAMILY_IPV4, Gio::SOCKET_TYPE_STREAM, Gio::SOCKET_PROTOCOL_DEFAULT);
 	w->set_blocking(true);
+#ifdef SocketSource
 	w->set_option(IPPROTO_TCP, TCP_NODELAY, 1);
+#endif
 	src_address=Gio::InetSocketAddress::create (Gio::InetAddress::create_any (Gio::SOCKET_FAMILY_IPV4), p);
 	w->bind(src_address, true);
 	w->listen();
+#ifdef SocketSource
 	ws=Gio::SocketSource::create(w, Glib::IO_IN);
 	ws->connect(sigc::mem_fun(*this, &Smartphone::onAccept));
 	ws->attach(Glib::MainContext::get_default());
+#endif
 }
 
 void Smartphone::sendMessage(char *msg){
@@ -92,7 +96,6 @@ void Smartphone::sendImage(char *filename){
 }
 
 bool Smartphone::onAccept(Glib::IOCondition condition){
-	int i, length;
 	regex_t preg;
 	regmatch_t pmatch[5];
 	gchar buff[4096], *key;
@@ -100,10 +103,12 @@ bool Smartphone::onAccept(Glib::IOCondition condition){
 
 	s = w->accept();
 	s->set_blocking (true);
+#ifdef SocketSource
 	s->set_option(IPPROTO_TCP, TCP_NODELAY, 1);
+#endif
 
-	length=s->receive(buff, sizeof buff);
-	i=regcomp(&preg, "^Sec-WebSocket-Key: .*==", REG_NEWLINE);
+	s->receive(buff, sizeof buff);
+	regcomp(&preg, "^Sec-WebSocket-Key: .*==", REG_NEWLINE);
 	regexec(&preg, buff, nmatch, pmatch, 0);
 	regfree(&preg);
 	buff[pmatch[0].rm_eo]=0;
@@ -117,9 +122,11 @@ bool Smartphone::onAccept(Glib::IOCondition condition){
 	s->send(str.data(), str.length());
 	g_free(key);
 
+#ifdef SocketSource
 	ss=Gio::SocketSource::create(s, Glib::IO_IN);
 	ss->connect(sigc::mem_fun(*this, &Smartphone::onReceive));
 	ss->attach(Glib::MainContext::get_default());
+#endif
 
 	Glib::RefPtr<Gio::SocketAddress> address;
 	address=s->get_remote_address();
@@ -141,7 +148,9 @@ bool Smartphone::onReceive(Glib::IOCondition condition){
 
 	length=s->receive(buff, sizeof buff);
 	if(length<1){
+#ifdef SocketSource
 		ss->destroy();
+#endif
 		s->close();
 		onClose();
 		return false;
@@ -159,7 +168,9 @@ bool Smartphone::onReceive(Glib::IOCondition condition){
 	}
 	switch(opcode){
 	case 0x8: // close
+#ifdef SocketSource
 		ss->destroy();
+#endif
 		s->close();
 		return 0;
 	case 0x1: // text
@@ -175,7 +186,7 @@ bool Smartphone::onReceive(Glib::IOCondition condition){
 		}
 		break;
 		case 0x9: // ping
-			buff[0]=buff[0]&0xf0 + 0x9;
+			buff[0]=(buff[0]&0xf0) + 0x9;
 			s->send(buff, length);
 			break;
 		case 0xa: // pong
@@ -188,12 +199,16 @@ bool Smartphone::onReceive(Glib::IOCondition condition){
 
 Smartphone::~Smartphone(void){
 	if(!s->is_closed()){
+#ifdef SocketSource
 		ss->destroy();
+#endif
 		s->close();
 		onClose();
 	}
 	if(!w->is_closed()){
+#ifdef SocketSource
 		ws->destroy();
+#endif
 		w->close();
 	}
 }
