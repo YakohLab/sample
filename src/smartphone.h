@@ -25,6 +25,8 @@
  * スマホの背景は、sendImage()によって変更できる。画像フォーマットは任意、サイズは画面に合わせて自動伸縮される。
  * sendMessage()によって、スマホ画面にメッセージを表示できる。
  */
+// #define USE_SOCKETSOURCE	// available from glibmm 2.42
+// #define USE_SET_OPTION	// available from glibmm 2.36
 
 class Smartphone {
 public:
@@ -38,8 +40,10 @@ public:
 	virtual ~Smartphone(void);
 private:
 	Glib::RefPtr<Gio::Socket> w, s;
-#ifdef SocketSource // available from glibmm 2.42
+#ifdef USE_SOCKETSOURCE
 	Glib::RefPtr<Gio::SocketSource> ss, ws;
+#else
+	Glib::RefPtr<Glib::IOSource> ss, ws;
 #endif
 	int width, height;
 	char *keyReply(const char *key);

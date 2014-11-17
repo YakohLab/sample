@@ -21,17 +21,24 @@ Smartphone::Smartphone(int p){
 
 	w=Gio::Socket::create(Gio::SOCKET_FAMILY_IPV4, Gio::SOCKET_TYPE_STREAM, Gio::SOCKET_PROTOCOL_DEFAULT);
 	w->set_blocking(true);
-#ifdef SocketSource
+#ifdef USE_SET_OPTION
 	w->set_option(IPPROTO_TCP, TCP_NODELAY, 1);
+#else
+	{
+		int on=1;
+		setsockopt(w->get_fd(), IPPROTO_TCP, TCP_NODELAY, &on, sizeof(on));
+	}
 #endif
 	src_address=Gio::InetSocketAddress::create (Gio::InetAddress::create_any (Gio::SOCKET_FAMILY_IPV4), p);
 	w->bind(src_address, true);
 	w->listen();
-#ifdef SocketSource
+#ifdef USE_SOCKETSOURCE
 	ws=Gio::SocketSource::create(w, Glib::IO_IN);
+#else
+	ws=Gio::SocketSource::create(s, Glib::IO_IN);
+#endif
 	ws->connect(sigc::mem_fun(*this, &Smartphone::onAccept));
 	ws->attach(Glib::MainContext::get_default());
-#endif
 }
 
 void Smartphone::sendMessage(char *msg){
@@ -103,8 +110,13 @@ bool Smartphone::onAccept(Glib::IOCondition condition){
 
 	s = w->accept();
 	s->set_blocking (true);
-#ifdef SocketSource
+#ifdef USE_SET_OPTION
 	s->set_option(IPPROTO_TCP, TCP_NODELAY, 1);
+#else
+	{
+		int on=1;
+		setsockopt(s->get_fd(), IPPROTO_TCP, TCP_NODELAY, &on, sizeof(on));
+	}
 #endif
 
 	s->receive(buff, sizeof buff);
@@ -122,11 +134,13 @@ bool Smartphone::onAccept(Glib::IOCondition condition){
 	s->send(str.data(), str.length());
 	g_free(key);
 
-#ifdef SocketSource
+#ifdef USE_SOCKETSOURCE
 	ss=Gio::SocketSource::create(s, Glib::IO_IN);
+#else
+	ss=Glib::IOSource::create(s->get_fd(), Glib::IO_IN);
+#endif
 	ss->connect(sigc::mem_fun(*this, &Smartphone::onReceive));
 	ss->attach(Glib::MainContext::get_default());
-#endif
 
 	Glib::RefPtr<Gio::SocketAddress> address;
 	address=s->get_remote_address();
@@ -148,9 +162,7 @@ bool Smartphone::onReceive(Glib::IOCondition condition){
 
 	length=s->receive(buff, sizeof buff);
 	if(length<1){
-#ifdef SocketSource
 		ss->destroy();
-#endif
 		s->close();
 		onClose();
 		return false;
@@ -168,9 +180,7 @@ bool Smartphone::onReceive(Glib::IOCondition condition){
 	}
 	switch(opcode){
 	case 0x8: // close
-#ifdef SocketSource
 		ss->destroy();
-#endif
 		s->close();
 		return 0;
 	case 0x1: // text
@@ -199,16 +209,12 @@ bool Smartphone::onReceive(Glib::IOCondition condition){
 
 Smartphone::~Smartphone(void){
 	if(!s->is_closed()){
-#ifdef SocketSource
 		ss->destroy();
-#endif
 		s->close();
 		onClose();
 	}
 	if(!w->is_closed()){
-#ifdef SocketSource
 		ws->destroy();
-#endif
 		w->close();
 	}
 }

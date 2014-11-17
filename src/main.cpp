@@ -4,6 +4,7 @@
 #include "model.h"
 #include "network.h"
 #include "manager.h"
+#include "smartphone.h"
 
 using namespace std;
 #define UI_FILE "glade.ui"
@@ -63,6 +64,49 @@ void subHide(void) {
 	subWindow->hide();
 }
 
+class MySmartphone : public Smartphone {
+public:
+	MySmartphone(int p);
+	void recvBinary(float *array, int n);
+	void onConnect(std::string from);
+	void onClose(void);
+};
+
+MySmartphone::MySmartphone(int p):Smartphone(p){
+}
+void MySmartphone::recvBinary(float *array, int n){
+	int w, h;
+	switch((int)array[0]){
+	case 1: // touch start
+	case 2: // touch move
+	case 3: // touch end
+		std::cout << (int)array[0] << " ";
+		for(int i=1; i<n; i+=2){
+			w=(int)array[i];
+			h=(int)array[i+1];
+			std::cout << "(" << w << "," << h << ") ";
+		}
+		std::cout << std::endl;
+		std::flush(std::cout);
+		break;
+	case 4: // accelerometer
+		for(int i=1; i<n; i++){
+			std::cout << array[i] << " ";
+		}
+		std::cout << std::endl;
+		std::flush(std::cout);
+		break;
+	}
+}
+
+void MySmartphone::onConnect(std::string from){
+	std::cout << "Connected from " << from << std::endl;
+}
+
+void MySmartphone::onClose(void){
+	std::cout << "Closed" << std::endl;
+}
+
 int main(int argc, char *argv[]) {
 	Manager &mgr = Manager::get_instance();
 	mgr.init_status();
@@ -101,6 +145,7 @@ int main(int argc, char *argv[]) {
 
 	ViewManager::get_instance().init_view(drawingArea);
 
+	MySmartphone smapho(8888);
 	kit.run(*(mainWindow));
 	return 0;
 }
