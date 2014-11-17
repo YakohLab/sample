@@ -44,6 +44,7 @@ protected:
 
 private:
 	Gtk::Window *subWindow;
+	Gtk::Window *fileWindow;
 };
 
 class ViewManager {

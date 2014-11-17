@@ -32,7 +32,8 @@ class Smartphone {
 public:
 	Smartphone(int port);
 	void sendMessage(char *msg);
-	void sendImage(char *filename);
+	void sendImage(const char *filename);
+	bool isConnect(void);
 	virtual void onConnect(std::string){};
 	virtual void onClose(void){};
 	virtual void recvMessage(char *msg, int n){};

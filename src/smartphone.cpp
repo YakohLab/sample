@@ -3,7 +3,7 @@
  * smartphone.h および smartphone.cpp は、変更してはならない！
  * 使い方はsmartphone.hのコメントを参照のこと。
 */
-
+#include <iostream>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -19,6 +19,7 @@
 Smartphone::Smartphone(int p){
 	Glib::RefPtr<Gio::SocketAddress> src_address;
 
+	s.reset();
 	w=Gio::Socket::create(Gio::SOCKET_FAMILY_IPV4, Gio::SOCKET_TYPE_STREAM, Gio::SOCKET_PROTOCOL_DEFAULT);
 	w->set_blocking(true);
 #ifdef USE_SET_OPTION
@@ -44,6 +45,7 @@ Smartphone::Smartphone(int p){
 void Smartphone::sendMessage(char *msg){
 	int n;
 	char header[2];
+	if(!s || !s->is_connected())return;
 	n=strlen(msg)+1;
 	header[0]=0x81;
 	header[1]=n;
@@ -51,11 +53,20 @@ void Smartphone::sendMessage(char *msg){
 	s->send(msg, n);
 }
 
-void Smartphone::sendImage(char *filename){
+void Smartphone::sendImage(const char *filename){
 	Glib::RefPtr<Gdk::Pixbuf> pixbuf;
 	long long length;
 	int rowstride, n;
-	pixbuf=Gdk::Pixbuf::create_from_file(filename, width, height, false);
+	if(!s || !s->is_connected())return;
+	try{
+		pixbuf=Gdk::Pixbuf::create_from_file(filename, width, height, false);
+	}catch(Glib::FileError &e){
+		std::cout << e.what() << std::endl;
+		return;
+	}catch(Gdk::PixbufError &e){
+		std::cout << e.what() << std::endl;
+		return;
+	}
 	n=pixbuf->get_n_channels();
 	rowstride=pixbuf->get_rowstride();
 	length=width*height*3;
@@ -99,6 +110,14 @@ void Smartphone::sendImage(char *filename){
 			}
 			s->send(pixels+y*rowstride, width*3);
 		}
+	}
+}
+
+bool Smartphone::isConnect(){
+	if(s && s->is_connected()){
+		return true;
+	}else{
+		return false;
 	}
 }
 
@@ -164,6 +183,7 @@ bool Smartphone::onReceive(Glib::IOCondition condition){
 	if(length<1){
 		ss->destroy();
 		s->close();
+		s.reset();
 		onClose();
 		return false;
 	}
@@ -182,6 +202,7 @@ bool Smartphone::onReceive(Glib::IOCondition condition){
 	case 0x8: // close
 		ss->destroy();
 		s->close();
+		s.reset();
 		return 0;
 	case 0x1: // text
 		recvMessage(buff+offset, size);
@@ -211,6 +232,7 @@ Smartphone::~Smartphone(void){
 	if(!s->is_closed()){
 		ss->destroy();
 		s->close();
+		s.reset();
 		onClose();
 	}
 	if(!w->is_closed()){

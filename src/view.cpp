@@ -168,6 +168,7 @@ bool MyDrawingArea::on_button_press_event (GdkEventButton* event){
 MyImageMenuItem::MyImageMenuItem(BaseObjectType* o, const Glib::RefPtr<Gtk::Builder>& g):
 	Gtk::ImageMenuItem(o){
 	g->get_widget("window2", subWindow);
+	g->get_widget("window3", fileWindow);
 }
 
 MyImageMenuItem::~MyImageMenuItem(void){
@@ -222,6 +223,9 @@ void MyImageMenuItem::on_activate(void){
 		}
 		break;
 	case 3:
+		fileWindow->show();
+		break;
+	case 4:
 		exit(0);
 	}
 }
