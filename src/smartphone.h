@@ -1,9 +1,6 @@
 #ifndef SMARTPHONE_H
 #define SMARTPHONE_H
-#include <string>
 #include <glibmm.h>
-//#include <giomm.h>
-//#include <giomm/socket.h>
 
 /*
  * 使い方
@@ -36,7 +33,7 @@ public:
 	void sendMessage(char *msg);
 	void sendImage(const char *filename);
 	bool isConnect(void);
-	virtual void onConnect(std::string){};
+	virtual void onConnect(const char *){};
 	virtual void onClose(void){};
 	virtual void recvMessage(char *msg, int n){};
 	virtual void recvBinary(float *array, int n){};

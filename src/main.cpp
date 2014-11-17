@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cmath>
 #include <gtkmm.h>
 #include "view.h"
 #include "model.h"
@@ -6,7 +7,6 @@
 #include "manager.h"
 #include "smartphone.h"
 
-using namespace std;
 #define UI_FILE "glade.ui"
 
 static Gtk::Window *mainWindow, *subWindow;
@@ -27,7 +27,7 @@ class MySmartphone : public Smartphone {
 public:
 	MySmartphone(int p);
 	void recvBinary(float *array, int n);
-	void onConnect(std::string from);
+	void onConnect(const char *from);
 	void onClose(void);
 };
 
@@ -53,16 +53,14 @@ void MySmartphone::recvBinary(float *array, int n){
 
 		break;
 	case 4: // accelerometer
-		for(int i=1; i<n; i++){
-			std::cout << array[i] << " ";
-		}
-		std::cout << std::endl;
+		std::cout << "roll=" << (int)(180*atan2(array[1], array[3])/M_PI) <<
+		", pitch=" << (int)(180*atan2(array[2], array[3])/M_PI) << std::endl;
 		std::flush(std::cout);
 		break;
 	}
 }
 
-void MySmartphone::onConnect(std::string from){
+void MySmartphone::onConnect(const char *from){
 	std::cout << "Connected from " << from << std::endl;
 }
 
@@ -135,7 +133,7 @@ int main(int argc, char *argv[]) {
 	try {
 		builder = Gtk::Builder::create_from_file(UI_FILE);
 	} catch (const Glib::FileError &ex) {
-		cerr << ex.what() << endl;
+		std::cerr << ex.what() << std::endl;
 		return 1;
 	}
 	builder->get_widget("window1", mainWindow);

@@ -23,7 +23,7 @@ void MyDrawingArea::set_input(int x, int y){
 }
 
 void MyDrawingArea::on_realize(void){
-	std::cout << "Realized" << std::endl;
+//	std::cout << "Realized" << std::endl;
 	Gtk::DrawingArea::on_realize();
 }
 

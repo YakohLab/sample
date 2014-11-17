@@ -147,7 +147,7 @@ bool Smartphone::onAccept(Glib::IOCondition condition){
 			"Upgrade: websocket\r\n"
 			"Connection: Upgrade\r\n"
 			"Sec-WebSocket-Accept: %1\r\n\r\n", key);
-	s->send(str.data(), str.length());
+	s->send(str.data(), (unsigned long int)str.length());
 	g_free(key);
 
 #ifdef USE_SOCKETSOURCE
@@ -162,7 +162,7 @@ bool Smartphone::onAccept(Glib::IOCondition condition){
 	address=s->get_remote_address();
 	Glib::RefPtr<Gio::InetSocketAddress> isockaddr=
 			Glib::RefPtr<Gio::InetSocketAddress>::cast_dynamic(address);
-	onConnect(isockaddr->get_address()->to_string());
+	onConnect(isockaddr->get_address()->to_string().c_str());
 
 	return true;
 }
@@ -247,7 +247,7 @@ char *Smartphone::keyReply(const char *key){
 	char *cat, *base64, *sha1;
 
 	cat=g_strconcat(key, "258EAFA5-E914-47DA-95CA-C5AB0DC85B11", NULL);
-	sha1=g_compute_checksum_for_string(G_CHECKSUM_SHA1, cat, strlen(cat));
+	sha1=g_compute_checksum_for_string(G_CHECKSUM_SHA1, (const char *)cat, (long int)strlen(cat));
 	g_free(cat);
 
 	l=strlen(sha1)/2;
