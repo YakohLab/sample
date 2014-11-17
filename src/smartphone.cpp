@@ -35,7 +35,7 @@ Smartphone::Smartphone(int p){
 #ifdef USE_SOCKETSOURCE
 	ws=Gio::SocketSource::create(w, Glib::IO_IN);
 #else
-	ws=Gio::SocketSource::create(s, Glib::IO_IN);
+	ws=Glib::IOSource::create(w->get_fd(), Glib::IO_IN);
 #endif
 	ws->connect(sigc::mem_fun(*this, &Smartphone::onAccept));
 	ws->attach(Glib::MainContext::get_default());
