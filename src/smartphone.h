@@ -24,6 +24,8 @@
  *
  * スマホの背景は、sendImage()によって変更できる。画像フォーマットは任意、サイズは画面に合わせて自動伸縮される。
  * sendMessage()によって、スマホ画面にメッセージを表示できる。
+ *
+ * スマホの接続があるかどうかは、isConnect()で確認できる。
  */
 // #define USE_SOCKETSOURCE	// available from glibmm 2.42
 // #define USE_SET_OPTION	// available from glibmm 2.36

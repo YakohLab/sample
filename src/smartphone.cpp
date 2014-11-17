@@ -3,7 +3,6 @@
  * smartphone.h および smartphone.cpp は、変更してはならない！
  * 使い方はsmartphone.hのコメントを参照のこと。
 */
-#include <iostream>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -61,10 +60,8 @@ void Smartphone::sendImage(const char *filename){
 	try{
 		pixbuf=Gdk::Pixbuf::create_from_file(filename, width, height, false);
 	}catch(Glib::FileError &e){
-		std::cout << e.what() << std::endl;
 		return;
 	}catch(Gdk::PixbufError &e){
-		std::cout << e.what() << std::endl;
 		return;
 	}
 	n=pixbuf->get_n_channels();
@@ -182,6 +179,7 @@ bool Smartphone::onReceive(Glib::IOCondition condition){
 	length=s->receive(buff, sizeof buff);
 	if(length<1){
 		ss->destroy();
+		ss.reset();
 		s->close();
 		s.reset();
 		onClose();
@@ -201,6 +199,7 @@ bool Smartphone::onReceive(Glib::IOCondition condition){
 	switch(opcode){
 	case 0x8: // close
 		ss->destroy();
+		ss.reset();
 		s->close();
 		s.reset();
 		return 0;
@@ -231,6 +230,7 @@ bool Smartphone::onReceive(Glib::IOCondition condition){
 Smartphone::~Smartphone(void){
 	if(!s->is_closed()){
 		ss->destroy();
+		ss.reset();
 		s->close();
 		s.reset();
 		onClose();
