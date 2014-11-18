@@ -1,11 +1,13 @@
 #include <iostream>
 #include <cmath>
+#include <string>
 #include <gtkmm.h>
 #include "view.h"
 #include "model.h"
 #include "network.h"
 #include "manager.h"
 #include "smartphone.h"
+using namespace std;
 
 #define UI_FILE "glade.ui"
 
@@ -41,31 +43,30 @@ void MySmartphone::recvBinary(float *array, int n){
 	case 1: // touch start
 	case 2: // touch move
 	case 3: // touch end
-		std::cout << (int)array[0] << " ";
+		cout << (int)array[0] << " ";
 		for(int i=1; i<n; i+=2){
 			w=(int)array[i];
 			h=(int)array[i+1];
-			std::cout << "(" << w << "," << h << ") ";
+			cout << "(" << w << "," << h << ") ";
 		}
-		std::cout << std::endl;
-		std::flush(std::cout);
-		if(drawingArea)drawingArea->set_input(w, h);
-
+		cout << endl;
+		flush(cout);
+		if(drawingArea && n>1)drawingArea->set_input(w, h);
 		break;
 	case 4: // accelerometer
-		std::cout << "roll=" << (int)(180*atan2(array[1], array[3])/M_PI) <<
-		", pitch=" << (int)(180*atan2(array[2], array[3])/M_PI) << std::endl;
-		std::flush(std::cout);
+		cout << "roll=" << (int)(180*atan2(array[1], array[3])/M_PI) <<
+		", pitch=" << (int)(180*atan2(array[2], array[3])/M_PI) << endl;
+		flush(cout);
 		break;
 	}
 }
 
 void MySmartphone::onConnect(const char *from){
-	std::cout << "Connected from " << from << std::endl;
+	cout << "Connected from " << from << endl;
 }
 
 void MySmartphone::onClose(void){
-	std::cout << "Closed" << std::endl;
+	cout << "Closed" << endl;
 }
 
 void process_a_step(Scene *s, input_t *in) {
@@ -86,7 +87,7 @@ void subCancel(void){
 
 void subSend(void){
 	if(smapho->isConnect()){
-		smapho->sendImage(chooser->get_filename().c_str());
+		smapho->sendImage((const char *)(chooser->get_filename().c_str()));
 	}
 	chooser->hide();
 }
@@ -133,7 +134,7 @@ int main(int argc, char *argv[]) {
 	try {
 		builder = Gtk::Builder::create_from_file(UI_FILE);
 	} catch (const Glib::FileError &ex) {
-		std::cerr << ex.what() << std::endl;
+		cerr << ex.what() << endl;
 		return 1;
 	}
 	builder->get_widget("window1", mainWindow);
