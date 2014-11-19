@@ -14,7 +14,7 @@ Gtk::DrawingArea(o){
 	input.right=0;
 	input.ax=0;
 	input.ay=0;
-	input.az=9.8;
+	input.az=0;
 #ifdef USE_OPENGL
 	gl_config = gdk_gl_config_new_by_mode((GdkGLConfigMode)
 			(GDK_GL_MODE_RGBA|GDK_GL_MODE_DEPTH|GDK_GL_MODE_DOUBLE));
@@ -55,7 +55,7 @@ bool MyDrawingArea::on_expose_event( GdkEventExpose* e ){
 
 	int ls=fmin(this->get_width()*0.5, this->get_height()*0.5);
 	int lm=fmin(this->get_width()*0.4, this->get_height()*0.4);
-	int lh=fmin(this->get_width()*0.3, this->get_height()*0.3);
+	int lh=fmin(this->get_width()*0.25, this->get_height()*0.25);
 
 #ifdef USE_OPENGL
 	int z=ls/30;
@@ -83,7 +83,7 @@ bool MyDrawingArea::on_expose_event( GdkEventExpose* e ){
 	glEnable(GL_LIGHTING);
 	glColor3d(0.2, 0.2, 1.0);
 	glLineWidth(1);
-	GLfloat position[4]={0, ls, 0, 1};
+	GLfloat position[4]={0, (GLfloat)ls, 0, 1};
 	GLfloat color[3];
 	GLUquadricObj *q;
 
@@ -116,7 +116,7 @@ bool MyDrawingArea::on_expose_event( GdkEventExpose* e ){
 	glPushMatrix();
 	glTranslated(0, z, 0);
 	glRotated(-6.0*scene->tm.tm_sec+180, 0.0, 1.0, 0.0);
-	gluCylinder(q, ls/50.0, 0, ls, 10, 10);
+	gluCylinder(q, z/2, z/3, ls, 10, 10);
 	glPopMatrix();
 
 	color[0]=0.0; color[1]=1.0; color[2]=0.0;
@@ -126,7 +126,7 @@ bool MyDrawingArea::on_expose_event( GdkEventExpose* e ){
 	glPushMatrix();
 	glTranslated(0, 2*z, 0);
 	glRotated(-6.0*(scene->tm.tm_min+scene->tm.tm_sec/60.0)+180, 0.0, 1.0, 0.0);
-	gluCylinder(q, ls/50.0, 0, lm, 10, 10);
+	gluCylinder(q, z/2, z/3, lm, 10, 10);
 	glPopMatrix();
 
 	color[0]=1.0; color[1]=0.0; color[2]=0.0;
@@ -136,7 +136,7 @@ bool MyDrawingArea::on_expose_event( GdkEventExpose* e ){
 	glPushMatrix();
 	glTranslated(0, 3*z, 0);
 	glRotated(-30.0*(scene->tm.tm_hour+scene->tm.tm_min/60.0)+180, 0.0, 1.0, 0.0);
-	gluCylinder(q, ls/50.0, 0, lh, 10, 10);
+	gluCylinder(q, z/2, z/3, lh, 10, 10);
 	glPopMatrix();
 
 	color[0]=1; color[1]=1; color[2]=1;
@@ -186,7 +186,7 @@ bool MyDrawingArea::on_expose_event( GdkEventExpose* e ){
 	}
 
 	cc->set_line_width(1.0);
-	cc->set_source_rgb(0.2, 0.2, 1.0);
+	cc->set_source_rgb(0.0, 0.0, 1.0);
 	cc->move_to(ls, ls);
 	cc->line_to(ls+ls*sin(2.0*M_PI*scene->tm.tm_sec/60), ls-ls*cos(2.0*M_PI*scene->tm.tm_sec/60));
 	cc->stroke();
@@ -196,14 +196,14 @@ bool MyDrawingArea::on_expose_event( GdkEventExpose* e ){
 	cc->show_text(std::string(scene->c));
 
 	cc->set_line_width(3.0);
-	cc->set_source_rgb(0.2, 0.2, 1.0);
+	cc->set_source_rgb(0.0, 1.0, 0.0);
 	cc->move_to(ls, ls);
 	cc->line_to(ls+lm*sin(2.0*M_PI*(scene->tm.tm_min/60.0+scene->tm.tm_sec/3600.0)),
 			ls-lm*cos(2.0*M_PI*(scene->tm.tm_min/60.0+scene->tm.tm_sec/3600.0)));
 	cc->stroke();
 
 	cc->set_line_width(5.0);
-	cc->set_source_rgb(0.2, 0.2, 1.0);
+	cc->set_source_rgb(1.0, 0.0, 0.0);
 	cc->move_to(ls, ls);
 	cc->line_to(ls+lh*sin(2.0*M_PI*(scene->tm.tm_hour/12.0+scene->tm.tm_min/720.0)),
 			ls-lh*cos(2.0*M_PI*(scene->tm.tm_hour/12.0+scene->tm.tm_min/720.0)));
