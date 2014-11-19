@@ -1,10 +1,17 @@
+// #define USE_OPENGL
+
 #include <gtkmm.h>
+#define GTKMM3	GTK_VERSION_GE(3,0)
+#ifdef USE_OPENGL
+#include <gtk/gtkgl.h>
+#include <GL/gl.h>
+#include <GL/glu.h>
+#endif
 #include "common.h"
 
 #ifndef VIEW_H_
 #define VIEW_H_
 
-#define GTKMM3	GTK_VERSION_GE(3,0)
 
 class ViewManager;
 
@@ -14,6 +21,7 @@ public:
 	MyDrawingArea(BaseObjectType*, const Glib::RefPtr<Gtk::Builder>&);
 	virtual ~MyDrawingArea();
 	void set_input(int x, int y);
+	void set_angle(double x, double y, double z);
 
 protected:
 	virtual void on_realize();
@@ -32,6 +40,9 @@ private:
 	void setScene(Scene *);
 	void getInput(input_t *);
 	void update();
+#ifdef USE_OPENGL
+	GdkGLConfig *gl_config;
+#endif
 };
 
 class MyImageMenuItem: public Gtk::ImageMenuItem {

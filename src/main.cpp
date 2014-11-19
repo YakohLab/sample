@@ -51,12 +51,14 @@ void MySmartphone::recvBinary(float *array, int n){
 		}
 		cout << endl;
 		flush(cout);
-		if(drawingArea && n>1)drawingArea->set_input(w, h);
+		if(drawingArea && n>1){
+			drawingArea->set_input(w, h);
+		}
 		break;
 	case 4: // accelerometer
-		cout << "roll=" << (int)(180*atan2(array[1], array[3])/M_PI) <<
-		", pitch=" << (int)(180*atan2(array[2], array[3])/M_PI) << endl;
-		flush(cout);
+		if(drawingArea){
+			drawingArea->set_angle(array[1], array[2], array[3]);
+		}
 		break;
 	}
 }
@@ -130,6 +132,9 @@ int main(int argc, char *argv[]) {
 	model = new Model;
 	statusId = statusEraseId = 0;
 	Gtk::Main kit(argc, argv);
+#ifdef USE_OPENGL
+	gdk_gl_init(&argc, &argv);
+#endif
 	Glib::RefPtr<Gtk::Builder> builder;
 	try {
 		builder = Gtk::Builder::create_from_file(UI_FILE);

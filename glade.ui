@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.16.1 -->
 <interface>
-  <requires lib="gtk+" version="3.0"/>
+  <requires lib="gtk+" version="2.24"/>
+  <!-- interface-naming-policy project-wide -->
   <object class="GtkImage" id="image1">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
@@ -15,20 +15,19 @@
   <object class="GtkImage" id="image3">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="stock">gtk-execute</property>
+    <property name="stock">gtk-preferences</property>
   </object>
   <object class="GtkImage" id="image4">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="stock">gtk-paste</property>
+    <property name="stock">gtk-refresh</property>
   </object>
   <object class="GtkWindow" id="window1">
     <property name="can_focus">False</property>
     <child>
-      <object class="GtkBox" id="box1">
+      <object class="GtkVBox" id="vbox1">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
-        <property name="orientation">vertical</property>
         <child>
           <object class="GtkMenuBar" id="menubar1">
             <property name="visible">True</property>
@@ -37,7 +36,7 @@
               <object class="GtkMenuItem" id="menuitem1">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="label" translatable="yes">ゲーム</property>
+                <property name="label" translatable="yes">Game</property>
                 <property name="use_underline">True</property>
                 <child type="submenu">
                   <object class="GtkMenu" id="menu1">
@@ -45,7 +44,7 @@
                     <property name="can_focus">False</property>
                     <child>
                       <object class="GtkImageMenuItem" id="Start">
-                        <property name="label">Start</property>
+                        <property name="label" translatable="yes">Start</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="image">image1</property>
@@ -54,7 +53,7 @@
                     </child>
                     <child>
                       <object class="GtkImageMenuItem" id="Stop">
-                        <property name="label">Stop</property>
+                        <property name="label" translatable="yes">Stop</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="image">image2</property>
@@ -63,7 +62,7 @@
                     </child>
                     <child>
                       <object class="GtkImageMenuItem" id="SetMode">
-                        <property name="label">SetMode</property>
+                        <property name="label" translatable="yes">SetMode</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="image">image3</property>
@@ -72,7 +71,7 @@
                     </child>
                     <child>
                       <object class="GtkImageMenuItem" id="SendImage">
-                        <property name="label">SendImage</property>
+                        <property name="label" translatable="yes">SendImage</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="image">image4</property>
@@ -107,16 +106,17 @@
         </child>
         <child>
           <object class="GtkDrawingArea" id="drawingarea1">
-            <property name="width_request">800</property>
-            <property name="height_request">800</property>
+            <property name="width_request">400</property>
+            <property name="height_request">400</property>
             <property name="visible">True</property>
+            <property name="app_paintable">True</property>
             <property name="can_focus">True</property>
             <property name="has_focus">True</property>
             <property name="is_focus">True</property>
             <property name="can_default">True</property>
             <property name="has_default">True</property>
             <property name="receives_default">True</property>
-            <property name="events">GDK_EXPOSURE_MASK | GDK_BUTTON_PRESS_MASK | GDK_KEY_PRESS_MASK</property>
+            <property name="events">GDK_EXPOSURE_MASK | GDK_BUTTON_PRESS_MASK | GDK_KEY_PRESS_MASK | GDK_STRUCTURE_MASK</property>
           </object>
           <packing>
             <property name="expand">True</property>
@@ -128,7 +128,6 @@
           <object class="GtkStatusbar" id="statusbar1">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
-            <property name="orientation">vertical</property>
             <property name="spacing">2</property>
           </object>
           <packing>
@@ -142,54 +141,22 @@
   </object>
   <object class="GtkWindow" id="window2">
     <property name="can_focus">False</property>
-    <property name="modal">True</property>
     <child>
       <object class="GtkTable" id="table1">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
-        <property name="column_spacing">2</property>
-        <property name="row_spacing">2</property>
+        <property name="n_rows">4</property>
+        <property name="n_columns">3</property>
         <child>
           <object class="GtkRadioButton" id="standalone">
             <property name="label" translatable="yes">Standalone mode</property>
             <property name="visible">True</property>
             <property name="can_focus">True</property>
-            <property name="has_focus">True</property>
             <property name="receives_default">False</property>
             <property name="xalign">0</property>
             <property name="active">True</property>
             <property name="draw_indicator">True</property>
           </object>
-        </child>
-        <child>
-          <object class="GtkRadioButton" id="server">
-            <property name="label" translatable="yes">Server mode</property>
-            <property name="visible">True</property>
-            <property name="can_focus">True</property>
-            <property name="receives_default">False</property>
-            <property name="xalign">0</property>
-            <property name="active">True</property>
-            <property name="draw_indicator">True</property>
-            <property name="group">standalone</property>
-          </object>
-          <packing>
-            <property name="top_attach">1</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkRadioButton" id="client">
-            <property name="label" translatable="yes">Client mode</property>
-            <property name="visible">True</property>
-            <property name="can_focus">True</property>
-            <property name="receives_default">False</property>
-            <property name="xalign">0</property>
-            <property name="active">True</property>
-            <property name="draw_indicator">True</property>
-            <property name="group">standalone</property>
-          </object>
-          <packing>
-            <property name="top_attach">2</property>
-          </packing>
         </child>
         <child>
           <object class="GtkLabel" id="label1">
@@ -199,6 +166,7 @@
           </object>
           <packing>
             <property name="left_attach">1</property>
+            <property name="right_attach">2</property>
           </packing>
         </child>
         <child>
@@ -209,6 +177,22 @@
           </object>
           <packing>
             <property name="left_attach">2</property>
+            <property name="right_attach">3</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkRadioButton" id="server">
+            <property name="label" translatable="yes">Server mode</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">False</property>
+            <property name="xalign">0</property>
+            <property name="draw_indicator">True</property>
+            <property name="group">standalone</property>
+          </object>
+          <packing>
+            <property name="top_attach">1</property>
+            <property name="bottom_attach">2</property>
           </packing>
         </child>
         <child>
@@ -217,10 +201,17 @@
             <property name="can_focus">True</property>
             <property name="invisible_char">•</property>
             <property name="text" translatable="yes">localhost</property>
+            <property name="invisible_char_set">True</property>
+            <property name="primary_icon_activatable">False</property>
+            <property name="secondary_icon_activatable">False</property>
+            <property name="primary_icon_sensitive">True</property>
+            <property name="secondary_icon_sensitive">True</property>
           </object>
           <packing>
             <property name="left_attach">1</property>
+            <property name="right_attach">2</property>
             <property name="top_attach">1</property>
+            <property name="bottom_attach">2</property>
           </packing>
         </child>
         <child>
@@ -229,10 +220,32 @@
             <property name="can_focus">True</property>
             <property name="invisible_char">•</property>
             <property name="text" translatable="yes">10000</property>
+            <property name="invisible_char_set">True</property>
+            <property name="primary_icon_activatable">False</property>
+            <property name="secondary_icon_activatable">False</property>
+            <property name="primary_icon_sensitive">True</property>
+            <property name="secondary_icon_sensitive">True</property>
           </object>
           <packing>
             <property name="left_attach">2</property>
+            <property name="right_attach">3</property>
             <property name="top_attach">1</property>
+            <property name="bottom_attach">2</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkRadioButton" id="client">
+            <property name="label" translatable="yes">Client mode</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">False</property>
+            <property name="xalign">0</property>
+            <property name="draw_indicator">True</property>
+            <property name="group">standalone</property>
+          </object>
+          <packing>
+            <property name="top_attach">2</property>
+            <property name="bottom_attach">3</property>
           </packing>
         </child>
         <child>
@@ -241,10 +254,17 @@
             <property name="can_focus">True</property>
             <property name="invisible_char">•</property>
             <property name="text" translatable="yes">localhost</property>
+            <property name="invisible_char_set">True</property>
+            <property name="primary_icon_activatable">False</property>
+            <property name="secondary_icon_activatable">False</property>
+            <property name="primary_icon_sensitive">True</property>
+            <property name="secondary_icon_sensitive">True</property>
           </object>
           <packing>
             <property name="left_attach">1</property>
+            <property name="right_attach">2</property>
             <property name="top_attach">2</property>
+            <property name="bottom_attach">3</property>
           </packing>
         </child>
         <child>
@@ -253,10 +273,46 @@
             <property name="can_focus">True</property>
             <property name="invisible_char">•</property>
             <property name="text" translatable="yes">10000</property>
+            <property name="invisible_char_set">True</property>
+            <property name="primary_icon_activatable">False</property>
+            <property name="secondary_icon_activatable">False</property>
+            <property name="primary_icon_sensitive">True</property>
+            <property name="secondary_icon_sensitive">True</property>
           </object>
           <packing>
             <property name="left_attach">2</property>
+            <property name="right_attach">3</property>
             <property name="top_attach">2</property>
+            <property name="bottom_attach">3</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="label3">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="label" translatable="yes">User name</property>
+          </object>
+          <packing>
+            <property name="top_attach">3</property>
+            <property name="bottom_attach">4</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkEntry" id="name">
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="invisible_char">•</property>
+            <property name="invisible_char_set">True</property>
+            <property name="primary_icon_activatable">False</property>
+            <property name="secondary_icon_activatable">False</property>
+            <property name="primary_icon_sensitive">True</property>
+            <property name="secondary_icon_sensitive">True</property>
+          </object>
+          <packing>
+            <property name="left_attach">1</property>
+            <property name="right_attach">2</property>
+            <property name="top_attach">3</property>
+            <property name="bottom_attach">4</property>
           </packing>
         </child>
         <child>
@@ -268,28 +324,9 @@
           </object>
           <packing>
             <property name="left_attach">2</property>
+            <property name="right_attach">3</property>
             <property name="top_attach">3</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkEntry" id="name">
-            <property name="visible">True</property>
-            <property name="can_focus">True</property>
-            <property name="invisible_char">•</property>
-          </object>
-          <packing>
-            <property name="left_attach">1</property>
-            <property name="top_attach">3</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkLabel" id="label3">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <property name="label" translatable="yes">User name</property>
-          </object>
-          <packing>
-            <property name="top_attach">3</property>
+            <property name="bottom_attach">4</property>
           </packing>
         </child>
       </object>
@@ -297,16 +334,18 @@
   </object>
   <object class="GtkFileChooserDialog" id="window3">
     <property name="can_focus">False</property>
+    <property name="border_width">5</property>
+    <property name="role">GtkFileChooserDialog</property>
     <property name="type_hint">dialog</property>
-    <property name="create_folders">False</property>
     <child internal-child="vbox">
-      <object class="GtkBox" id="filechooserdialog">
+      <object class="GtkVBox" id="dialog-vbox1">
+        <property name="visible">True</property>
         <property name="can_focus">False</property>
-        <property name="orientation">vertical</property>
-        <property name="spacing">2</property>
         <child internal-child="action_area">
-          <object class="GtkButtonBox" id="filechooserdialog-action_area1">
+          <object class="GtkHButtonBox" id="dialog-action_area1">
+            <property name="visible">True</property>
             <property name="can_focus">False</property>
+            <property name="homogeneous">True</property>
             <property name="layout_style">end</property>
             <child>
               <object class="GtkButton" id="button2">
@@ -317,7 +356,7 @@
               </object>
               <packing>
                 <property name="expand">False</property>
-                <property name="fill">True</property>
+                <property name="fill">False</property>
                 <property name="position">0</property>
               </packing>
             </child>
@@ -330,15 +369,14 @@
               </object>
               <packing>
                 <property name="expand">False</property>
-                <property name="fill">True</property>
+                <property name="fill">False</property>
                 <property name="position">1</property>
               </packing>
             </child>
           </object>
           <packing>
             <property name="expand">False</property>
-            <property name="fill">True</property>
-            <property name="pack_type">end</property>
+            <property name="fill">False</property>
             <property name="position">0</property>
           </packing>
         </child>
@@ -347,5 +385,9 @@
         </child>
       </object>
     </child>
+    <action-widgets>
+      <action-widget response="0">button2</action-widget>
+      <action-widget response="0">button3</action-widget>
+    </action-widgets>
   </object>
 </interface>

@@ -19,6 +19,7 @@ struct input_t {
 	int up, down, left, right;
 	int x, y;
 	int key;
+	double ax, ay, az;
 };
 
 struct dot {
@@ -29,6 +30,7 @@ struct player_t {
 	int attend;
 	char name[20];
 	int x, y;
+	double ax, ay, az;
 	dot dots[max_dots];
 	int curDots;
 };
