@@ -53,9 +53,9 @@ bool MyDrawingArea::on_expose_event( GdkEventExpose* e ){
 	if(scene==NULL)return true;
 	//	std::cout << "Exposed" << std::endl;
 
-	int ls=fmin(this->get_width()*0.5, this->get_height()*0.5);
-	int lm=fmin(this->get_width()*0.4, this->get_height()*0.4);
-	int lh=fmin(this->get_width()*0.25, this->get_height()*0.25);
+	int ls=fmin(this->get_width()*0.5f, this->get_height()*0.5f);
+	int lm=fmin(this->get_width()*0.4f, this->get_height()*0.4f);
+	int lh=fmin(this->get_width()*0.25f, this->get_height()*0.25f);
 
 #ifdef USE_OPENGL
 	int z=ls/30;
@@ -68,33 +68,48 @@ bool MyDrawingArea::on_expose_event( GdkEventExpose* e ){
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	gluPerspective(40, 1, ls/10, 5.0*ls);
-	//	gluLookAt(0, 2.0*ls, 2.0*ls, 0.0, 0.0, 0.0, scene->p[0].ax, scene->p[0].ay, scene->p[0].az);
 	gluLookAt(0, 3.0*ls, 2.0*ls, 0.0, 0.0, 0.0, 0.0, 9.0, 0.0);
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	glClearColor(0.0, 0.0, 0.0, 0.5);
+	glClearColor(0.2, 0.2, 0.2, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	glEnable(GL_DEPTH_TEST);
-//	glEnable(GL_CULL_FACE);
-//	glCullFace(GL_FRONT);
+	glEnable(GL_CULL_FACE);	glCullFace(GL_BACK);
+
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 	glEnable(GL_LIGHT0);
 	glEnable(GL_LIGHTING);
-	glColor3d(0.2, 0.2, 1.0);
-	glLineWidth(1);
-	GLfloat position[4]={0, (GLfloat)ls, 0, 1};
-	GLfloat color[3];
+
+	GLfloat position[4]={-(GLfloat)ls, (GLfloat)ls, (GLfloat)ls, (GLfloat)1};
+	GLfloat color[4];
 	GLUquadricObj *q;
 
 	glLightfv(GL_LIGHT0, GL_POSITION, position);
+//	color[0]=0.0; color[1]=0.0; color[2]=0.0; color[3]=1.0;
+//	glLightfv(GL_LIGHT0, GL_AMBIENT, color);
+	color[0]=0.7; color[1]=0.7; color[2]=0.7; color[3]=1.0;
+	glLightfv(GL_LIGHT0, GL_DIFFUSE, color);
+//	color[0]=1.0; color[1]=1.0; color[2]=1.0; color[3]=1.0;
+//	glLightfv(GL_LIGHT0, GL_SPECULAR, color);
 	q = gluNewQuadric();
 
-	color[0]=0.8; color[1]=0.8; color[2]=0.8;
-	glLightfv(GL_LIGHT0, GL_AMBIENT, color);
-	glLightfv(GL_LIGHT0, GL_DIFFUSE, color);
-	glLightfv(GL_LIGHT0, GL_SPECULAR, color);
+	//	color[0]=0.2; color[1]=0.2; color[2]=0.2; color[3]=1.0;
+	//	glMaterialfv(GL_FRONT, GL_AMBIENT, color);
+	//	color[0]=0.8; color[1]=0.8; color[2]=0.8; color[3]=1.0;
+	//	glMaterialfv(GL_FRONT, GL_DIFFUSE, color);
+	color[0]=1.0; color[1]=1.0; color[2]=1.0; color[3]=0.0;
+	glMaterialfv(GL_FRONT, GL_SPECULAR, color);
+	color[0]=128.0;
+	glMaterialfv(GL_FRONT, GL_SHININESS, color);
+	color[0]=0; color[1]=0; color[2]=0; color[3]=1.0;
+	glMaterialfv(GL_FRONT, GL_EMISSION, color);
 
+	color[0]=0.5; color[1]=0.5; color[2]=0.5; color[3]=1.0;
+	glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, color);
 	glPushMatrix();
 	glTranslated(0, -z/2, 0);
 	glRotated(270, 1, 0, 0);
@@ -109,54 +124,33 @@ bool MyDrawingArea::on_expose_event( GdkEventExpose* e ){
 		glPopMatrix();
 	}
 
-	color[0]=0.0; color[1]=0.0; color[2]=1.0;
-	glLightfv(GL_LIGHT0, GL_AMBIENT, color);
-	glLightfv(GL_LIGHT0, GL_DIFFUSE, color);
-	glLightfv(GL_LIGHT0, GL_SPECULAR, color);
+	color[0]=0.0; color[1]=0.0; color[2]=1.0; color[3]=0.8;
+	glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, color);
 	glPushMatrix();
 	glTranslated(0, z, 0);
 	glRotated(-6.0*scene->tm.tm_sec+180, 0.0, 1.0, 0.0);
 	gluCylinder(q, z/2, z/3, ls, 10, 10);
 	glPopMatrix();
 
-	color[0]=0.0; color[1]=1.0; color[2]=0.0;
-	glLightfv(GL_LIGHT0, GL_AMBIENT, color);
-	glLightfv(GL_LIGHT0, GL_DIFFUSE, color);
-	glLightfv(GL_LIGHT0, GL_SPECULAR, color);
+	color[0]=0.0; color[1]=1.0; color[2]=0.0; color[3]=0.8;
+	glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, color);
 	glPushMatrix();
 	glTranslated(0, 2*z, 0);
 	glRotated(-6.0*(scene->tm.tm_min+scene->tm.tm_sec/60.0)+180, 0.0, 1.0, 0.0);
 	gluCylinder(q, z/2, z/3, lm, 10, 10);
 	glPopMatrix();
 
-	color[0]=1.0; color[1]=0.0; color[2]=0.0;
-	glLightfv(GL_LIGHT0, GL_AMBIENT, color);
-	glLightfv(GL_LIGHT0, GL_DIFFUSE, color);
-	glLightfv(GL_LIGHT0, GL_SPECULAR, color);
+	color[0]=1.0; color[1]=0.0; color[2]=0.0; color[3]=0.8;
+	glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, color);
 	glPushMatrix();
 	glTranslated(0, 3*z, 0);
 	glRotated(-30.0*(scene->tm.tm_hour+scene->tm.tm_min/60.0)+180, 0.0, 1.0, 0.0);
 	gluCylinder(q, z/2, z/3, lh, 10, 10);
 	glPopMatrix();
 
-	color[0]=1; color[1]=1; color[2]=1;
-	glLightfv(GL_LIGHT0, GL_AMBIENT, color);
-	glLightfv(GL_LIGHT0, GL_DIFFUSE, color);
-	glLightfv(GL_LIGHT0, GL_SPECULAR, color);
-
-	glPushMatrix();
-	double roll=atan2(scene->p[0].ax, scene->p[0].az)*180/M_PI;
-	double pitch=atan2(scene->p[0].ay, scene->p[0].az)*180/M_PI;
-	glRotated(pitch, 1.0, 0.0, 0.0);
-	glRotated(roll, 0.0, 0.0, 1.0);
-	gdk_gl_draw_teapot(true, lh/4);
-	glPopMatrix();
-
 	for(int i=0; i<max_players; ++i){
-		color[0]=((i+1)&1)>0; color[1]=((i+1)&2)>0; color[2]=((i+1)&4)>0;
-		glLightfv(GL_LIGHT0, GL_AMBIENT, color);
-		glLightfv(GL_LIGHT0, GL_DIFFUSE, color);
-		glLightfv(GL_LIGHT0, GL_SPECULAR, color);
+		color[0]=((i+1)&1)>0; color[1]=((i+1)&2)>0; color[2]=((i+1)&4)>0; color[3]=1.0;
+		glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, color);
 		if(scene->p[i].attend){
 			for(int j=0; j<max_dots; ++j){
 				if(scene->p[i].dots[j].visible==1){
@@ -170,6 +164,17 @@ bool MyDrawingArea::on_expose_event( GdkEventExpose* e ){
 		}
 	}
 
+	color[0]=0.8; color[1]=0.8; color[2]=0.8; color[3]=0.8;
+	glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, color);
+	glCullFace(GL_FRONT);
+	glPushMatrix();
+	double roll=atan2(scene->p[0].ax, scene->p[0].az)*180/M_PI;
+	double pitch=atan2(scene->p[0].ay, scene->p[0].az)*180/M_PI;
+	glRotated(pitch, 1.0, 0.0, 0.0);
+	glRotated(roll, 0.0, 0.0, 1.0);
+	gdk_gl_draw_teapot(true, lh/4);
+	glPopMatrix();
+
 	if (gdk_gl_drawable_is_double_buffered(gl_drawable)){
 		gdk_gl_drawable_swap_buffers(gl_drawable);
 	}else{
@@ -180,33 +185,35 @@ bool MyDrawingArea::on_expose_event( GdkEventExpose* e ){
 	cc->set_line_width(1.0);
 	cc->set_source_rgb(0, 0, 0);
 	for(int i=0; i<12; ++i){
-		cc->move_to(ls+lm*sin(2.0*M_PI*i/12), ls-lm*cos(2.0*M_PI*i/12));
-		cc->line_to(ls+ls*sin(2.0*M_PI*i/12), ls-ls*cos(2.0*M_PI*i/12));
+		cc->move_to((double)(ls+lm*sin(2.0*M_PI*i/12)), (double)(ls-lm*cos(2.0*M_PI*i/12)));
+		cc->line_to((double)(ls+ls*sin(2.0*M_PI*i/12)), (double)(ls-ls*cos(2.0*M_PI*i/12)));
 		cc->stroke();
 	}
 
 	cc->set_line_width(1.0);
 	cc->set_source_rgb(0.0, 0.0, 1.0);
 	cc->move_to(ls, ls);
-	cc->line_to(ls+ls*sin(2.0*M_PI*scene->tm.tm_sec/60), ls-ls*cos(2.0*M_PI*scene->tm.tm_sec/60));
+	cc->line_to((double)(ls+ls*sin(2.0*M_PI*scene->tm.tm_sec/60)),
+			(double)(ls-ls*cos(2.0*M_PI*scene->tm.tm_sec/60)));
 	cc->stroke();
 
 	cc->set_font_size(30);
-	cc->move_to(ls+ls*sin(2.0*M_PI*scene->tm.tm_sec/60), ls-ls*cos(2.0*M_PI*scene->tm.tm_sec/60));
-	cc->show_text(std::string(scene->c));
+	cc->move_to((double)(ls+ls*sin(2.0*M_PI*scene->tm.tm_sec/60)),
+			(double)(ls-ls*cos(2.0*M_PI*scene->tm.tm_sec/60)));
+	cc->show_text(std::string(scene->c).c_str());
 
 	cc->set_line_width(3.0);
 	cc->set_source_rgb(0.0, 1.0, 0.0);
 	cc->move_to(ls, ls);
-	cc->line_to(ls+lm*sin(2.0*M_PI*(scene->tm.tm_min/60.0+scene->tm.tm_sec/3600.0)),
-			ls-lm*cos(2.0*M_PI*(scene->tm.tm_min/60.0+scene->tm.tm_sec/3600.0)));
+	cc->line_to((double)(ls+lm*sin(2.0*M_PI*(scene->tm.tm_min/60.0+scene->tm.tm_sec/3600.0))),
+			(double)(ls-lm*cos(2.0*M_PI*(scene->tm.tm_min/60.0+scene->tm.tm_sec/3600.0))));
 	cc->stroke();
 
 	cc->set_line_width(5.0);
 	cc->set_source_rgb(1.0, 0.0, 0.0);
 	cc->move_to(ls, ls);
-	cc->line_to(ls+lh*sin(2.0*M_PI*(scene->tm.tm_hour/12.0+scene->tm.tm_min/720.0)),
-			ls-lh*cos(2.0*M_PI*(scene->tm.tm_hour/12.0+scene->tm.tm_min/720.0)));
+	cc->line_to((double)(ls+lh*sin(2.0*M_PI*(scene->tm.tm_hour/12.0+scene->tm.tm_min/720.0))),
+			(double)(ls-lh*cos(2.0*M_PI*(scene->tm.tm_hour/12.0+scene->tm.tm_min/720.0))));
 	cc->stroke();
 
 	cc->set_line_width(5.0);
@@ -216,7 +223,8 @@ bool MyDrawingArea::on_expose_event( GdkEventExpose* e ){
 		if(scene->p[i].attend){
 			for(int j=0; j<max_dots; ++j){
 				if(scene->p[i].dots[j].visible==1){
-					cc->arc(scene->p[i].dots[j].x, scene->p[i].dots[j].y, 5, 0, 2.0 * M_PI);
+					cc->arc((double)scene->p[i].dots[j].x, (double)scene->p[i].dots[j].y,
+							5.0, 0.0, (double)(2.0*M_PI));
 					cc->stroke();
 				}
 			}
