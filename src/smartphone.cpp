@@ -3,6 +3,7 @@
  * smartphone.h および smartphone.cpp は、変更してはならない！
  * 使い方はsmartphone.hのコメントを参照のこと。
 */
+#include <iostream>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -12,6 +13,10 @@
 #include <sys/param.h>
 #include <gtkmm.h>
 #include <regex.h>
+#include <fcntl.h>
+     #include <sys/types.h>
+     #include <sys/uio.h>
+     #include <unistd.h>
 
 #include "smartphone.h"
 
@@ -54,8 +59,8 @@ void Smartphone::sendMessage(char *msg){
 
 void Smartphone::sendImage(const char *filename){
 	Glib::RefPtr<Gdk::Pixbuf> pixbuf;
-	long long length;
-	int rowstride, n;
+	char header[10];
+	gsize length;
 	if(!s || !s->is_connected())return;
 	try{
 		pixbuf=Gdk::Pixbuf::create_from_file(filename, width, height, false);
@@ -64,50 +69,30 @@ void Smartphone::sendImage(const char *filename){
 	}catch(Gdk::PixbufError &e){
 		return;
 	}
-	n=pixbuf->get_n_channels();
-	rowstride=pixbuf->get_rowstride();
-	length=width*height*3;
-	char header[10];
+	char *cp;
+	pixbuf->save_to_buffer(cp, length, Glib::ustring("jpeg"));
+
 	if(length<126){
 		header[0]=0x82;
 		header[1]=length;
-		//						send(s, header, 2, 0);
-		//						read(fd, buff, st.st_size);
-		//						send(s, buff, st.st_size, 0);
-	}else if(length<0x7fff){
+		s->send(header, 4);
+	}else if(length<0xffff){
 		header[0]=0x82;
 		header[1]=126;
-		*(short *)(&header[2])=htons(length);
-		//						send(s, header, 4, 0);
-		//						for(i=0; i<st.st_size; i+=1000){
-		//							long long int siz=(st.st_size-i)>1000?1000:st.st_size-i;
-		//							read(fd, buff, siz);
-		//							send(s, buff, siz, 0);
-		//						}
+		for(int i=0; i<2; ++i){
+			header[3-i]=(length>>(i*8))&0xff;
+		}
+		s->send(header, 4);
 	}else if(length<0x7fffffffffffffff){
 		header[0]=0x82;
 		header[1]=127;
-		if(0x1234==htons(0x1234)){
-			*(long long *)(&header[2])=length;
-		}else{
-			*(long long *)(&header[2])=
-					((long long)htonl(0xffffffff&length))<<32 |
-					(long long)htonl(0xffffffff&(length>>32));
+		for(int i=0; i<8; ++i){
+			header[9-i]=(length>>(i*8))&0xff;
 		}
 		s->send(header, 10);
-		char *pixels;
-		pixels=(char *)pixbuf->get_pixels();
-		for(int y=0; y<height; ++y){
-			if(n==4){
-				for(int x=0; x<width; ++x){
-					*(pixels+y*rowstride+x*3)=*(pixels+y*rowstride+x*4);
-					*(pixels+y*rowstride+x*3+1)=*(pixels+y*rowstride+x*4+1);
-					*(pixels+y*rowstride+x*3+2)=*(pixels+y*rowstride+x*4+2);
-				}
-			}
-			s->send(pixels+y*rowstride, width*3);
-		}
 	}
+	s->send(cp, length);
+	g_free(cp);
 }
 
 bool Smartphone::isConnect(){
