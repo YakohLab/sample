@@ -4,6 +4,7 @@
  * 使い方はsmartphone.hのコメントを参照のこと。
 */
 #include <iostream>
+#include <vector>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -14,9 +15,9 @@
 #include <gtkmm.h>
 #include <regex.h>
 #include <fcntl.h>
-     #include <sys/types.h>
-     #include <sys/uio.h>
-     #include <unistd.h>
+#include <sys/types.h>
+#include <sys/uio.h>
+#include <unistd.h>
 
 #include "smartphone.h"
 
@@ -70,7 +71,10 @@ void Smartphone::sendImage(const char *filename){
 		return;
 	}
 	char *cp;
-	pixbuf->save_to_buffer(cp, length, Glib::ustring("jpeg"));
+	std::vector<Glib::ustring> option_keys, option_values;
+	option_keys.push_back(Glib::ustring("quality"));
+	option_values.push_back(Glib::ustring("80"));
+	pixbuf->save_to_buffer(cp, length, Glib::ustring("jpeg"), option_keys, option_values);
 
 	if(length<126){
 		header[0]=0x82;
@@ -78,18 +82,21 @@ void Smartphone::sendImage(const char *filename){
 		s->send(header, 4);
 	}else if(length<0xffff){
 		header[0]=0x82;
-		header[1]=126;
+		header[1]=0x7e;
 		for(int i=0; i<2; ++i){
 			header[3-i]=(length>>(i*8))&0xff;
 		}
 		s->send(header, 4);
 	}else if(length<0x7fffffffffffffff){
 		header[0]=0x82;
-		header[1]=127;
+		header[1]=0x7f;
 		for(int i=0; i<8; ++i){
 			header[9-i]=(length>>(i*8))&0xff;
 		}
 		s->send(header, 10);
+	}else{
+		g_free(cp);
+		return;
 	}
 	s->send(cp, length);
 	g_free(cp);
