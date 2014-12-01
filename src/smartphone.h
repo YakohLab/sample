@@ -1,5 +1,6 @@
 #ifndef SMARTPHONE_H
 #define SMARTPHONE_H
+#include <gtkmm.h>
 #include <glibmm.h>
 
 /*

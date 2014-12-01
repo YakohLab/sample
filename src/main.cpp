@@ -6,14 +6,13 @@
 #include "model.h"
 #include "network.h"
 #include "manager.h"
-#include "smartphone.h"
+#include "mysmartphone.h"
 using namespace std;
 
 #define UI_FILE "glade.ui"
 
 static Gtk::Window *mainWindow, *subWindow;
 static Gtk::FileChooserDialog *chooser;
-static MyDrawingArea *drawingArea;
 static Gtk::Entry *sip, *sport, *cip, *cport, *name;
 static Gtk::RadioButton *standalone, *server, *client;
 static Gtk::Button *ok;
@@ -24,52 +23,7 @@ input_t input[max_players];
 Gtk::Statusbar *statusBar;
 int statusId, statusEraseId;
 Scene *scene;
-
-class MySmartphone : public Smartphone {
-public:
-	MySmartphone(int p);
-	void recvBinary(float *array, int n);
-	void onConnect(const char *from);
-	void onClose(void);
-};
-
 MySmartphone *smapho;
-
-MySmartphone::MySmartphone(int p):Smartphone(p){
-}
-void MySmartphone::recvBinary(float *array, int n){
-	int w, h;
-	switch((int)array[0]){
-	case 1: // touch start
-	case 2: // touch move
-	case 3: // touch end
-		cout << (int)array[0] << " ";
-		for(int i=1; i<n; i+=2){
-			w=(int)array[i];
-			h=(int)array[i+1];
-			cout << "(" << w << "," << h << ") ";
-		}
-		cout << endl;
-		flush(cout);
-		if(drawingArea && n>1){
-			drawingArea->set_input(w, h);
-		}
-		break;
-	case 4: // accelerometer
-		if(drawingArea){
-			drawingArea->set_angle(array[1], array[2], array[3]);
-		}
-		break;
-	}
-}
-
-void MySmartphone::onConnect(const char *from){
-	cout << "Connected from " << from << endl;
-}
-
-void MySmartphone::onClose(void){
-	cout << "Closed" << endl;
-}
 
 void process_a_step(Scene *s, input_t *in) {
 	ViewManager &view =ViewManager::get_instance();

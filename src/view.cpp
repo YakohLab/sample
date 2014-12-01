@@ -4,6 +4,8 @@
 #include "manager.h"
 #include "network.h"
 
+MyDrawingArea *drawingArea;
+
 MyDrawingArea::MyDrawingArea(BaseObjectType* o, const Glib::RefPtr<Gtk::Builder>& g):
 Gtk::DrawingArea(o){
 	scene=NULL;

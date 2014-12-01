@@ -89,4 +89,6 @@ private:
 	MyDrawingArea *drawingArea;
 };
 
+extern MyDrawingArea *drawingArea;
+
 #endif /* VIEW_H_ */
