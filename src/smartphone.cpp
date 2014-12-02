@@ -155,7 +155,7 @@ bool Smartphone::onAccept(Glib::IOCondition condition){
 	address=s->get_remote_address();
 	Glib::RefPtr<Gio::InetSocketAddress> isockaddr=
 			Glib::RefPtr<Gio::InetSocketAddress>::cast_dynamic(address);
-	onConnect(isockaddr->get_address()->to_string().c_str());
+	ipaddr=isockaddr->get_address()->to_string();
 
 	return true;
 }
@@ -204,6 +204,7 @@ bool Smartphone::onReceive(Glib::IOCondition condition){
 		if(type==0){
 			width=(int)(*(float *)&buff[offset+sizeof(float)]);
 			height=(int)(*(float *)&buff[offset+sizeof(float)*2]);
+			onConnect(ipaddr.c_str(), width, height);
 		}else{
 			recvBinary((float *)&buff[offset], size/sizeof(float));
 		}

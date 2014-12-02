@@ -32,8 +32,8 @@ void MySmartphone::recvBinary(float *array, int n){
 	}
 }
 
-void MySmartphone::onConnect(const char *from){
-	cout << "Connected from " << from << endl;
+void MySmartphone::onConnect(const char *from, int w, int h){
+	cout << "Connected from " << from << ", screen size="<< w << "x" << h << endl;
 }
 
 void MySmartphone::onClose(void){

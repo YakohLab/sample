@@ -34,7 +34,7 @@ public:
 	void sendMessage(char *msg);
 	void sendImage(const char *filename);
 	bool isConnect(void);
-	virtual void onConnect(const char *){};
+	virtual void onConnect(const char *, int w, int h){};
 	virtual void onClose(void){};
 	virtual void recvMessage(char *msg, int n){};
 	virtual void recvBinary(float *array, int n){};
@@ -48,6 +48,7 @@ private:
 #endif
 	int width, height;
 	char *keyReply(const char *key);
+	std::string ipaddr;
 	bool onAccept(Glib::IOCondition condition);
 	bool onReceive(Glib::IOCondition condition);
 };
