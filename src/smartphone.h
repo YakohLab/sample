@@ -1,8 +1,3 @@
-#ifndef SMARTPHONE_H
-#define SMARTPHONE_H
-#include <gtkmm.h>
-#include <glibmm.h>
-
 /*
  * 使い方
  * smartphone.h および smartphone.cpp は、変更してはならない！
@@ -25,6 +20,11 @@
  *
  * スマホの接続があるかどうかは、isConnect()で確認できる。
  */
+#ifndef SMARTPHONE_H
+#define SMARTPHONE_H
+#include <gtkmm.h>
+#include <glibmm.h>
+
 // #define USE_SOCKETSOURCE	// available from glibmm 2.42
 // #define USE_SET_OPTION	// available from glibmm 2.36
 
@@ -35,12 +35,12 @@ public:
 	void sendImage(const char *filename);
 	bool isConnect(void);
 	virtual void onConnect(const char *, int w, int h){};
-	virtual void onClose(void){};
-	virtual void recvMessage(char *msg, int n){};
-	virtual void recvBinary(float *array, int n){};
+	virtual void onDisconnect(void){};
+	virtual void onRecvMessage(char *msg, int n){};
+	virtual void onRecvBinary(float *array, int n){};
 	virtual ~Smartphone(void);
 private:
-	Glib::RefPtr<Gio::Socket> w, s;
+	Glib::RefPtr<Gio::Socket> w, s; // wait, server
 #ifdef USE_SOCKETSOURCE
 	Glib::RefPtr<Gio::SocketSource> ss, ws;
 #else

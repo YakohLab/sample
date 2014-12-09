@@ -6,7 +6,7 @@
  */
 
 #include "manager.h"
-#include "network.h"
+#include "mynetwork.h"
 
 Manager& Manager::get_instance() {
 	static Manager instance;

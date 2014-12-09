@@ -4,9 +4,10 @@
 #include <gtkmm.h>
 #include "view.h"
 #include "model.h"
-#include "network.h"
+#include "mynetwork.h"
 #include "manager.h"
 #include "mysmartphone.h"
+#include "network.h"
 using namespace std;
 
 #define UI_FILE "glade.ui"
@@ -127,6 +128,8 @@ int main(int argc, char *argv[]) {
 	ViewManager::get_instance().init_view(drawingArea);
 
 	smapho=new MySmartphone(8888);
+	Network *n=new Network();
+	n->startServer(9999);
 	kit.run(*(mainWindow));
 	return 0;
 }

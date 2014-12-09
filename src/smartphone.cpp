@@ -2,7 +2,7 @@
  * smartphone.cpp
  * smartphone.h および smartphone.cpp は、変更してはならない！
  * 使い方はsmartphone.hのコメントを参照のこと。
-*/
+ */
 #include <iostream>
 #include <vector>
 #include <sys/types.h>
@@ -175,7 +175,7 @@ bool Smartphone::onReceive(Glib::IOCondition condition){
 		ss.reset();
 		s->close();
 		s.reset();
-		onClose();
+		onDisconnect();
 		return false;
 	}
 	opcode=buff[0]&0xf;
@@ -197,7 +197,7 @@ bool Smartphone::onReceive(Glib::IOCondition condition){
 		s.reset();
 		return 0;
 	case 0x1: // text
-		recvMessage(buff+offset, size);
+		onRecvMessage(buff+offset, size);
 		break;
 	case 0x2: // binary
 		type=(int)(*(float *)&buff[offset]);
@@ -206,7 +206,7 @@ bool Smartphone::onReceive(Glib::IOCondition condition){
 			height=(int)(*(float *)&buff[offset+sizeof(float)*2]);
 			onConnect(ipaddr.c_str(), width, height);
 		}else{
-			recvBinary((float *)&buff[offset], size/sizeof(float));
+			onRecvBinary((float *)&buff[offset], size/sizeof(float));
 		}
 		break;
 		case 0x9: // ping
@@ -227,7 +227,7 @@ Smartphone::~Smartphone(void){
 		ss.reset();
 		s->close();
 		s.reset();
-		onClose();
+		onDisconnect();
 	}
 	if(!w->is_closed()){
 		ws->destroy();

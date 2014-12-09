@@ -6,7 +6,7 @@ using namespace std;
 
 MySmartphone::MySmartphone(int p):Smartphone(p){
 }
-void MySmartphone::recvBinary(float *array, int n){
+void MySmartphone::onRecvBinary(float *array, int n){
 	int w, h;
 	switch((int)array[0]){
 	case 1: // touch start
@@ -36,6 +36,6 @@ void MySmartphone::onConnect(const char *from, int w, int h){
 	cout << "Connected from " << from << ", screen size="<< w << "x" << h << endl;
 }
 
-void MySmartphone::onClose(void){
+void MySmartphone::onDisconnect(void){
 	cout << "Closed" << endl;
 }
