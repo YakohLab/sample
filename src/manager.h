@@ -10,6 +10,8 @@
 
 #include "model.h"
 #include "view.h"
+#include "mysmartphone.h"
+#include "mynetwork.h"
 
 class Manager {
 public:
@@ -21,7 +23,7 @@ public:
 	};
 
 public:
-	static Manager& get_instance();
+	static Manager& getInstance();
 
 	void init_status();
 	void init_objects();
@@ -44,15 +46,17 @@ public:
 	}
 
 private:
-	Manager(){}
+	Manager(void);
 	Manager(Manager&);
-	void operator =(Manager&);
+	Manager &operator =(Manager&);
 
 	State state;
 	Mode mode;
 
 	Model model;
 	Scene scene;
+
+//	MySmartphone *smapho;
 };
 
 #endif /* MANAGER_H_ */

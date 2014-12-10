@@ -19,8 +19,7 @@
 #include <sys/uio.h>
 #include <unistd.h>
 
-#include "smartphone.h"
-#include "view.h"
+#include "Smartphone.h"
 
 Smartphone::Smartphone(int p){
 	Glib::RefPtr<Gio::SocketAddress> src_address;

@@ -6,7 +6,6 @@
 #include "model.h"
 #include "mynetwork.h"
 #include "manager.h"
-#include "mysmartphone.h"
 #include "network.h"
 using namespace std;
 
@@ -19,15 +18,14 @@ static Gtk::RadioButton *standalone, *server, *client;
 static Gtk::Button *ok;
 static MyImageMenuItem *menu[5];
 static Model *model;
-input_t input[max_players];
+Input input[max_players];
 
 Gtk::Statusbar *statusBar;
 int statusId, statusEraseId;
 Scene *scene;
-MySmartphone *smapho;
 
-void process_a_step(Scene *s, input_t *in) {
-	ViewManager &view =ViewManager::get_instance();
+void process_a_step(Scene *s, Input *in) {
+	ViewManager &view =ViewManager::getInstance();
 	view.init_view_with_scene(s);
 	view.update();
 	view.get_input(in);
@@ -43,37 +41,32 @@ void subCancel(void){
 }
 
 void subSend(void){
-	if(smapho->isConnect()){
-		smapho->sendImage((const char *)(chooser->get_filename().c_str()));
-	}
+//	if(smapho->isConnect()){
+//		smapho->sendImage((const char *)(chooser->get_filename().c_str()));
+//	}
 	chooser->hide();
 }
 
 void subHide(void) {
-//	cout << "name=" << name->get_text() << endl;
-	Manager &mgr = Manager::get_instance();
+	Manager &mgr = Manager::getInstance();
+	MyNetwork &net=MyNetwork::getInstance();
 
 	if (server->get_active()) {
-		client_terminate();
+		net.disconnect();
 
 		mgr.set_mode(Manager::Server);
-		if (!server_setup(sport->get_text().c_str(), name->get_text().c_str(),
-				input)) {
-			mgr.set_mode(Manager::Standalone);
-		}
+		net.startServer(std::atoi(sport->get_text().c_str()), name->get_text().c_str());
 		scene = new Scene;
 		model->initModelWithScene(scene);
 		scene->p[0].attend = 1;
 	} else if (client->get_active()) {
-		server_terminate();
+		net.closeServer();
 		mgr.set_mode(Manager::Client);
-		if (!client_setup(cip->get_text().c_str(), cport->get_text().c_str(),
-				name->get_text().c_str())) {
-			mgr.set_mode(Manager::Standalone);
-		}
+		net.connectClient(cip->get_text().c_str(), std::atoi(cport->get_text().c_str()),
+				name->get_text().c_str());
 	} else {
-		server_terminate();
-		client_terminate();
+		net.closeServer();
+		net.disconnect();
 		mgr.set_mode(Manager::Standalone);
 	}
 	subWindow->hide();
@@ -81,15 +74,13 @@ void subHide(void) {
 
 
 int main(int argc, char *argv[]) {
-	Manager &mgr = Manager::get_instance();
-	mgr.init_status();
-
-	model = new Model;
-	statusId = statusEraseId = 0;
 	Gtk::Main kit(argc, argv);
 #ifdef USE_OPENGL
 	gdk_gl_init(&argc, &argv);
 #endif
+	Manager &mgr = Manager::getInstance();
+	mgr.init_status();
+	model=new Model;
 	Glib::RefPtr<Gtk::Builder> builder;
 	try {
 		builder = Gtk::Builder::create_from_file(UI_FILE);
@@ -125,11 +116,8 @@ int main(int argc, char *argv[]) {
 		menu[i]->id = i;
 	}
 
-	ViewManager::get_instance().init_view(drawingArea);
+	ViewManager::getInstance().init_view(drawingArea);
 
-	smapho=new MySmartphone(8888);
-	Network *n=new Network();
-	n->startServer(9999);
 	kit.run(*(mainWindow));
 	return 0;
 }

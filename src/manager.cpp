@@ -6,10 +6,15 @@
  */
 
 #include "manager.h"
-#include "mynetwork.h"
 
-Manager& Manager::get_instance() {
+Manager::Manager(void){
+//	smapho=new MySmartphone(8888);
+	init_status();
+}
+
+Manager& Manager::getInstance() {
 	static Manager instance;
+
 	return instance;
 }
 
@@ -20,7 +25,7 @@ void Manager::init_status() {
 
 void Manager::init_objects() {
 	model.initModelWithScene(&scene);
-	ViewManager::get_instance().init_view_with_scene(&scene);
+	ViewManager::getInstance().init_view_with_scene(&scene);
 }
 
 const Manager::State Manager::get_state() const {
@@ -50,8 +55,8 @@ void Manager::absent_player(int id) {
 }
 
 gboolean Manager::tick(void *p) {
-	Manager &mgr = Manager::get_instance();
-	ViewManager &view = ViewManager::get_instance();
+	Manager &mgr = Manager::getInstance();
+	ViewManager &view = ViewManager::getInstance();
 
 	view.get_input(&input[0]);
 	mgr.model.preAction();
@@ -68,8 +73,9 @@ gboolean Manager::tick(void *p) {
 }
 
 gboolean Manager::tickServer(void *p) {
-	Manager &mgr = Manager::get_instance();
-	ViewManager &view = ViewManager::get_instance();
+	Manager &mgr = Manager::getInstance();
+	ViewManager &view = ViewManager::getInstance();
+	MyNetwork &net=MyNetwork::getInstance();
 
 	view.get_input(&input[0]); // 他のプレーヤーの入力は、既に通信で非同期に届いている
 	mgr.model.preAction();
@@ -81,7 +87,7 @@ gboolean Manager::tickServer(void *p) {
 	mgr.model.postAction();
 	for (int i = 1; i < max_players; ++i) { // 自分には送る必要ないので1から
 		if (mgr.scene.p[i].attend) {
-			sendScene(i, &mgr.scene);
+			net.sendScene(i, mgr.scene);
 		}
 	}
 	view.update();

@@ -1,4 +1,4 @@
-#include "smartphone.h"
+#include "Smartphone.h"
 
 class MySmartphone : public Smartphone {
 public:

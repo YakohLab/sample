@@ -1,30 +1,28 @@
 #ifndef NETWORK_H
 #define NETWORK_H
+#include <iostream>
+#include <vector>
 #include <gtkmm.h>
 #include <glibmm.h>
+
+struct Header {
+	enum {CONNECT, START, STOP, INPUT, STATUS, DRAW} command;
+	int length;
+};
 
 class Network {
 public:
 	Network(void);
 	void sendToServer(void *, int len);
 	void sendToClient(int fd, void *, int len);
-	void startServer(int port);
-	void stopServer(void);
-	void connect(const char *);
-	virtual void onConnect(int id){
-		std::cout << "Connected from " << id << std::endl;
-	};
-	virtual void onDisconnect(int id){
-		std::cout << "Disconnected by " << id << std::endl;
-	};
-	virtual void onRecvFromServer(char *msg, int n){
-		msg[n]=0;
-		std::cout << "Server sends me " << msg << std::endl;
-	};
-	virtual void onRecvFromClient(int id, char *msg, int n){
-		msg[n]=0;
-		std::cout << id << " sends me " << msg << std::endl;
-	};
+	void openServer(int port);
+	void closeServer(void);
+	void connect(const char *, int port);
+	void disconnect(void);
+	virtual void onConnect(int id){};
+	virtual void onDisconnect(int id){};
+	virtual void onRecvFromServer(char *msg){};
+	virtual void onRecvFromClient(int id, char *msg){};
 	virtual ~Network(void);
 private:
 	struct SS {

@@ -43,7 +43,7 @@ void Model::postAction(void){
 
 }
 
-void Model::stepPlayer(int id, input_t *input){
+void Model::stepPlayer(int id, Input *input){
 	for(int i=0; i<max_dots; ++i){
 		scene->p[id].dots[i].x+=(input->right-input->left)*5;
 		scene->p[id].dots[i].y+=(input->down-input->up)*5;

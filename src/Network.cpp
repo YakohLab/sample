@@ -14,7 +14,7 @@
 #include <sys/uio.h>
 #include <unistd.h>
 
-#include "network.h"
+#include "Network.h"
 
 Network::Network(void){
 	s.socket.reset();
@@ -29,7 +29,7 @@ Network::~Network(void){
 	w.socket.reset();
 }
 
-void Network::startServer(int p){
+void Network::openServer(int p){
 	Glib::RefPtr<Gio::SocketAddress> src_address;
 
 	s.socket.reset();
@@ -55,10 +55,63 @@ void Network::startServer(int p){
 	w.source->attach(Glib::MainContext::get_default());
 }
 
-void Network::stopServer(void){
-	if(!w.socket->is_closed()){
+void Network::closeServer(void){
+	if(w.socket && !w.socket->is_closed()){
 		w.source->destroy();
 		w.socket->close();
+	}
+}
+
+void Network::connect(const char *ip, int port){
+	Glib::RefPtr<Gio::SocketAddress> srv_address;
+
+	s.socket=Gio::Socket::create(Gio::SOCKET_FAMILY_IPV4, Gio::SOCKET_TYPE_STREAM, Gio::SOCKET_PROTOCOL_DEFAULT);
+	s.socket->set_blocking(true);
+#ifdef USE_SET_OPTION
+	w->set_option(IPPROTO_TCP, TCP_NODELAY, 1);
+#else
+	{
+		int on=1;
+		setsockopt(s.socket->get_fd(), IPPROTO_TCP, TCP_NODELAY, &on, sizeof(on));
+	}
+#endif
+	Glib::ListHandle<Glib::RefPtr<Gio::InetAddress> > addrs=Gio::Resolver::get_default()->lookup_by_name(Glib::ustring(ip));
+	for(Glib::ListHandle<Glib::RefPtr<Gio::InetAddress> >::iterator i=addrs.begin(); i!=addrs.end(); ++i){
+		srv_address=Gio::InetSocketAddress::create(*i, port);
+		if(srv_address->get_family()!=Gio::SOCKET_FAMILY_IPV4){
+			continue;
+		}
+		s.socket->connect(srv_address);
+		if(s.socket->is_connected())break;
+	}
+#ifdef USE_SOCKETSOURCE
+	s.source=Gio::SocketSource::create(s, Glib::IO_IN);
+#else
+	s.source=Glib::IOSource::create(s.socket->get_fd(), Glib::IO_IN);
+#endif
+	s.source->connect(sigc::mem_fun(*this, &Network::onReceive));
+	s.source->attach(Glib::MainContext::get_default());
+}
+
+void Network::disconnect(void){
+	if(s.socket && !s.socket->is_closed()){
+		s.source->destroy();
+		s.socket->close();
+	}
+}
+
+void Network::sendToClient(int fd, void *msg, int len){
+	for(std::vector<SS>::iterator i=c.begin(); i!=c.end(); ++i){
+		if(i->socket && i->socket->get_fd()==fd){
+			i->socket->send((char *)msg, len);
+			return;
+		}
+	}
+}
+
+void Network::sendToServer(void *msg, int len){
+	if(s.socket){
+		s.socket->send((char *)msg, len);
 	}
 }
 
@@ -90,11 +143,12 @@ bool Network::onAccept(Glib::IOCondition condition){
 }
 
 bool Network::onReceive(Glib::IOCondition condition){
-	gchar buff[4096];
-	int length;
+	gchar buff[4096], *p;
+	int length, remain;
+	Header *hp=(Header *)buff;
 
 	if(s.socket && s.socket->condition_check(condition)){
-		length=s.socket->receive(buff, sizeof buff);
+		length=s.socket->receive(buff, sizeof(Header));
 		if(length<1){
 			onDisconnect(s.socket->get_fd());
 			s.source->destroy();
@@ -103,12 +157,21 @@ bool Network::onReceive(Glib::IOCondition condition){
 			s.socket.reset();
 			return false;
 		}else{
-			onRecvFromServer((char *)buff, length);
+			if(hp->length>0){
+				p=buff+sizeof(Header);
+				remain=hp->length;
+				do{
+					length=s.socket->receive(p, remain);
+					remain-=length;
+					p+=length;
+				}while(remain>0);
+			}
+			onRecvFromServer(buff);
 		}
 	}else{
 		for(std::vector<SS>::iterator i=c.begin(); i!=c.end(); ++i){
 			if(i->socket->condition_check(condition)){
-				length=i->socket->receive(buff, sizeof buff);
+				length=i->socket->receive(buff, sizeof(Header));
 				if(length<1){
 					onDisconnect(i->socket->get_fd());
 					i->source->destroy();
@@ -118,7 +181,16 @@ bool Network::onReceive(Glib::IOCondition condition){
 					i=c.erase(i);
 					return false;
 				}else{
-					onRecvFromClient(i->socket->get_fd(), (char *)buff, length);
+					if(hp->length>0){
+						p=buff+sizeof(Header);
+						remain=hp->length;
+						do{
+							length=i->socket->receive(p, remain);
+							remain-=length;
+							p+=length;
+						}while(remain>0);
+					}
+					onRecvFromClient(i->socket->get_fd(), buff);
 				}
 			}
 		}

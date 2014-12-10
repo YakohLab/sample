@@ -250,7 +250,7 @@ void MyDrawingArea::clearInput(void){
 	input.key=0;
 }
 
-void MyDrawingArea::getInput(input_t *i){
+void MyDrawingArea::getInput(Input *i){
 	*i=input;
 	clearInput();
 }
@@ -324,7 +324,9 @@ MyImageMenuItem::~MyImageMenuItem(void){
 void MyImageMenuItem::on_activate(void){
 	Gtk::ImageMenuItem::on_activate();
 
-	Manager &mgr = Manager::get_instance();
+	Manager &mgr = Manager::getInstance();
+	MyNetwork &net=MyNetwork::getInstance();
+
 	switch(id){
 	case 0:
 		if(mgr.get_state() != Manager::Run){
@@ -339,10 +341,10 @@ void MyImageMenuItem::on_activate(void){
 				break;
 			case Manager::Server:
 				mgr.init_objects();
-				process_cmd(0, SCMD_START, 0, NULL);
+				net.runServer();
 				break;
 			case Manager::Client:
-				client_start();
+				net.runClient();
 				break;
 			}
 		}
@@ -354,10 +356,10 @@ void MyImageMenuItem::on_activate(void){
 			g_timeout_add(5000, eraseStatusbar, 0);
 			switch(mgr.get_mode()){
 			case Manager::Server:
-				server_stop();
+				net.stopServer();
 				break;
 			case Manager::Client:
-				client_stop();
+				net.stopClient();
 				break;
 			default:
 				break;
@@ -365,7 +367,7 @@ void MyImageMenuItem::on_activate(void){
 		}
 		break;
 	case 2:
-		if(Manager::get_instance().get_state()==Manager::Stop){
+		if(Manager::getInstance().get_state()==Manager::Stop){
 			subWindow->show();
 		}
 		break;

@@ -18,7 +18,7 @@ public:
 
 	void initModelWithScene(Scene *);
 	void preAction();
-	void stepPlayer(int, input_t *);
+	void stepPlayer(int, Input *);
 	void postAction();
 private:
 	Scene *scene;

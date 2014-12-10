@@ -34,11 +34,11 @@ protected:
 	virtual bool on_expose_event(GdkEventExpose*);
 #endif
 private:
-	input_t input;
+	Input input;
 	Scene *scene;
 	void clearInput(void);
 	void setScene(Scene *);
-	void getInput(input_t *);
+	void getInput(Input *);
 	void update();
 #ifdef USE_OPENGL
 	GdkGLConfig *gl_config;
@@ -60,7 +60,7 @@ private:
 
 class ViewManager {
 public:
-	static ViewManager& get_instance() {
+	static ViewManager& getInstance() {
 		static ViewManager instance;
 		return instance;
 	}
@@ -77,7 +77,7 @@ public:
 		drawingArea->update();
 	}
 
-	void get_input(input_t *i) {
+	void get_input(Input *i) {
 		drawingArea->getInput(i);
 	}
 

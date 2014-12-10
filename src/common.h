@@ -15,7 +15,7 @@ const int max_players = 4;
 const int period = 30;
 const int max_msglen = 1400;
 
-struct input_t {
+struct Input {
 	int up, down, left, right;
 	int x, y;
 	int key;
@@ -44,10 +44,10 @@ struct Scene {
 extern Gtk::Statusbar *statusBar;
 extern int statusId, statusEraseId;
 //extern Scene *scene;
-extern input_t input[max_players];
+extern Input input[max_players];
 
 gboolean eraseStatusbar(void *p);
 gboolean tickServer(void *p);
-void process_a_step(Scene *s, input_t *in);
+void process_a_step(Scene *s, Input *in);
 
 #endif /* COMMON_H_ */
