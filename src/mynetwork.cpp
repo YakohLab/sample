@@ -88,7 +88,7 @@ void MyNetwork::onRecvFromClient(int fd, char *msg){
 		}
 		if(showStatus()){
 			server_flag = 1;
-			for (int i = 0; i < max_players; ++i) {
+			for (unsigned int i = 0; i < max_players; ++i) {
 				if (i<members.size()) {
 					mgr.attend_player(i);
 					strcpy(mgr.get_scene().p[i].name, members[i].name.c_str());
@@ -178,7 +178,7 @@ void MyNetwork::runServer(void){
 	}
 	if(showStatus()){
 		server_flag = 1;
-		for (int i = 0; i < max_players; ++i) {
+		for (unsigned int i = 0; i < max_players; ++i) {
 			if (i<members.size()) {
 				mgr.attend_player(i);
 				strcpy(mgr.get_scene().p[i].name, members[i].name.c_str());
@@ -230,7 +230,7 @@ void MyNetwork::sendStop(void){
 
 bool MyNetwork::showStatus(void){
 		char buffer[50];
-		int r=0;
+		unsigned int r=0;
 		Header h;
 
 		for(std::vector<Member>::iterator i=members.begin(); i!=members.end(); ++i){

@@ -6,7 +6,6 @@
 #include "model.h"
 #include "mynetwork.h"
 #include "manager.h"
-#include "network.h"
 using namespace std;
 
 #define UI_FILE "glade.ui"
