@@ -2,8 +2,15 @@
 
 class MySmartphone : public Smartphone {
 public:
-	MySmartphone(int p);
+	static MySmartphone& getInstance() {
+		static MySmartphone instance;
+		return instance;
+	}
 	void onRecvBinary(float *array, int n);
 	void onConnect(const char *from, int w, int h);
 	void onDisconnect(void);
+private:
+	MySmartphone():Smartphone(){}
+	MySmartphone(MySmartphone&);
+	void operator =(MySmartphone&);
 };

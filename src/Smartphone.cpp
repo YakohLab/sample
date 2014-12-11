@@ -21,10 +21,38 @@
 
 #include "Smartphone.h"
 
-Smartphone::Smartphone(int p){
+Smartphone::Smartphone(void){
+	height=width=0;
+}
+
+void Smartphone::close(void){
+	if(s && !s->is_closed()){
+		ss->destroy();
+		ss.reset();
+		s->close();
+		s.reset();
+	}
+	if(w && !w->is_closed()){
+		ws->destroy();
+		ws.reset();
+		w->close();
+		w.reset();
+	}
+}
+
+void Smartphone::open(int p){
 	Glib::RefPtr<Gio::SocketAddress> src_address;
 
-	s.reset();
+	port=p;
+	if(isConnected()){
+		return;
+	}
+	if(w && !w->is_closed()){
+		ws->destroy();
+		ws.reset();
+		w->close();
+		w.reset();
+	}
 	w=Gio::Socket::create(Gio::SOCKET_FAMILY_IPV4, Gio::SOCKET_TYPE_STREAM, Gio::SOCKET_PROTOCOL_DEFAULT);
 	w->set_blocking(true);
 #ifdef USE_SET_OPTION
@@ -102,7 +130,7 @@ void Smartphone::sendImage(const char *filename){
 	g_free(cp);
 }
 
-bool Smartphone::isConnect(){
+bool Smartphone::isConnected(){
 	if(s && s->is_connected()){
 		return true;
 	}else{
@@ -129,7 +157,12 @@ bool Smartphone::onAccept(Glib::IOCondition condition){
 
 	s->receive(buff, sizeof buff);
 	regcomp(&preg, "^Sec-WebSocket-Key: .*==", REG_NEWLINE);
-	regexec(&preg, buff, nmatch, pmatch, 0);
+	if(regexec(&preg, buff, nmatch, pmatch, 0)){
+		regfree(&preg);
+		s->close();
+		s.reset();
+		return true;
+	}
 	regfree(&preg);
 	buff[pmatch[0].rm_eo]=0;
 	key=keyReply(&buff[pmatch[0].rm_so+19]);
@@ -156,6 +189,11 @@ bool Smartphone::onAccept(Glib::IOCondition condition){
 			Glib::RefPtr<Gio::InetSocketAddress>::cast_dynamic(address);
 	ipaddr=isockaddr->get_address()->to_string();
 
+	ws->destroy();
+	ws.reset();
+	w->close();
+	w.reset();
+
 	return true;
 }
 
@@ -175,6 +213,7 @@ bool Smartphone::onReceive(Glib::IOCondition condition){
 		s->close();
 		s.reset();
 		onDisconnect();
+		open(port);
 		return false;
 	}
 	opcode=buff[0]&0xf;

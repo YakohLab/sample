@@ -55,8 +55,6 @@ private:
 
 	Model model;
 	Scene scene;
-
-//	MySmartphone *smapho;
 };
 
 #endif /* MANAGER_H_ */

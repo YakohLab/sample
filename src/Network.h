@@ -13,17 +13,18 @@ struct Header {
 class Network {
 public:
 	Network(void);
+	virtual ~Network(void);
+	void closeServer(void);
+	void disconnect(void);
+	void openServer(int port);
+	void connect(const char *, int port);
 	void sendToServer(void *, int len);
 	void sendToClient(int fd, void *, int len);
-	void openServer(int port);
-	void closeServer(void);
-	void connect(const char *, int port);
-	void disconnect(void);
+protected:
 	virtual void onConnect(int id){};
 	virtual void onDisconnect(int id){};
 	virtual void onRecvFromServer(char *msg){};
 	virtual void onRecvFromClient(int id, char *msg){};
-	virtual ~Network(void);
 private:
 	struct SS {
 		Glib::RefPtr<Gio::Socket> socket;

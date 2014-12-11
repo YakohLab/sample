@@ -30,10 +30,12 @@
 
 class Smartphone {
 public:
-	Smartphone(int port);
+	Smartphone(void);
+	void open(int port);
+	void close(void);
 	void sendMessage(char *msg);
 	void sendImage(const char *filename);
-	bool isConnect(void);
+	bool isConnected(void);
 	virtual void onConnect(const char *, int w, int h){};
 	virtual void onDisconnect(void){};
 	virtual void onRecvMessage(char *msg, int n){};
@@ -46,7 +48,7 @@ private:
 #else
 	Glib::RefPtr<Glib::IOSource> ss, ws;
 #endif
-	int width, height;
+	int width, height, port;
 	char *keyReply(const char *key);
 	std::string ipaddr;
 	bool onAccept(Glib::IOCondition condition);

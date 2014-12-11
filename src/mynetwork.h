@@ -16,26 +16,23 @@ public:
 		static MyNetwork instance;
 		return instance;
 	}
-	void onConnect(int id);
+	void startServer(int port, const char *name);
+	void connectClient(const char *host, int port, const char *name);
+	void sendScene(int, Scene &);
+	void runClient(void);
+	void stopClient(void);
+	void runServer(void);
+	void stopServer(void);
+private:
 	void onDisconnect(int id);
 	void onRecvFromServer(char *msg);
 	void onRecvFromClient(int id, char *msg);
 
-	void connectClient(const char *host, int port, const char *name);
-	void runClient(void);
-	void stopClient(void);
 	void disconnectClient(void);
 	void sendInput(Input &);
-
-	void startServer(int port, const char *name);
-	void runServer(void);
-	void stopServer(void);
-	void terminateServer(void);
-
-	void sendScene(int, Scene &);
-
 	bool showStatus(void);
-private:
+	void sendStop(void);
+
 	MyNetwork():Network(){}
 	MyNetwork(MyNetwork&);
 	void operator =(MyNetwork&);

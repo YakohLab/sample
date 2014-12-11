@@ -4,9 +4,6 @@
 
 using namespace std;
 
-MySmartphone::MySmartphone(int p):Smartphone(p){
-}
-
 void MySmartphone::onRecvBinary(float *array, int n){
 	int w, h;
 	switch((int)array[0]){

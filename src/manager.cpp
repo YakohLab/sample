@@ -8,7 +8,6 @@
 #include "manager.h"
 
 Manager::Manager(void){
-//	smapho=new MySmartphone(8888);
 	init_status();
 }
 
@@ -94,7 +93,7 @@ gboolean Manager::tickServer(void *p) {
 	if (mgr.get_state() == Manager::Run) { // trueを返すとタイマーを再設定し、falseならタイマーを停止する
 		return true;
 	} else {
-		view.init_view_with_scene(NULL);
+//		view.init_view_with_scene(NULL);
 		return false;
 	}
 	return true;

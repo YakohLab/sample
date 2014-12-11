@@ -41,15 +41,17 @@ void subCancel(void){
 }
 
 void subSend(void){
-//	if(smapho->isConnect()){
-//		smapho->sendImage((const char *)(chooser->get_filename().c_str()));
-//	}
+	MySmartphone &smapho = MySmartphone::getInstance();
+	if(smapho.isConnected()){
+		smapho.sendImage((const char *)(chooser->get_filename().c_str()));
+	}
 	chooser->hide();
 }
 
 void subHide(void) {
 	Manager &mgr = Manager::getInstance();
 	MyNetwork &net=MyNetwork::getInstance();
+	MySmartphone &smapho = MySmartphone::getInstance();
 
 	if (server->get_active()) {
 		net.disconnect();
@@ -70,6 +72,7 @@ void subHide(void) {
 		mgr.set_mode(Manager::Standalone);
 	}
 	subWindow->hide();
+	smapho.open(std::atoi(sport->get_text().c_str())+1);
 }
 
 

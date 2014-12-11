@@ -24,18 +24,20 @@ public:
 std::vector<Member> members;
 static int server_flag = 0;
 
-void MyNetwork::onConnect(int id){
-	std::cout << "Connected from " << id << std::endl;
-};
-
 void MyNetwork::onDisconnect(int id){
-	for(std::vector<Member>::iterator i=members.begin(); i!=members.end(); ++i){
-		if(i->fd==id){
-			members.erase(i);
-			break;
+	Manager &mgr = Manager::getInstance();
+	if(mgr.get_mode()==Manager::Server){
+		for(std::vector<Member>::iterator i=members.begin(); i!=members.end(); ++i){
+			if(i->fd==id){
+				members.erase(i);
+				break;
+			}
 		}
+		showStatus();
+	}else{ // Client
+		mgr.set_mode(Manager::Standalone);
+		mgr.set_state(Manager::Stop);
 	}
-	std::cout << "Disconnected by " << id << std::endl;
 };
 
 void MyNetwork::onRecvFromServer(char *msg){
@@ -53,9 +55,11 @@ void MyNetwork::onRecvFromServer(char *msg){
 		process_a_step(&(mgr.get_scene()), &input[0]);
 		sendInput(input[0]);
 		break;
+	case Header::STOP:
+		mgr.set_state(Manager::Stop);
+		break;
 	case Header::CONNECT: // Followings are not sent from server
 	case Header::START:
-	case Header::STOP:
 	case Header::INPUT:
 	default:
 		break;
@@ -92,17 +96,20 @@ void MyNetwork::onRecvFromClient(int fd, char *msg){
 					mgr.absent_player(i);
 				}
 			}
+			mgr.set_state(Manager::Run);
 			g_timeout_add(period, Manager::tickServer, (gpointer) NULL);
 		}
 		break;
 	case Header::STOP:
 		for(std::vector<Member>::iterator i=members.begin(); i!=members.end(); ++i){
-			if(i->fd==fd){
+//			if(i->fd==fd){
 				i->ready=0;
-				break;
-			}
+//				break;
+//			}
 		}
+		mgr.set_state(Manager::Stop);
 		showStatus();
+		sendStop();
 		break;
 	case Header::INPUT:
 		for(std::vector<Member>::iterator i=members.begin(); i!=members.end(); ++i, ++j){
@@ -179,22 +186,22 @@ void MyNetwork::runServer(void){
 				mgr.absent_player(i);
 			}
 		}
+		mgr.set_state(Manager::Run);
 		g_timeout_add(period, Manager::tickServer, (gpointer) NULL);
 	}
 }
 
 void MyNetwork::stopServer(void){
+	Manager &mgr = Manager::getInstance();
 	for(std::vector<Member>::iterator i=members.begin(); i!=members.end(); ++i){
-		if(i->fd==0){
+//		if(i->fd==0){
 			i->ready=0;
-			break;
-		}
+//			break;
+//		}
 	}
+	mgr.set_state(Manager::Stop);
 	showStatus();
-}
-
-void MyNetwork::terminateServer(void){
-	std::cout << "How to terminate?" << std::endl;
+	sendStop();
 }
 
 void MyNetwork::sendScene(int id, Scene &s){
@@ -206,6 +213,17 @@ void MyNetwork::sendScene(int id, Scene &s){
 		if(j==id){
 			sendToClient(i->fd, &h, sizeof(Header));
 			sendToClient(i->fd, &s, sizeof(Scene));
+		}
+	}
+}
+
+void MyNetwork::sendStop(void){
+	Header h;
+	h.command=Header::STOP;
+	h.length=0;
+	for(std::vector<Member>::iterator i=members.begin(); i!=members.end(); ++i){
+		if(i->fd!=0){
+			sendToClient(i->fd, &h, sizeof(Header));
 		}
 	}
 }
