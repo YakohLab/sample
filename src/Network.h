@@ -16,8 +16,8 @@ public:
 	virtual ~Network(void);
 	void closeServer(void);
 	void disconnect(void);
-	void openServer(int port);
-	void connect(const char *, int port);
+	bool openServer(int port);
+	bool connect(const char *, int port);
 	void sendToServer(void *, int len);
 	void sendToClient(int fd, void *, int len);
 protected:

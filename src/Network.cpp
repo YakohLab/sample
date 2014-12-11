@@ -29,7 +29,7 @@ Network::~Network(void){
 	w.socket.reset();
 }
 
-void Network::openServer(int p){
+bool Network::openServer(int p){
 	Glib::RefPtr<Gio::SocketAddress> src_address;
 
 	s.socket.reset();
@@ -44,7 +44,14 @@ void Network::openServer(int p){
 	}
 #endif
 	src_address=Gio::InetSocketAddress::create (Gio::InetAddress::create_any (Gio::SOCKET_FAMILY_IPV4), p);
-	w.socket->bind(src_address, true);
+	try{
+		w.socket->bind(src_address, true);
+	}catch(const Glib::Error &ex){
+		w.socket->close();
+		w.socket.reset();
+		std::cerr << "Start network server: " << ex.what() << std::endl;
+		return false;
+	}
 	w.socket->listen();
 #ifdef USE_SOCKETSOURCE
 	w.source=Gio::SocketSource::create(w, Glib::IO_IN);
@@ -53,6 +60,7 @@ void Network::openServer(int p){
 #endif
 	w.source->connect(sigc::mem_fun(*this, &Network::onAccept));
 	w.source->attach(Glib::MainContext::get_default());
+	return true;
 }
 
 void Network::closeServer(void){
@@ -62,7 +70,7 @@ void Network::closeServer(void){
 	}
 }
 
-void Network::connect(const char *ip, int port){
+bool Network::connect(const char *ip, int port){
 	Glib::RefPtr<Gio::SocketAddress> srv_address;
 
 	s.socket=Gio::Socket::create(Gio::SOCKET_FAMILY_IPV4, Gio::SOCKET_TYPE_STREAM, Gio::SOCKET_PROTOCOL_DEFAULT);
@@ -81,7 +89,14 @@ void Network::connect(const char *ip, int port){
 		if(srv_address->get_family()!=Gio::SOCKET_FAMILY_IPV4){
 			continue;
 		}
-		s.socket->connect(srv_address);
+		try{
+			s.socket->connect(srv_address);
+		}catch(Glib::Error &ex){
+			s.socket->close();
+			s.socket.reset();
+			std::cerr << "Connect to server: " << ex.what() << std::endl;
+			return false;
+		}
 		if(s.socket->is_connected())break;
 	}
 #ifdef USE_SOCKETSOURCE
@@ -91,6 +106,7 @@ void Network::connect(const char *ip, int port){
 #endif
 	s.source->connect(sigc::mem_fun(*this, &Network::onReceive));
 	s.source->attach(Glib::MainContext::get_default());
+	return true;
 }
 
 void Network::disconnect(void){

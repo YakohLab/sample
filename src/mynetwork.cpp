@@ -126,13 +126,16 @@ void MyNetwork::onRecvFromClient(int fd, char *msg){
 	}
 }
 
-void MyNetwork::connectClient(const char *host, int port, const char *name){
+bool MyNetwork::connectClient(const char *host, int port, const char *name){
 	Header h;
-	connect(host, port);
+	if(!connect(host, port)){
+		return false;
+	}
 	h.command=Header::CONNECT;
 	h.length=strlen(name)+1;
 	sendToServer(&h, sizeof(Header));
 	sendToServer((void *)name, h.length);
+	return true;
 }
 
 void MyNetwork::runClient(void){
@@ -160,12 +163,15 @@ void MyNetwork::sendInput(Input &a){
 	sendToServer((char *)&a, sizeof(Input));
 }
 
-void MyNetwork::startServer(int port, const char *name){
-	openServer(port);
+bool MyNetwork::startServer(int port, const char *name){
+	if(!openServer(port)){
+		return false;
+	}
 	members.clear();
 	Member tmp;
 	tmp.name=std::string(name);
 	members.push_back(tmp);
+	return true;
 }
 
 void MyNetwork::runServer(void){

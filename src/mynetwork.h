@@ -16,8 +16,8 @@ public:
 		static MyNetwork instance;
 		return instance;
 	}
-	void startServer(int port, const char *name);
-	void connectClient(const char *host, int port, const char *name);
+	bool startServer(int port, const char *name);
+	bool connectClient(const char *host, int port, const char *name);
 	void sendScene(int, Scene &);
 	void runClient(void);
 	void stopClient(void);

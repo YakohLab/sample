@@ -52,23 +52,40 @@ void subHide(void) {
 	MyNetwork &net=MyNetwork::getInstance();
 	MySmartphone &smapho = MySmartphone::getInstance();
 
-	if (server->get_active()) {
+	if (server->get_active() && mgr.get_mode()!=Manager::Server){
 		net.disconnect();
-
-		mgr.set_mode(Manager::Server);
-		net.startServer(std::atoi(sport->get_text().c_str()), name->get_text().c_str());
-		scene = new Scene;
-		model->initModelWithScene(scene);
-		scene->p[0].attend = 1;
-	} else if (client->get_active()) {
+		if(net.startServer(std::atoi(sport->get_text().c_str()), name->get_text().c_str())){
+			mgr.set_mode(Manager::Server);
+			scene = new Scene;
+			model->initModelWithScene(scene);
+			scene->p[0].attend = 1;
+		}else{
+			mgr.set_mode(Manager::Standalone);
+		}
+	} else if (client->get_active() && mgr.get_mode()!=Manager::Client){
 		net.closeServer();
-		mgr.set_mode(Manager::Client);
-		net.connectClient(cip->get_text().c_str(), std::atoi(cport->get_text().c_str()),
-				name->get_text().c_str());
+
+		if(net.connectClient(cip->get_text().c_str(), std::atoi(cport->get_text().c_str()),
+				name->get_text().c_str())){
+			mgr.set_mode(Manager::Client);
+		}else{
+			mgr.set_mode(Manager::Standalone);
+		}
 	} else {
 		net.closeServer();
 		net.disconnect();
 		mgr.set_mode(Manager::Standalone);
+	}
+	switch(mgr.get_mode()){
+	case Manager::Standalone:
+		standalone->set_active();
+		break;
+	case Manager::Server:
+		server->set_active();
+		break;
+	case Manager::Client:
+		client->set_active();
+		break;
 	}
 	subWindow->hide();
 	smapho.open(std::atoi(sport->get_text().c_str())+1);

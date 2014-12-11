@@ -40,12 +40,12 @@ void Smartphone::close(void){
 	}
 }
 
-void Smartphone::open(int p){
+bool Smartphone::open(int p){
 	Glib::RefPtr<Gio::SocketAddress> src_address;
 
 	port=p;
 	if(isConnected()){
-		return;
+		return true;
 	}
 	if(w && !w->is_closed()){
 		ws->destroy();
@@ -64,7 +64,14 @@ void Smartphone::open(int p){
 	}
 #endif
 	src_address=Gio::InetSocketAddress::create (Gio::InetAddress::create_any (Gio::SOCKET_FAMILY_IPV4), p);
-	w->bind(src_address, true);
+	try{
+		w->bind(src_address, true);
+	}catch(const Glib::Error &ex){
+		w->close();
+		w.reset();
+		std::cerr << "Start smartphone server: " << ex.what() << std::endl;
+		return false;
+	}
 	w->listen();
 #ifdef USE_SOCKETSOURCE
 	ws=Gio::SocketSource::create(w, Glib::IO_IN);
@@ -73,6 +80,7 @@ void Smartphone::open(int p){
 #endif
 	ws->connect(sigc::mem_fun(*this, &Smartphone::onAccept));
 	ws->attach(Glib::MainContext::get_default());
+	return true;
 }
 
 void Smartphone::sendMessage(char *msg){

@@ -31,7 +31,7 @@
 class Smartphone {
 public:
 	Smartphone(void);
-	void open(int port);
+	bool open(int port);
 	void close(void);
 	void sendMessage(char *msg);
 	void sendImage(const char *filename);
