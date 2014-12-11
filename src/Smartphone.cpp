@@ -22,7 +22,7 @@
 #include "Smartphone.h"
 
 Smartphone::Smartphone(void){
-	height=width=0;
+	height=width=port=0;
 }
 
 void Smartphone::close(void){
@@ -260,14 +260,11 @@ bool Smartphone::onReceive(Glib::IOCondition condition){
 }
 
 Smartphone::~Smartphone(void){
-	if(!s->is_closed()){
+	if(s && !s->is_closed()){
 		ss->destroy();
-		ss.reset();
 		s->close();
-		s.reset();
-		onDisconnect();
 	}
-	if(!w->is_closed()){
+	if(w && !w->is_closed()){
 		ws->destroy();
 		w->close();
 	}

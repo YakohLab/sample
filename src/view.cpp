@@ -110,7 +110,7 @@ bool MyDrawingArea::on_expose_event( GdkEventExpose* e ){
 	color[0]=0; color[1]=0; color[2]=0; color[3]=1.0;
 	glMaterialfv(GL_FRONT, GL_EMISSION, color);
 
-	color[0]=0.5; color[1]=0.5; color[2]=0.5; color[3]=1.0;
+	color[0]=0.8; color[1]=0.8; color[2]=0.8; color[3]=1.0;
 	glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, color);
 	glPushMatrix();
 	glTranslated(0, -z/2, 0);
@@ -184,6 +184,8 @@ bool MyDrawingArea::on_expose_event( GdkEventExpose* e ){
 	}
 	gdk_gl_drawable_gl_end(gl_drawable);
 #else
+	cc->set_source_rgb(0.8, 0.8, 0.8);
+	cc->paint();
 	cc->set_line_width(1.0);
 	cc->set_source_rgb(0, 0, 0);
 	for(int i=0; i<12; ++i){
@@ -192,7 +194,7 @@ bool MyDrawingArea::on_expose_event( GdkEventExpose* e ){
 		cc->stroke();
 	}
 
-	cc->set_line_width(1.0);
+	cc->set_line_width(3.0); // second hand
 	cc->set_source_rgb(0.0, 0.0, 1.0);
 	cc->move_to(ls, ls);
 	cc->line_to((double)(ls+ls*sin(2.0*M_PI*scene->tm.tm_sec/60)),
@@ -204,14 +206,14 @@ bool MyDrawingArea::on_expose_event( GdkEventExpose* e ){
 			(double)(ls-ls*cos(2.0*M_PI*scene->tm.tm_sec/60)));
 	cc->show_text(std::string(scene->c).c_str());
 
-	cc->set_line_width(3.0);
+	cc->set_line_width(8.0); // minute hand
 	cc->set_source_rgb(0.0, 1.0, 0.0);
 	cc->move_to(ls, ls);
 	cc->line_to((double)(ls+lm*sin(2.0*M_PI*(scene->tm.tm_min/60.0+scene->tm.tm_sec/3600.0))),
 			(double)(ls-lm*cos(2.0*M_PI*(scene->tm.tm_min/60.0+scene->tm.tm_sec/3600.0))));
 	cc->stroke();
 
-	cc->set_line_width(5.0);
+	cc->set_line_width(10.0); // hour hand
 	cc->set_source_rgb(1.0, 0.0, 0.0);
 	cc->move_to(ls, ls);
 	cc->line_to((double)(ls+lh*sin(2.0*M_PI*(scene->tm.tm_hour/12.0+scene->tm.tm_min/720.0))),
@@ -316,6 +318,7 @@ MyImageMenuItem::MyImageMenuItem(BaseObjectType* o, const Glib::RefPtr<Gtk::Buil
 					Gtk::ImageMenuItem(o){
 	g->get_widget("window2", subWindow);
 	g->get_widget("window3", fileWindow);
+	id=-1;
 }
 
 MyImageMenuItem::~MyImageMenuItem(void){
@@ -375,6 +378,8 @@ void MyImageMenuItem::on_activate(void){
 		fileWindow->show();
 		break;
 	case 4:
+		net.disconnect();
+		net.closeServer();
 		exit(0);
 	}
 }

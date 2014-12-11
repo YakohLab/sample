@@ -1,4 +1,4 @@
-#define USE_OPENGL
+// #define USE_OPENGL
 
 #include <gtkmm.h>
 #define GTKMM3	GTK_VERSION_GE(3,0)
@@ -82,7 +82,7 @@ public:
 	}
 
 private:
-	ViewManager(){}
+	ViewManager(){drawingArea=0;}
 	ViewManager(ViewManager&);
 	void operator =(ViewManager&);
 

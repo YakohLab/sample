@@ -9,6 +9,7 @@
 #include "model.h"
 
 Model::Model() {
+	scene=0;
 	// TODO Auto-generated constructor stub
 }
 
