@@ -30,6 +30,7 @@ Network::~Network(void){
 }
 
 bool Network::openServer(int p){
+	int pp=p;
 	Glib::RefPtr<Gio::SocketAddress> src_address;
 
 	s.socket.reset();
@@ -43,14 +44,16 @@ bool Network::openServer(int p){
 		setsockopt(w.socket->get_fd(), IPPROTO_TCP, TCP_NODELAY, &on, sizeof(on));
 	}
 #endif
-	src_address=Gio::InetSocketAddress::create (Gio::InetAddress::create_any (Gio::SOCKET_FAMILY_IPV4), p);
-	try{
-		w.socket->bind(src_address, true);
-	}catch(const Glib::Error &ex){
-		w.socket->close();
-		w.socket.reset();
-		std::cerr << "Start network server: " << ex.what() << std::endl;
-		return false;
+	do{
+		try{
+			src_address=Gio::InetSocketAddress::create (Gio::InetAddress::create_any (Gio::SOCKET_FAMILY_IPV4), pp);
+			w.socket->bind(src_address, true);
+		}catch(const Glib::Error &ex){
+			++pp;
+		}
+	}while(!w.socket);
+	if(p!=pp){
+		std::cout << "希望のポート番号が使用中のため、ポート番号 " << pp << " でゲームサーバになりました。" << std::endl;
 	}
 	w.socket->listen();
 #ifdef USE_SOCKETSOURCE

@@ -88,7 +88,7 @@ void subHide(void) {
 		break;
 	}
 	subWindow->hide();
-	smapho.open(std::atoi(sport->get_text().c_str())+1);
+	smapho.open(8888);
 }
 
 

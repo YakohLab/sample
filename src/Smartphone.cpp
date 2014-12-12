@@ -63,14 +63,16 @@ bool Smartphone::open(int p){
 		setsockopt(w->get_fd(), IPPROTO_TCP, TCP_NODELAY, &on, sizeof(on));
 	}
 #endif
-	src_address=Gio::InetSocketAddress::create (Gio::InetAddress::create_any (Gio::SOCKET_FAMILY_IPV4), p);
-	try{
-		w->bind(src_address, true);
-	}catch(const Glib::Error &ex){
-		w->close();
-		w.reset();
-		std::cerr << "Start smartphone server: " << ex.what() << std::endl;
-		return false;
+	do{
+		try{
+			src_address=Gio::InetSocketAddress::create (Gio::InetAddress::create_any (Gio::SOCKET_FAMILY_IPV4), port);
+			w->bind(src_address, true);
+		}catch(const Glib::Error &ex){
+			++port;
+		}
+	}while(!w);
+	if(p!=port){
+		std::cout << "希望のポート番号が使用中のため、ポート番号 " << port << " でスマホからの接続を待ちます。" << std::endl;
 	}
 	w->listen();
 #ifdef USE_SOCKETSOURCE
