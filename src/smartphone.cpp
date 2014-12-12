@@ -27,22 +27,22 @@ Smartphone::Smartphone(int p){
 
 	port=p;
 	s.reset();
-	w=Gio::Socket::create(Gio::SOCKET_FAMILY_IPV4, Gio::SOCKET_TYPE_STREAM, Gio::SOCKET_PROTOCOL_DEFAULT);
-	w->set_blocking(true);
-#ifdef USE_SET_OPTION
-	w->set_option(IPPROTO_TCP, TCP_NODELAY, 1);
-#else
-	{
-		int on=1;
-		setsockopt(w->get_fd(), IPPROTO_TCP, TCP_NODELAY, &on, sizeof(on));
-	}
-#endif
-	src_address=Gio::InetSocketAddress::create (Gio::InetAddress::create_any (Gio::SOCKET_FAMILY_IPV4), p);
 	do{
 		try{
+			w=Gio::Socket::create(Gio::SOCKET_FAMILY_IPV4, Gio::SOCKET_TYPE_STREAM, Gio::SOCKET_PROTOCOL_DEFAULT);
+			w->set_blocking(true);
+#ifdef USE_SET_OPTION
+			w->set_option(IPPROTO_TCP, TCP_NODELAY, 1);
+#else
+			{
+				int on=1;
+				setsockopt(w->get_fd(), IPPROTO_TCP, TCP_NODELAY, &on, sizeof(on));
+			}
+#endif
 			src_address=Gio::InetSocketAddress::create (Gio::InetAddress::create_any (Gio::SOCKET_FAMILY_IPV4), port);
 			w->bind(src_address, true);
 		}catch(const Glib::Error &ex){
+			w.reset();
 			++port;
 		}
 	}while(!w);
