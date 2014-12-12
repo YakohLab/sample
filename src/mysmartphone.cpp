@@ -2,22 +2,20 @@
 #include <iostream>
 #include "view.h"
 
-using namespace std;
-
 void MySmartphone::onRecvBinary(float *array, int n){
 	int w, h;
 	switch((int)array[0]){
 	case 1: // touch start
 	case 2: // touch move
 	case 3: // touch end
-		cout << (int)array[0] << " ";
+		std::cout << (int)array[0] << " ";
 		for(int i=1; i<n; i+=2){
 			w=(int)array[i];
 			h=(int)array[i+1];
-			cout << "(" << w << "," << h << ") ";
+			std::cout << "(" << w << "," << h << ") ";
 		}
-		cout << endl;
-		flush(cout);
+		std::cout << std::endl;
+		std::flush(std::cout);
 		if(drawingArea && n>1){
 			drawingArea->set_input(w, h);
 		}
@@ -31,9 +29,21 @@ void MySmartphone::onRecvBinary(float *array, int n){
 }
 
 void MySmartphone::onConnect(const char *from, int w, int h){
-	cout << "Connected from " << from << ", screen size="<< w << "x" << h << endl;
+	std::cout << "Connected from " << from << ", screen size="<< w << "x" << h << std::endl;
 }
 
 void MySmartphone::onDisconnect(void){
-	cout << "Closed" << endl;
+	std::cout << "Closed" << std::endl;
+}
+
+void MySmartphone::sendImage(const char *filename){
+	Glib::RefPtr<Gdk::Pixbuf> pixbuf;
+	try{
+		pixbuf=Gdk::Pixbuf::create_from_file(filename, width, height, false);
+	}catch(Glib::FileError &e){
+		return;
+	}catch(Gdk::PixbufError &e){
+		return;
+	}
+	sendPixbuf(pixbuf);
 }

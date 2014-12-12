@@ -97,18 +97,10 @@ void Smartphone::sendMessage(char *msg){
 	s->send(msg, n);
 }
 
-void Smartphone::sendImage(const char *filename){
-	Glib::RefPtr<Gdk::Pixbuf> pixbuf;
+void Smartphone::sendPixbuf(Glib::RefPtr<Gdk::Pixbuf> pixbuf){
 	char header[10];
 	gsize length;
 	if(!s || !s->is_connected())return;
-	try{
-		pixbuf=Gdk::Pixbuf::create_from_file(filename, width, height, false);
-	}catch(Glib::FileError &e){
-		return;
-	}catch(Gdk::PixbufError &e){
-		return;
-	}
 	char *cp;
 	std::vector<Glib::ustring> option_keys, option_values;
 	option_keys.push_back(Glib::ustring("quality"));

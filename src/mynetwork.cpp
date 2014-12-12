@@ -102,10 +102,7 @@ void MyNetwork::onRecvFromClient(int fd, char *msg){
 		break;
 	case Header::STOP:
 		for(std::vector<Member>::iterator i=members.begin(); i!=members.end(); ++i){
-//			if(i->fd==fd){
-				i->ready=0;
-//				break;
-//			}
+			i->ready=0;
 		}
 		mgr.set_state(Manager::Stop);
 		showStatus();
@@ -200,10 +197,7 @@ void MyNetwork::runServer(void){
 void MyNetwork::stopServer(void){
 	Manager &mgr = Manager::getInstance();
 	for(std::vector<Member>::iterator i=members.begin(); i!=members.end(); ++i){
-//		if(i->fd==0){
-			i->ready=0;
-//			break;
-//		}
+		i->ready=0;
 	}
 	mgr.set_state(Manager::Stop);
 	showStatus();

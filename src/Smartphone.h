@@ -34,13 +34,15 @@ public:
 	bool open(int port);
 	void close(void);
 	void sendMessage(char *msg);
-	void sendImage(const char *filename);
+	void sendPixbuf(Glib::RefPtr<Gdk::Pixbuf> pixbuf);
 	bool isConnected(void);
 	virtual void onConnect(const char *, int w, int h){};
 	virtual void onDisconnect(void){};
 	virtual void onRecvMessage(char *msg, int n){};
 	virtual void onRecvBinary(float *array, int n){};
 	virtual ~Smartphone(void);
+protected:
+	int width, height;
 private:
 	Glib::RefPtr<Gio::Socket> w, s; // wait, server
 #ifdef USE_SOCKETSOURCE
@@ -48,7 +50,7 @@ private:
 #else
 	Glib::RefPtr<Glib::IOSource> ss, ws;
 #endif
-	int width, height, port;
+	int port;
 	char *keyReply(const char *key);
 	std::string ipaddr;
 	bool onAccept(Glib::IOCondition condition);
