@@ -34,21 +34,22 @@ bool Network::openServer(int p){
 	Glib::RefPtr<Gio::SocketAddress> src_address;
 
 	s.socket.reset();
-	w.socket=Gio::Socket::create(Gio::SOCKET_FAMILY_IPV4, Gio::SOCKET_TYPE_STREAM, Gio::SOCKET_PROTOCOL_DEFAULT);
-	w.socket->set_blocking(true);
-#ifdef USE_SET_OPTION
-	w->set_option(IPPROTO_TCP, TCP_NODELAY, 1);
-#else
-	{
-		int on=1;
-		setsockopt(w.socket->get_fd(), IPPROTO_TCP, TCP_NODELAY, &on, sizeof(on));
-	}
-#endif
 	do{
 		try{
+			w.socket=Gio::Socket::create(Gio::SOCKET_FAMILY_IPV4, Gio::SOCKET_TYPE_STREAM, Gio::SOCKET_PROTOCOL_DEFAULT);
+			w.socket->set_blocking(true);
+#ifdef USE_SET_OPTION
+			w->set_option(IPPROTO_TCP, TCP_NODELAY, 1);
+#else
+			{
+				int on=1;
+				setsockopt(w.socket->get_fd(), IPPROTO_TCP, TCP_NODELAY, &on, sizeof(on));
+			}
+#endif
 			src_address=Gio::InetSocketAddress::create (Gio::InetAddress::create_any (Gio::SOCKET_FAMILY_IPV4), pp);
 			w.socket->bind(src_address, true);
 		}catch(const Glib::Error &ex){
+			w.socket.reset();
 			++pp;
 		}
 	}while(!w.socket);
