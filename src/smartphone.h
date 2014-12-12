@@ -46,7 +46,7 @@ private:
 #else
 	Glib::RefPtr<Glib::IOSource> ss, ws;
 #endif
-	int width, height;
+	int width, height, port;
 	char *keyReply(const char *key);
 	std::string ipaddr;
 	bool onAccept(Glib::IOCondition condition);

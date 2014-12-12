@@ -25,6 +25,7 @@
 Smartphone::Smartphone(int p){
 	Glib::RefPtr<Gio::SocketAddress> src_address;
 
+	port=p;
 	s.reset();
 	w=Gio::Socket::create(Gio::SOCKET_FAMILY_IPV4, Gio::SOCKET_TYPE_STREAM, Gio::SOCKET_PROTOCOL_DEFAULT);
 	w->set_blocking(true);
@@ -37,7 +38,17 @@ Smartphone::Smartphone(int p){
 	}
 #endif
 	src_address=Gio::InetSocketAddress::create (Gio::InetAddress::create_any (Gio::SOCKET_FAMILY_IPV4), p);
-	w->bind(src_address, true);
+	do{
+		try{
+			src_address=Gio::InetSocketAddress::create (Gio::InetAddress::create_any (Gio::SOCKET_FAMILY_IPV4), port);
+			w->bind(src_address, true);
+		}catch(const Glib::Error &ex){
+			++port;
+		}
+	}while(!w);
+	if(p!=port){
+		std::cout << "希望のポート番号が使用中のため、ポート番号 " << port << " でスマホからの接続を待ちます。" << std::endl;
+	}
 	w->listen();
 #ifdef USE_SOCKETSOURCE
 	ws=Gio::SocketSource::create(w, Glib::IO_IN);
