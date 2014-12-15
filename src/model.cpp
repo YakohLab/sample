@@ -7,9 +7,11 @@
 
 #include <iostream>
 #include "model.h"
+#include "manager.h"
+
+#include "input.h"
 
 Model::Model() {
-	scene=0;
 	// TODO Auto-generated constructor stub
 }
 
@@ -17,48 +19,51 @@ Model::~Model() {
 	// TODO Auto-generated destructor stub
 }
 
-void Model::initModelWithScene(Scene *s){
+void Model::initModel(void){
 //	std::cout << "Init" << std::endl;
-	scene=s;
+	Scene &scene=Manager::getInstance().scene;
 	time_t t;
 	t=time(NULL);
-	localtime_r(&t, &scene->tm);
-	scene->c[0]=0;
-	scene->c[1]=0;
-	for(int i=0; i<max_players; ++i){
-		scene->p[i].attend=0;
-		scene->p[i].curDots=0;
+	localtime_r(&t, &scene.tm);
+	scene.c[0]=0;
+	scene.c[1]=0;
+	for(std::map<int, Player>::iterator i=scene.p.begin(); i!=scene.p.end(); ++i){
+		i->second.curDots=0;
 		for(int j=0; j<max_dots; ++j){
-			scene->p[i].dots[j].visible=0;
+			i->second.dots[j].visible=0;
 		}
 	}
 }
 
 void Model::preAction(void){
 	time_t t;
+	Scene &scene=Manager::getInstance().scene;
 	t=time(NULL);
-	localtime_r(&t, &scene->tm);
+	localtime_r(&t, &scene.tm);
 }
 
 void Model::postAction(void){
 
 }
 
-void Model::stepPlayer(int id, Input *input){
+void Model::stepPlayer(int fd){
+	Manager &mgr = Manager::getInstance();
+	Scene &scene=mgr.scene;
+
 	for(int i=0; i<max_dots; ++i){
-		scene->p[id].dots[i].x+=(input->right-input->left)*5;
-		scene->p[id].dots[i].y+=(input->down-input->up)*5;
+		scene.p[fd].dots[i].x+=(mgr.members[fd].input.right-mgr.members[fd].input.left)*5;
+		scene.p[fd].dots[i].y+=(mgr.members[fd].input.down-mgr.members[fd].input.up)*5;
 	}
-	if(input->x!=(-1)){
-		scene->p[id].dots[scene->p[id].curDots].x=input->x;
-		scene->p[id].dots[scene->p[id].curDots].y=input->y;
-		scene->p[id].dots[scene->p[id].curDots].visible=1;
-		scene->p[id].curDots=(scene->p[id].curDots+1)%max_dots;
+	if(mgr.members[fd].input.x!=(-1)){
+		scene.p[fd].dots[scene.p[fd].curDots].x=mgr.members[fd].input.x;
+		scene.p[fd].dots[scene.p[fd].curDots].y=mgr.members[fd].input.y;
+		scene.p[fd].dots[scene.p[fd].curDots].visible=1;
+		scene.p[fd].curDots=(scene.p[fd].curDots+1)%max_dots;
 	}
-	scene->p[id].ax=input->ax;
-	scene->p[id].ay=input->ay;
-	scene->p[id].az=input->az;
-	if(input->key!=0){
-		scene->c[0]=input->key;
+	scene.p[fd].ax=mgr.members[fd].input.ax;
+	scene.p[fd].ay=mgr.members[fd].input.ay;
+	scene.p[fd].az=mgr.members[fd].input.az;
+	if(mgr.members[fd].input.key!=0){
+		scene.c[0]=mgr.members[fd].input.key;
 	}
 }

@@ -10,18 +10,17 @@
 #include <time.h>
 
 #include "common.h"
+#include "input.h"
 
 class Model {
 public:
 	Model();
 	virtual ~Model();
 
-	void initModelWithScene(Scene *);
+	void initModel(void);
 	void preAction();
-	void stepPlayer(int, Input *);
+	void stepPlayer(int fd);
 	void postAction();
-private:
-	Scene *scene;
 };
 
 #endif /* MODEL_H_ */

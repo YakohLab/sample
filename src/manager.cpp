@@ -6,6 +6,7 @@
  */
 
 #include "manager.h"
+#include "input.h"
 
 Manager::Manager(void){
 	init_status();
@@ -23,8 +24,9 @@ void Manager::init_status() {
 }
 
 void Manager::init_objects() {
-	model.initModelWithScene(&scene);
-	ViewManager::getInstance().init_view_with_scene(&scene);
+	model.initModel();
+	Input &input=Input::getInstance();
+	input.clearInput();
 }
 
 const Manager::State Manager::get_state() const {
@@ -41,60 +43,75 @@ void Manager::set_mode(Manager::Mode s) {
 	mode = s;
 }
 
-void Manager::attend_single_player() {
-	scene.p[0].attend = 1;
-}
-
-void Manager::attend_player(int id) {
-	scene.p[id].attend = 1;
-}
-
-void Manager::absent_player(int id) {
-	scene.p[id].attend = 0;
-}
-
 gboolean Manager::tick(void *p) {
 	Manager &mgr = Manager::getInstance();
 	ViewManager &view = ViewManager::getInstance();
+	Input &input = Input::getInstance();
 
-	view.get_input(&input[0]);
+	view.checkInput();
+	mgr.members[0].input=input.input;
+	input.clearInput();
 	mgr.model.preAction();
-	mgr.model.stepPlayer(0, &input[0]);
+	mgr.model.stepPlayer(0);
 	mgr.model.postAction();
+	mgr.scene.valid=true;
 	view.update();
 
-	if (mgr.get_state() == Manager::Run) { // trueを返すとタイマーを再設定し、falseならタイマーを停止する
+	if (mgr.get_state() == Run) { // trueを返すとタイマーを再設定し、falseならタイマーを停止する
 		return true;
 	} else {
-		view.init_view_with_scene(NULL);
 		return false;
 	}
+}
+
+void Manager::tickClient(void){
+	ViewManager &view =ViewManager::getInstance();
+	view.update();
+	view.checkInput();
 }
 
 gboolean Manager::tickServer(void *p) {
 	Manager &mgr = Manager::getInstance();
 	ViewManager &view = ViewManager::getInstance();
 	MyNetwork &net=MyNetwork::getInstance();
+	Input &input=Input::getInstance();
 
-	view.get_input(&input[0]); // 他のプレーヤーの入力は、既に通信で非同期に届いている
+	view.checkInput(); // 他のプレーヤーの入力は、既に通信で非同期に届いている
+	mgr.members[0].input=input.input;
+	input.clearInput();
 	mgr.model.preAction();
-	for (int i = 0; i < max_players; ++i) {
-		if (mgr.scene.p[i].attend) {
-			mgr.model.stepPlayer(i, &input[i]);
-		}
+	for(std::map<int, Member>::iterator i=mgr.members.begin(); i!=mgr.members.end(); ++i){
+		mgr.model.stepPlayer(i->first);
 	}
 	mgr.model.postAction();
-	for (int i = 1; i < max_players; ++i) { // 自分には送る必要ないので1から
-		if (mgr.scene.p[i].attend) {
-			net.sendScene(i, mgr.scene);
-		}
-	}
+	net.sendScene(mgr.scene);
+	mgr.scene.valid=true;
 	view.update();
-	if (mgr.get_state() == Manager::Run) { // trueを返すとタイマーを再設定し、falseならタイマーを停止する
+	if (mgr.get_state() == Run) { // trueを返すとタイマーを再設定し、falseならタイマーを停止する
 		return true;
 	} else {
-//		view.init_view_with_scene(NULL);
 		return false;
 	}
-	return true;
+}
+
+void Manager::startStandaloneTick(void){
+	g_timeout_add(period, tick, NULL);
+}
+
+void Manager::startServerTick(void){
+	Input &input=Input::getInstance();
+	Player p;
+	int j=0;
+	input.clearInput();
+	for(std::map<int, Member>::iterator i=members.begin(); i!=members.end(); ++i, ++j){
+		// 参加者のnameとidを確定する
+		p.name=i->second.name;
+		p.id=j;
+		// 初期化したinputをコピーすることで、各々のinputを初期化する
+		members[i->first].input=input.input;
+		scene.p[i->first]=p;
+	}
+	model.initModel();
+	set_state(Run);
+	g_timeout_add(period, tickServer, (gpointer) NULL);
 }

@@ -6,33 +6,16 @@
  */
 
 #include "mynetwork.h"
+
+#include "input.h"
 #include "view.h"
 #include "model.h"
 #include "manager.h"
 
-class Member {
-public:
-	Member(void){
-		ready=0;
-		fd=0;
-	};
-	int ready;
-	std::string name;
-	int fd;
-};
-
-std::vector<Member> members;
-static int server_flag = 0;
-
-void MyNetwork::onDisconnect(int id){
+void MyNetwork::onDisconnect(int fd){
 	Manager &mgr = Manager::getInstance();
 	if(mgr.get_mode()==Manager::Server){
-		for(std::vector<Member>::iterator i=members.begin(); i!=members.end(); ++i){
-			if(i->fd==id){
-				members.erase(i);
-				break;
-			}
-		}
+		mgr.members.erase(fd);
 		showStatus();
 	}else{ // Client
 		mgr.set_mode(Manager::Standalone);
@@ -51,9 +34,9 @@ void MyNetwork::onRecvFromServer(char *msg){
 		g_timeout_add(5000, eraseStatusbar, 0);
 		break;
 	case Header::DRAW:
-		bcopy(msg+sizeof(Header), (gchar *) &(mgr.get_scene()), sizeof(Scene));
-		process_a_step(&(mgr.get_scene()), &input[0]);
-		sendInput(input[0]);
+		mgr.scene.receiveScene(msg+sizeof(Header));
+		mgr.tickClient();
+		sendInput();
 		break;
 	case Header::STOP:
 		mgr.set_state(Manager::Stop);
@@ -67,54 +50,38 @@ void MyNetwork::onRecvFromServer(char *msg){
 }
 
 void MyNetwork::onRecvFromClient(int fd, char *msg){
-	int j=0;
 	Manager &mgr = Manager::getInstance();
+	Input &input = Input::getInstance();
 	Header *h;
 	h=(Header *)msg;
 	Member tmp;
 	switch(h->command){
 	case Header::CONNECT:
-		tmp.fd=fd;
+		if(mgr.get_state()==Manager::Run){
+			disconnect();
+			return;
+		}
 		tmp.name=std::string(msg+sizeof(Header));
-		members.push_back(tmp);
+		tmp.ready=0;
+		mgr.members[fd]=tmp;
 		showStatus();
 		break;
 	case Header::START:
-		for(std::vector<Member>::iterator i=members.begin(); i!=members.end(); ++i){
-			if(i->fd==fd){
-				i->ready=1;
-				break;
-			}
-		}
+		mgr.members[fd].ready=1;
 		if(showStatus()){
-			server_flag = 1;
-			for (unsigned int i = 0; i < max_players; ++i) {
-				if (i<members.size()) {
-					mgr.attend_player(i);
-					strcpy(mgr.get_scene().p[i].name, members[i].name.c_str());
-				} else {
-					mgr.absent_player(i);
-				}
-			}
-			mgr.set_state(Manager::Run);
-			g_timeout_add(period, Manager::tickServer, (gpointer) NULL);
+			mgr.startServerTick();
 		}
 		break;
 	case Header::STOP:
-		for(std::vector<Member>::iterator i=members.begin(); i!=members.end(); ++i){
-			i->ready=0;
+		for(std::map<int, Member>::iterator i=mgr.members.begin(); i!=mgr.members.end(); ++i){
+			i->second.ready=0;
 		}
 		mgr.set_state(Manager::Stop);
 		showStatus();
 		sendStop();
 		break;
 	case Header::INPUT:
-		for(std::vector<Member>::iterator i=members.begin(); i!=members.end(); ++i, ++j){
-			if(i->fd==fd){
-				bcopy(msg+sizeof(Header), (gchar *) &input[j], sizeof(Input));
-				break;
-			}
-		}
+		input.receiveInput(msg+sizeof(Header), mgr.members[fd].input);
 		break;
 	case Header::STATUS: // Followings are not sent from client
 	case Header::DRAW:
@@ -152,78 +119,70 @@ void MyNetwork::stopClient(void){
 void MyNetwork::disconnectClient(void){
 }
 
-void MyNetwork::sendInput(Input &a){
+void MyNetwork::sendInput(void){
 	Header h;
+	char *c;
+	Input &input=Input::getInstance();
 	h.command=Header::INPUT;
-	h.length=sizeof(Input);
+	c=input.packInput(h.length);
 	sendToServer(&h, sizeof(Header));
-	sendToServer((char *)&a, sizeof(Input));
+	sendToServer(c, h.length);
 }
 
 bool MyNetwork::startServer(int port, const char *name){
+	Manager &mgr = Manager::getInstance();
 	if(!openServer(port)){
 		return false;
 	}
-	members.clear();
+	mgr.members.clear();
 	Member tmp;
 	tmp.name=std::string(name);
-	members.push_back(tmp);
+	tmp.ready=0;
+	mgr.members[0]=tmp;
 	return true;
 }
 
 void MyNetwork::runServer(void){
 	Manager &mgr = Manager::getInstance();
-	for(std::vector<Member>::iterator i=members.begin(); i!=members.end(); ++i){
-		if(i->fd==0){
-			i->ready=1;
-			break;
-		}
-	}
+	mgr.members[0].ready=1;
 	if(showStatus()){
-		server_flag = 1;
-		for (unsigned int i = 0; i < max_players; ++i) {
-			if (i<members.size()) {
-				mgr.attend_player(i);
-				strcpy(mgr.get_scene().p[i].name, members[i].name.c_str());
-			} else {
-				mgr.absent_player(i);
-			}
-		}
-		mgr.set_state(Manager::Run);
-		g_timeout_add(period, Manager::tickServer, (gpointer) NULL);
+		mgr.startServerTick();
 	}
 }
 
 void MyNetwork::stopServer(void){
 	Manager &mgr = Manager::getInstance();
-	for(std::vector<Member>::iterator i=members.begin(); i!=members.end(); ++i){
-		i->ready=0;
+	for(std::map<int, Member>::iterator i=mgr.members.begin(); i!=mgr.members.end(); ++i){
+		i->second.ready=0;
 	}
 	mgr.set_state(Manager::Stop);
 	showStatus();
 	sendStop();
 }
 
-void MyNetwork::sendScene(int id, Scene &s){
-	int j=0;
+void MyNetwork::sendScene(Scene &s){
 	Header h;
-	h.command=Header::DRAW;
-	h.length=sizeof(Scene);
-	for(std::vector<Member>::iterator i=members.begin(); i!=members.end(); ++i, ++j){
-		if(j==id){
-			sendToClient(i->fd, &h, sizeof(Header));
-			sendToClient(i->fd, &s, sizeof(Scene));
+	Manager &mgr = Manager::getInstance();
+	char *p;
+
+	for(std::map<int, Member>::iterator i=mgr.members.begin(); i!=mgr.members.end(); ++i){
+		if(i->first!=0){
+			h.command=Header::DRAW;
+			p=s.packScene(h.length);
+			sendToClient(i->first, &h, sizeof(Header));
+			sendToClient(i->first, p, h.length);
 		}
 	}
 }
 
 void MyNetwork::sendStop(void){
 	Header h;
+	Manager &mgr = Manager::getInstance();
 	h.command=Header::STOP;
 	h.length=0;
-	for(std::vector<Member>::iterator i=members.begin(); i!=members.end(); ++i){
-		if(i->fd!=0){
-			sendToClient(i->fd, &h, sizeof(Header));
+	for(std::map<int, Member>::iterator i=mgr.members.begin(); i!=mgr.members.end(); ++i){
+		if(i->first!=0){
+			sendToClient(i->first, &h, sizeof(Header));
 		}
 	}
 }
@@ -232,26 +191,27 @@ bool MyNetwork::showStatus(void){
 		char buffer[50];
 		unsigned int r=0;
 		Header h;
+		Manager &mgr = Manager::getInstance();
 
-		for(std::vector<Member>::iterator i=members.begin(); i!=members.end(); ++i){
-			if(i->ready){
+		for(std::map<int, Member>::iterator i=mgr.members.begin(); i!=mgr.members.end(); ++i){
+			if(i->second.ready){
 				r++;
 			}
 		}
-		sprintf(buffer, "%d / %lu", r, members.size());
+		sprintf(buffer, "%d / %lu", r, mgr.members.size());
 
 		h.command=Header::STATUS;
 		h.length=strlen(buffer)+1;
-		for(std::vector<Member>::iterator i=members.begin(); i!=members.end(); ++i){
-			if(i->fd!=0){
-				sendToClient(i->fd, &h, sizeof(Header));
-				sendToClient(i->fd, buffer, h.length);
+		for(std::map<int, Member>::iterator i=mgr.members.begin(); i!=mgr.members.end(); ++i){
+			if(i->first!=0){
+				sendToClient(i->first, &h, sizeof(Header));
+				sendToClient(i->first, buffer, h.length);
 			}
 		}
 		statusBar->push(Glib::ustring(buffer), statusId++);
 		g_timeout_add(5000, eraseStatusbar, 0);
 
-		if (r==members.size()){
+		if (r==mgr.members.size()){
 			return true;
 		}else{
 			return false;

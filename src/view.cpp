@@ -3,20 +3,17 @@
 #include "view.h"
 #include "manager.h"
 #include "mynetwork.h"
+#include <X11/Xlib.h>
+#include <gdk/gdkx.h>
+#include <gdk/gdk.h>
 
 MyDrawingArea *drawingArea;
 
 MyDrawingArea::MyDrawingArea(BaseObjectType* o, const Glib::RefPtr<Gtk::Builder>& g):
 Gtk::DrawingArea(o){
-	scene=NULL;
-	clearInput();
-	input.up=0;
-	input.down=0;
-	input.left=0;
-	input.right=0;
-	input.ax=0;
-	input.ay=0;
-	input.az=0;
+	Manager &mgr = Manager::getInstance();
+	mgr.scene.init();;
+
 #ifdef USE_OPENGL
 	gl_config = gdk_gl_config_new_by_mode((GdkGLConfigMode)
 			(GDK_GL_MODE_RGBA|GDK_GL_MODE_DEPTH|GDK_GL_MODE_DOUBLE));
@@ -26,17 +23,6 @@ Gtk::DrawingArea(o){
 }
 
 MyDrawingArea::~MyDrawingArea(void){
-}
-
-void MyDrawingArea::set_input(int x, int y){
-	input.x=x;
-	input.y=y;
-}
-
-void MyDrawingArea::set_angle(double ax, double ay, double az){
-	input.ax=ax;
-	input.ay=ay;
-	input.az=az;
 }
 
 void MyDrawingArea::on_realize(void){
@@ -51,8 +37,11 @@ bool MyDrawingArea::on_draw(const Cairo::RefPtr<Cairo::Context>& cc ){
 bool MyDrawingArea::on_expose_event( GdkEventExpose* e ){
 	Cairo::RefPtr<Cairo::Context> cc = this->get_window()->create_cairo_context();
 	Gtk::DrawingArea::on_expose_event(e);
+	Manager &mgr = Manager::getInstance();
+	Scene &scene=mgr.scene;
+
 #endif
-	if(scene==NULL)return true;
+	if(!scene.valid)return true;
 	//	std::cout << "Exposed" << std::endl;
 
 	int ls=fmin(this->get_width()*0.5f, this->get_height()*0.5f);
@@ -130,7 +119,7 @@ bool MyDrawingArea::on_expose_event( GdkEventExpose* e ){
 	glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, color);
 	glPushMatrix();
 	glTranslated(0, z, 0);
-	glRotated(-6.0*scene->tm.tm_sec+180, 0.0, 1.0, 0.0);
+	glRotated(-6.0*scene.tm.tm_sec+180, 0.0, 1.0, 0.0);
 	gluCylinder(q, z/2, z/3, ls, 10, 10);
 	glPopMatrix();
 
@@ -138,7 +127,7 @@ bool MyDrawingArea::on_expose_event( GdkEventExpose* e ){
 	glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, color);
 	glPushMatrix();
 	glTranslated(0, 2*z, 0);
-	glRotated(-6.0*(scene->tm.tm_min+scene->tm.tm_sec/60.0)+180, 0.0, 1.0, 0.0);
+	glRotated(-6.0*(scene.tm.tm_min+scene.tm.tm_sec/60.0)+180, 0.0, 1.0, 0.0);
 	gluCylinder(q, z/2, z/3, lm, 10, 10);
 	glPopMatrix();
 
@@ -146,22 +135,20 @@ bool MyDrawingArea::on_expose_event( GdkEventExpose* e ){
 	glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, color);
 	glPushMatrix();
 	glTranslated(0, 3*z, 0);
-	glRotated(-30.0*(scene->tm.tm_hour+scene->tm.tm_min/60.0)+180, 0.0, 1.0, 0.0);
+	glRotated(-30.0*(scene.tm.tm_hour+scene.tm.tm_min/60.0)+180, 0.0, 1.0, 0.0);
 	gluCylinder(q, z/2, z/3, lh, 10, 10);
 	glPopMatrix();
 
-	for(int i=0; i<max_players; ++i){
-		color[0]=((i+1)&1)>0; color[1]=((i+1)&2)>0; color[2]=((i+1)&4)>0; color[3]=1.0;
+	for(std::map<int, Player>::iterator p=scene.p.begin(); p!=scene.p.end(); ++p){
+		color[0]=((p->second.id+1)&1)>0; color[1]=((p->second.id+1)&2)>0; color[2]=((p->second.id+1)&4)>0; color[3]=1.0;
 		glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, color);
-		if(scene->p[i].attend){
-			for(int j=0; j<max_dots; ++j){
-				if(scene->p[i].dots[j].visible==1){
-					glPushMatrix();
-					glTranslated((scene->p[i].dots[j].x-this->get_width()/2)/2, 0, (scene->p[i].dots[j].y-this->get_height()/2)/2);
-					glRotated(270, 1, 0, 0);
-					gluDisk(q, z, 2*z, 120, 10);
-					glPopMatrix();
-				}
+		for(int j=0; j<max_dots; ++j){
+			if(p->second.dots[j].visible==1){
+				glPushMatrix();
+				glTranslated((p->second.dots[j].x-this->get_width()/2)/2, 0, (p->second.dots[j].y-this->get_height()/2)/2);
+				glRotated(270, 1, 0, 0);
+				gluDisk(q, z, 2*z, 120, 10);
+				glPopMatrix();
 			}
 		}
 	}
@@ -170,8 +157,8 @@ bool MyDrawingArea::on_expose_event( GdkEventExpose* e ){
 	glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, color);
 	glCullFace(GL_FRONT);
 	glPushMatrix();
-	double roll=atan2(scene->p[0].ax, scene->p[0].az)*180/M_PI;
-	double pitch=atan2(scene->p[0].ay, scene->p[0].az)*180/M_PI;
+	double roll=atan2(scene.p[0].ax, scene.p[0].az)*180/M_PI;
+	double pitch=atan2(scene.p[0].ay, scene.p[0].az)*180/M_PI;
 	glRotated(pitch, 1.0, 0.0, 0.0);
 	glRotated(roll, 0.0, 0.0, 1.0);
 	gdk_gl_draw_teapot(true, lh/4);
@@ -197,120 +184,72 @@ bool MyDrawingArea::on_expose_event( GdkEventExpose* e ){
 	cc->set_line_width(3.0); // second hand
 	cc->set_source_rgb(0.0, 0.0, 1.0);
 	cc->move_to(ls, ls);
-	cc->line_to((double)(ls+ls*sin(2.0*M_PI*scene->tm.tm_sec/60)),
-			(double)(ls-ls*cos(2.0*M_PI*scene->tm.tm_sec/60)));
+	cc->line_to((double)(ls+ls*sin(2.0*M_PI*scene.tm.tm_sec/60)),
+			(double)(ls-ls*cos(2.0*M_PI*scene.tm.tm_sec/60)));
 	cc->stroke();
 
 	cc->set_font_size(30);
-	cc->move_to((double)(ls+ls*sin(2.0*M_PI*scene->tm.tm_sec/60)),
-			(double)(ls-ls*cos(2.0*M_PI*scene->tm.tm_sec/60)));
-	cc->show_text(std::string(scene->c).c_str());
+	cc->move_to((double)(ls+ls*sin(2.0*M_PI*scene.tm.tm_sec/60)),
+			(double)(ls-ls*cos(2.0*M_PI*scene.tm.tm_sec/60)));
+	cc->show_text(std::string(scene.c).c_str());
 
 	cc->set_line_width(8.0); // minute hand
 	cc->set_source_rgb(0.0, 1.0, 0.0);
 	cc->move_to(ls, ls);
-	cc->line_to((double)(ls+lm*sin(2.0*M_PI*(scene->tm.tm_min/60.0+scene->tm.tm_sec/3600.0))),
-			(double)(ls-lm*cos(2.0*M_PI*(scene->tm.tm_min/60.0+scene->tm.tm_sec/3600.0))));
+	cc->line_to((double)(ls+lm*sin(2.0*M_PI*(scene.tm.tm_min/60.0+scene.tm.tm_sec/3600.0))),
+			(double)(ls-lm*cos(2.0*M_PI*(scene.tm.tm_min/60.0+scene.tm.tm_sec/3600.0))));
 	cc->stroke();
 
 	cc->set_line_width(10.0); // hour hand
 	cc->set_source_rgb(1.0, 0.0, 0.0);
 	cc->move_to(ls, ls);
-	cc->line_to((double)(ls+lh*sin(2.0*M_PI*(scene->tm.tm_hour/12.0+scene->tm.tm_min/720.0))),
-			(double)(ls-lh*cos(2.0*M_PI*(scene->tm.tm_hour/12.0+scene->tm.tm_min/720.0))));
+	cc->line_to((double)(ls+lh*sin(2.0*M_PI*(scene.tm.tm_hour/12.0+scene.tm.tm_min/720.0))),
+			(double)(ls-lh*cos(2.0*M_PI*(scene.tm.tm_hour/12.0+scene.tm.tm_min/720.0))));
 	cc->stroke();
 
 	cc->set_line_width(5.0);
 	cc->set_source_rgb(1.0, 0.0, 0.0);
-	for(int i=0; i<max_players; ++i){
-		cc->set_source_rgb(((i+1)&1)>0, ((i+1)&2)>0, ((i+1)&4)>0);
-		if(scene->p[i].attend){
-			for(int j=0; j<max_dots; ++j){
-				if(scene->p[i].dots[j].visible==1){
-					cc->arc((double)scene->p[i].dots[j].x, (double)scene->p[i].dots[j].y,
-							5.0, 0.0, (double)(2.0*M_PI));
-					cc->stroke();
-				}
+	for(std::map<int, Player>::iterator p=scene.p.begin(); p!=scene.p.end(); ++p){
+		cc->set_source_rgb(((p->second.id+1)&1)>0, ((p->second.id+1)&2)>0, ((p->second.id+1)&4)>0);
+		for(int j=0; j<max_dots; ++j){
+			if(p->second.dots[j].visible==1){
+				cc->arc((double)p->second.dots[j].x, (double)p->second.dots[j].y,
+						5.0, 0.0, (double)(2.0*M_PI));
+				cc->stroke();
 			}
 		}
 	}
 #endif
+	scene.valid=false;
 	return true;
-}
-
-void MyDrawingArea::setScene(Scene *s){
-	scene=s;
 }
 
 void MyDrawingArea::update(){
 	this->queue_draw();
 }
 
-void MyDrawingArea::clearInput(void){
-	input.x=-1;
-	input.y=-1;
-	input.key=0;
-}
-
-void MyDrawingArea::getInput(Input *i){
-	*i=input;
-	clearInput();
-}
-
 // PressイベントとReleaseイベントの両方を見ることで
-// 押し続けている状態を把握できるようにしている
+// 押し続けている状態を把握できるようにできるが、
+// これらは即時性のない入力なので使わない。
+// 替わりに毎回checkInputを呼び出して、類似のイベントを発生するようにした。
 bool MyDrawingArea::on_key_press_event(GdkEventKey* k){
 	//	std::cout << "Pressed " << k->keyval << std::endl;
-	switch(k->keyval){
-	case GDK_KEY_Up:
-		input.up=1;
-		break;
-	case GDK_KEY_Down:
-		input.down=1;
-		break;
-	case GDK_KEY_Left:
-		input.left=1;
-		break;
-	case GDK_KEY_Right:
-		input.right=1;
-		break;
-	default:
-		if(GDK_KEY_A<=k->keyval && k->keyval<=GDK_KEY_z){
-			input.key=k->keyval;
-		}
-		break;
-	}
+//	Input &input=Input::getInstance();
+//	input.set_key(k);
 	return true;
 }
 
 bool MyDrawingArea::on_key_release_event(GdkEventKey* k){
 	//	std::cout << "Released " << k->keyval << std::endl;
-	switch(k->keyval){
-	case GDK_KEY_Up:
-		input.up=0;
-		break;
-	case GDK_KEY_Down:
-		input.down=0;
-		break;
-	case GDK_KEY_Left:
-		input.left=0;
-		break;
-	case GDK_KEY_Right:
-		input.right=0;
-		break;
-	default:
-		if(GDK_KEY_A<=k->keyval && k->keyval<=GDK_KEY_z){
-			input.key=0;
-		}
-		break;
-	}
+//	Input &input=Input::getInstance();
+//	input.reset_key(k);
 	return true;
 }
 
 bool MyDrawingArea::on_button_press_event (GdkEventButton* event){
 	//	std::cout << "Pressed " << event->x << "," << event->y << std::endl;
-	input.x=event->x;
-	input.y=event->y;
+	Input &input=Input::getInstance();
+	input.set_input(event->x, event->y);
 	return true;
 }
 
@@ -318,7 +257,7 @@ MyImageMenuItem::MyImageMenuItem(BaseObjectType* o, const Glib::RefPtr<Gtk::Buil
 					Gtk::ImageMenuItem(o){
 	g->get_widget("window2", subWindow);
 	g->get_widget("window3", fileWindow);
-	id=-1;
+	menuId=-1;
 }
 
 MyImageMenuItem::~MyImageMenuItem(void){
@@ -330,7 +269,7 @@ void MyImageMenuItem::on_activate(void){
 	Manager &mgr = Manager::getInstance();
 	MyNetwork &net=MyNetwork::getInstance();
 
-	switch(id){
+	switch(menuId){
 	case 0:
 		if(mgr.get_state() != Manager::Run){
 			mgr.set_state(Manager::Run);
@@ -339,8 +278,7 @@ void MyImageMenuItem::on_activate(void){
 			switch(mgr.get_mode()){
 			case Manager::Standalone:
 				mgr.init_objects();
-				mgr.attend_single_player();
-				g_timeout_add(period, Manager::tick, NULL);
+				mgr.startStandaloneTick();
 				break;
 			case Manager::Server:
 				mgr.init_objects();
@@ -381,5 +319,31 @@ void MyImageMenuItem::on_activate(void){
 		net.disconnect();
 		net.closeServer();
 		exit(0);
+	}
+}
+
+void ViewManager::checkInput(void){ // 自分の入力を与える
+	Input &input = Input::getInstance();
+	guint *keyval;
+	gint n=10;
+	char keys[32];
+	int i, j;
+	KeyCode keycode;
+	Display* d=GDK_WINDOW_XDISPLAY(Glib::unwrap(drawingArea->get_window()));
+	XQueryKeymap(d, keys);
+	for(i=0; i<32; ++i){
+		if(keys[i]!=0){
+			for(j=0; j<8; ++j){
+				if(keys[i] & 1<<j){
+					keycode=i*8+j;
+					if(gdk_keymap_get_entries_for_keycode(NULL, keycode, NULL, &keyval, &n)){
+						GdkEventKey e;
+						e.keyval=keyval[0];
+						g_free(keyval);
+						input.set_key(&e);
+					}
+				}
+			}
+		}
 	}
 }

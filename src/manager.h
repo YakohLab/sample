@@ -21,8 +21,6 @@ public:
 	enum Mode {
 		Server, Client, Standalone
 	};
-
-public:
 	static Manager& getInstance();
 
 	void init_status();
@@ -34,17 +32,14 @@ public:
 	const Mode get_mode() const;
 	void set_mode(Mode s);
 
-	void attend_single_player();
-	void attend_player(int id);
-	void absent_player(int id);
-
 	static gboolean tick(void *p);
 	static gboolean tickServer(void *p);
+	void tickClient(void);
+	void startServerTick(void);
+	void startStandaloneTick(void);
+	std::map<int, Member> members;
 
-	Scene& get_scene() {
-		return scene;
-	}
-
+	Scene scene;
 private:
 	Manager(void);
 	Manager(Manager&);
@@ -52,9 +47,7 @@ private:
 
 	State state;
 	Mode mode;
-
 	Model model;
-	Scene scene;
 };
 
 #endif /* MANAGER_H_ */

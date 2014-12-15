@@ -9,6 +9,7 @@
 #define MYNETWORK_H_
 #include "Network.h"
 #include "common.h"
+#include "input.h"
 
 class MyNetwork : public Network {
 public:
@@ -18,7 +19,7 @@ public:
 	}
 	bool startServer(int port, const char *name);
 	bool connectClient(const char *host, int port, const char *name);
-	void sendScene(int, Scene &);
+	void sendScene(Scene &);
 	void runClient(void);
 	void stopClient(void);
 	void runServer(void);
@@ -29,7 +30,7 @@ private:
 	void onRecvFromClient(int id, char *msg);
 
 	void disconnectClient(void);
-	void sendInput(Input &);
+	void sendInput(void);
 	bool showStatus(void);
 	void sendStop(void);
 

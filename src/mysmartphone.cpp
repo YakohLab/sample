@@ -1,9 +1,13 @@
 #include "mysmartphone.h"
 #include <iostream>
+
+#include "input.h"
 #include "view.h"
 
 void MySmartphone::onRecvBinary(float *array, int n){
 	int w, h;
+	Input &input=Input::getInstance();
+
 	switch((int)array[0]){
 	case 1: // touch start
 	case 2: // touch move
@@ -17,12 +21,12 @@ void MySmartphone::onRecvBinary(float *array, int n){
 		std::cout << std::endl;
 		std::flush(std::cout);
 		if(drawingArea && n>1){
-			drawingArea->set_input(w, h);
+			input.set_input(w, h);
 		}
 		break;
 	case 4: // accelerometer
 		if(drawingArea){
-			drawingArea->set_angle(array[1], array[2], array[3]);
+			input.set_angle(array[1], array[2], array[3]);
 		}
 		break;
 	}

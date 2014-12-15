@@ -2,6 +2,8 @@
 #include <cmath>
 #include <string>
 #include <gtkmm.h>
+
+#include "input.h"
 #include "view.h"
 #include "model.h"
 #include "mynetwork.h"
@@ -17,18 +19,9 @@ static Gtk::RadioButton *standalone, *server, *client;
 static Gtk::Button *ok;
 static MyImageMenuItem *menu[5];
 static Model *model;
-Input input[max_players];
 
 Gtk::Statusbar *statusBar;
 int statusId, statusEraseId;
-Scene *scene;
-
-void process_a_step(Scene *s, Input *in) {
-	ViewManager &view =ViewManager::getInstance();
-	view.init_view_with_scene(s);
-	view.update();
-	view.get_input(in);
-}
 
 gboolean eraseStatusbar(void *p) {
 	statusBar->pop(statusEraseId++);
@@ -56,9 +49,6 @@ void subHide(void) {
 		net.disconnect();
 		if(net.startServer(std::atoi(sport->get_text().c_str()), name->get_text().c_str())){
 			mgr.set_mode(Manager::Server);
-			scene = new Scene;
-			model->initModelWithScene(scene);
-			scene->p[0].attend = 1;
 		}else{
 			mgr.set_mode(Manager::Standalone);
 		}
@@ -132,7 +122,7 @@ int main(int argc, char *argv[]) {
 	builder->get_widget_derived("SendImage", menu[3]);
 	builder->get_widget_derived("Quit", menu[4]);
 	for (int i = 0; i < 5; ++i) {
-		menu[i]->id = i;
+		menu[i]->menuId = i;
 	}
 
 	ViewManager::getInstance().init_view(drawingArea);

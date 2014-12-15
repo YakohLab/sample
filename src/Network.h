@@ -21,10 +21,10 @@ public:
 	void sendToServer(void *, int len);
 	void sendToClient(int fd, void *, int len);
 protected:
-	virtual void onConnect(int id){};
-	virtual void onDisconnect(int id){};
+	virtual void onConnect(int fd){};
+	virtual void onDisconnect(int fd){};
 	virtual void onRecvFromServer(char *msg){};
-	virtual void onRecvFromClient(int id, char *msg){};
+	virtual void onRecvFromClient(int fd, char *msg){};
 private:
 	struct SS {
 		Glib::RefPtr<Gio::Socket> socket;
