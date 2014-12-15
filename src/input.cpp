@@ -1,5 +1,5 @@
 #include "input.h"
-
+#include <iostream>
 void Input::receiveInput(char *tmp, InputData &data){ // サーバとして、クライアントの入力を受け取る
 	data.up=*(short int *)tmp; tmp+=sizeof(short int);
 	data.down=*(short int *)tmp; tmp+=sizeof(short int);
@@ -36,9 +36,9 @@ void Scene::receiveScene(char *tmp){
 	c[0]=*(char *)tmp; tmp+=sizeof(char);
 	c[1]=*(char *)tmp; tmp+=sizeof(char);
 	tm=*(struct tm *)tmp; tmp+=sizeof(struct tm);
-	p.clear();
-	size=*(char *)tmp; tmp+=sizeof(char);
-	for(int i=0; i<size; ++i){
+	p.clear();								// まずコンテナを空にして、
+	size=*(char *)tmp; tmp+=sizeof(char);	// 可変長のデータの個数を受け取り
+	for(int i=0; i<size; ++i){				// その数だけ繰り返し、コンテナに格納する
 		id=*(char *)tmp; tmp+=sizeof(char);
 		p[id]=*(Player *)tmp; tmp+=sizeof(Player);
 	}
@@ -50,7 +50,7 @@ char *Scene::packScene(int &len){
 	*(char *)tmp=c[0]; tmp+=sizeof(char);
 	*(char *)tmp=c[1]; tmp+=sizeof(char);
 	*(struct tm *)tmp=tm; tmp+=sizeof(struct tm);
-	*(char *)tmp=p.size(); tmp+=sizeof(char);
+	*(char *)tmp=p.size(); tmp+=sizeof(char); // 可変長のデータは、まず個数を送る
 	for(std::map<int, Player>::iterator i=p.begin(); i!=p.end(); ++i){
 		*(char *)tmp=i->first; tmp+=sizeof(char);
 		*(Player *)tmp=i->second; tmp+=sizeof(Player);
@@ -125,3 +125,8 @@ void Input::reset_key(GdkEventKey* k){
 	return;
 }
 
+void Scene::init(void){
+	c[0]=c[1]=0;
+	p.clear();
+	valid=false;
+}

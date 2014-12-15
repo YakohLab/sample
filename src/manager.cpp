@@ -103,13 +103,13 @@ void Manager::startServerTick(void){
 	Player p;
 	int j=0;
 	input.clearInput();
+	scene.init();
 	for(std::map<int, Member>::iterator i=members.begin(); i!=members.end(); ++i, ++j){
 		// 参加者のnameとidを確定する
 		p.name=i->second.name;
-		p.id=j;
 		// 初期化したinputをコピーすることで、各々のinputを初期化する
 		members[i->first].input=input.input;
-		scene.p[i->first]=p;
+		scene.p[j]=p;
 	}
 	model.initModel();
 	set_state(Run);

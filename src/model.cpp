@@ -49,21 +49,27 @@ void Model::postAction(void){
 void Model::stepPlayer(int fd){
 	Manager &mgr = Manager::getInstance();
 	Scene &scene=mgr.scene;
+	InputData &input=mgr.members[fd].input;
+	int id=0;
+	for(std::map<int, Member>::iterator i=mgr.members.begin(); i!=mgr.members.end(); ++i, ++id){
+		if(i->first==fd)break;
+	}
+	Player &player=scene.p[id];
 
 	for(int i=0; i<max_dots; ++i){
-		scene.p[fd].dots[i].x+=(mgr.members[fd].input.right-mgr.members[fd].input.left)*5;
-		scene.p[fd].dots[i].y+=(mgr.members[fd].input.down-mgr.members[fd].input.up)*5;
+		player.dots[i].x+=(input.right-input.left)*5;
+		player.dots[i].y+=(input.down-input.up)*5;
 	}
-	if(mgr.members[fd].input.x!=(-1)){
-		scene.p[fd].dots[scene.p[fd].curDots].x=mgr.members[fd].input.x;
-		scene.p[fd].dots[scene.p[fd].curDots].y=mgr.members[fd].input.y;
-		scene.p[fd].dots[scene.p[fd].curDots].visible=1;
-		scene.p[fd].curDots=(scene.p[fd].curDots+1)%max_dots;
+	if(input.x!=(-1)){
+		player.dots[player.curDots].x=input.x;
+		player.dots[player.curDots].y=input.y;
+		player.dots[player.curDots].visible=1;
+		player.curDots=(player.curDots+1)%max_dots;
 	}
-	scene.p[fd].ax=mgr.members[fd].input.ax;
-	scene.p[fd].ay=mgr.members[fd].input.ay;
-	scene.p[fd].az=mgr.members[fd].input.az;
-	if(mgr.members[fd].input.key!=0){
-		scene.c[0]=mgr.members[fd].input.key;
+	player.ax=input.ax;
+	player.ay=input.ay;
+	player.az=input.az;
+	if(input.key!=0){
+		scene.c[0]=input.key;
 	}
 }

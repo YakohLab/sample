@@ -52,7 +52,6 @@ struct Dot {
 const int max_dots = 5;
 struct Player {
 	std::string name;
-	int id;
 	int x, y;
 	double ax, ay, az;
 	Dot dots[max_dots];
@@ -67,7 +66,7 @@ public:
 	void receiveScene(char *);
 	char *packScene(int &len);
 	bool valid;
-	void init(){};
+	void init();
 	Scene(){init();};
 private:
 	char buffer[1000];

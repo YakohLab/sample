@@ -140,7 +140,7 @@ bool MyDrawingArea::on_expose_event( GdkEventExpose* e ){
 	glPopMatrix();
 
 	for(std::map<int, Player>::iterator p=scene.p.begin(); p!=scene.p.end(); ++p){
-		color[0]=((p->second.id+1)&1)>0; color[1]=((p->second.id+1)&2)>0; color[2]=((p->second.id+1)&4)>0; color[3]=1.0;
+		color[0]=((p->first+1)&1)>0; color[1]=((p->first+1)&2)>0; color[2]=((p->first+1)&4)>0; color[3]=1.0;
 		glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, color);
 		for(int j=0; j<max_dots; ++j){
 			if(p->second.dots[j].visible==1){
@@ -210,7 +210,7 @@ bool MyDrawingArea::on_expose_event( GdkEventExpose* e ){
 	cc->set_line_width(5.0);
 	cc->set_source_rgb(1.0, 0.0, 0.0);
 	for(std::map<int, Player>::iterator p=scene.p.begin(); p!=scene.p.end(); ++p){
-		cc->set_source_rgb(((p->second.id+1)&1)>0, ((p->second.id+1)&2)>0, ((p->second.id+1)&4)>0);
+		cc->set_source_rgb(((p->first+1)&1)>0, ((p->first+1)&2)>0, ((p->first+1)&4)>0);
 		for(int j=0; j<max_dots; ++j){
 			if(p->second.dots[j].visible==1){
 				cc->arc((double)p->second.dots[j].x, (double)p->second.dots[j].y,
