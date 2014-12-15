@@ -325,10 +325,11 @@ void MyImageMenuItem::on_activate(void){
 void ViewManager::checkInput(void){ // 自分の入力を与える
 	Input &input = Input::getInstance();
 	guint *keyval;
-	gint n=10;
+	gint n;
 	char keys[32];
-	int i, j;
+	int i, j, k;
 	KeyCode keycode;
+	GdkEventKey e;
 	Display* d=GDK_WINDOW_XDISPLAY(Glib::unwrap(drawingArea->get_window()));
 	XQueryKeymap(d, keys);
 	for(i=0; i<32; ++i){
@@ -337,10 +338,14 @@ void ViewManager::checkInput(void){ // 自分の入力を与える
 				if(keys[i] & 1<<j){
 					keycode=i*8+j;
 					if(gdk_keymap_get_entries_for_keycode(NULL, keycode, NULL, &keyval, &n)){
-						GdkEventKey e;
-						e.keyval=keyval[0];
+						// std::cout << n << ": ";
+						for(k=0; k<n; ++k){
+							e.keyval=keyval[k];
+							input.set_key(&e);
+							// std::cout << std::hex << e.keyval << ", ";
+						}
 						g_free(keyval);
-						input.set_key(&e);
+						// std::cout << std::endl;
 					}
 				}
 			}
