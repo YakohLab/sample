@@ -276,6 +276,7 @@ bool MyDrawingArea::on_key_press_event(GdkEventKey* k){
 		if(GDK_KEY_A<=k->keyval && k->keyval<=GDK_KEY_z){
 			input.key=k->keyval;
 		}
+		break;
 	}
 	return true;
 }
@@ -299,6 +300,7 @@ bool MyDrawingArea::on_key_release_event(GdkEventKey* k){
 		if(GDK_KEY_A<=k->keyval && k->keyval<=GDK_KEY_z){
 			input.key=0;
 		}
+		break;
 	}
 	return true;
 }
