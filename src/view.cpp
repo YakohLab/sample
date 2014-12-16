@@ -41,7 +41,25 @@ bool MyDrawingArea::on_expose_event( GdkEventExpose* e ){
 	Scene &scene=mgr.scene;
 
 #endif
-	if(!scene.valid)return true;
+	if(!scene.valid){
+#ifdef USE_OPENGL
+		GdkGLContext *gl_context = gtk_widget_get_gl_context((GtkWidget *)this->gobj());
+		GdkGLDrawable *gl_drawable = gtk_widget_get_gl_drawable((GtkWidget *)this->gobj());
+		gdk_gl_drawable_gl_begin(gl_drawable, gl_context);
+		glClearColor(0.2, 0.2, 0.2, 1.0);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		if (gdk_gl_drawable_is_double_buffered(gl_drawable)){
+			gdk_gl_drawable_swap_buffers(gl_drawable);
+		}else{
+			glFlush();
+		}
+		gdk_gl_drawable_gl_end(gl_drawable);
+#else
+		cc->set_source_rgb(0.8, 0.8, 0.8);
+		cc->paint();
+#endif
+		return true;
+	}
 	//	std::cout << "Exposed" << std::endl;
 
 	int ls=fmin(this->get_width()*0.5f, this->get_height()*0.5f);
