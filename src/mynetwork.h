@@ -8,7 +8,6 @@
 #ifndef MYNETWORK_H_
 #define MYNETWORK_H_
 #include "Network.h"
-#include "common.h"
 #include "input.h"
 
 class MyNetwork : public Network {

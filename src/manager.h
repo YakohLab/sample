@@ -32,8 +32,8 @@ public:
 	const Mode get_mode() const;
 	void set_mode(Mode s);
 
-	static gboolean tick(void *p);
-	static gboolean tickServer(void *p);
+	bool tick(void);
+	bool tickServer(void);
 	void tickClient(void);
 	void startServerTick(void);
 	void startStandaloneTick(void);

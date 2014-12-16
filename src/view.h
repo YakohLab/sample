@@ -6,20 +6,17 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 #endif
-#include "common.h"
 
 #ifndef VIEW_H_
 #define VIEW_H_
 
-
 class ViewManager;
 
 class MyDrawingArea: public Gtk::DrawingArea {
-	friend class ViewManager;
 public:
 	MyDrawingArea(BaseObjectType*, const Glib::RefPtr<Gtk::Builder>&);
 	virtual ~MyDrawingArea();
-
+	void update();
 protected:
 	virtual void on_realize();
 	virtual bool on_key_press_event(GdkEventKey*);
@@ -31,43 +28,62 @@ protected:
 	virtual bool on_expose_event(GdkEventExpose*);
 #endif
 private:
-//	Scene *scene;
-	void update();
 #ifdef USE_OPENGL
 	GdkGLConfig *gl_config;
 #endif
 };
 
 class MyImageMenuItem: public Gtk::ImageMenuItem {
+	friend class ViewManager;
 public:
 	MyImageMenuItem(BaseObjectType*, const Glib::RefPtr<Gtk::Builder>&);
 	virtual ~MyImageMenuItem();
-	int menuId;
 protected:
 	virtual void on_activate();
-
 private:
-	Gtk::Window *subWindow;
-	Gtk::Window *fileWindow;
+	int menuId;
+};
+
+class MyStatusbar: public Gtk::Statusbar{
+public:
+	MyStatusbar(BaseObjectType*, const Glib::RefPtr<Gtk::Builder>&);
+	virtual ~MyStatusbar();
+	void pushTemp(std::string);
+private:
+	bool erase(int);
+	int statusId;
 };
 
 class ViewManager {
+	friend class MyImageMenuItem;
 public:
 	static ViewManager& getInstance() {
 		static ViewManager instance;
 		return instance;
 	}
-
 	void update(void){
 		drawingArea->update();
 	}
 	void checkInput(void);
-
-	MyDrawingArea *drawingArea;
+	void push(std::string s){
+		statusbar->pushTemp(s);
+	}
+	Gtk::Window *init(Glib::RefPtr<Gtk::Builder>);
 private:
-	ViewManager(){drawingArea=0;}
+	ViewManager();
 	ViewManager(ViewManager&);
 	void operator =(ViewManager&);
+	void subCancel(void);
+	void subSend(void);
+	void subHide(void);
+	Gtk::Window *mainWindow, *subWindow;
+	Gtk::FileChooserDialog *chooser;
+	Gtk::Entry *sip, *sport, *cip, *cport, *name;
+	Gtk::RadioButton *standalone, *server, *client;
+	Gtk::Button *ok;
+	MyImageMenuItem *menu[5];
+	MyDrawingArea *drawingArea;
+	MyStatusbar *statusbar;
 };
 
 #endif /* VIEW_H_ */

@@ -8,6 +8,8 @@
 #include "manager.h"
 #include "input.h"
 
+const int period = 30; // in millisecond
+
 Manager::Manager(void){
 	init_status();
 }
@@ -43,7 +45,7 @@ void Manager::set_mode(Manager::Mode s) {
 	mode = s;
 }
 
-gboolean Manager::tick(void *p) {
+bool Manager::tick(void) {
 	Manager &mgr = Manager::getInstance();
 	ViewManager &view = ViewManager::getInstance();
 	Input &input = Input::getInstance();
@@ -70,7 +72,7 @@ void Manager::tickClient(void){
 	view.checkInput();
 }
 
-gboolean Manager::tickServer(void *p) {
+bool Manager::tickServer(void) {
 	Manager &mgr = Manager::getInstance();
 	ViewManager &view = ViewManager::getInstance();
 	MyNetwork &net=MyNetwork::getInstance();
@@ -95,7 +97,8 @@ gboolean Manager::tickServer(void *p) {
 }
 
 void Manager::startStandaloneTick(void){
-	g_timeout_add(period, tick, NULL);
+	sigc::slot<bool> slot = sigc::mem_fun(*this, &Manager::tick);
+	Glib::signal_timeout().connect(slot, period);
 }
 
 void Manager::startServerTick(void){
@@ -113,5 +116,6 @@ void Manager::startServerTick(void){
 	}
 	model.initModel();
 	set_state(Run);
-	g_timeout_add(period, tickServer, (gpointer) NULL);
+	sigc::slot<bool> slot = sigc::mem_fun(*this, &Manager::tickServer);
+	Glib::signal_timeout().connect(slot, period);
 }

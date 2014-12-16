@@ -9,7 +9,6 @@
 #define MODEL_H_
 #include <time.h>
 
-#include "common.h"
 #include "input.h"
 
 class Model {

@@ -7,7 +7,6 @@
 void MySmartphone::onRecvBinary(float *array, int n){
 	int w, h;
 	Input &input=Input::getInstance();
-	ViewManager &vmr=ViewManager::getInstance();
 
 	switch((int)array[0]){
 	case 1: // touch start
@@ -21,14 +20,12 @@ void MySmartphone::onRecvBinary(float *array, int n){
 		}
 		std::cout << std::endl;
 		std::flush(std::cout);
-		if(vmr.drawingArea && n>1){
+		if(n>1){
 			input.set_input(w, h);
 		}
 		break;
 	case 4: // accelerometer
-		if(vmr.drawingArea){
-			input.set_angle(array[1], array[2], array[3]);
-		}
+		input.set_angle(array[1], array[2], array[3]);
 		break;
 	}
 }

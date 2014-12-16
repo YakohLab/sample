@@ -4,7 +4,6 @@
 #include <vector>
 #include <map>
 #include <gtkmm.h>
-#include "common.h"
 
 class InputData {
 public:

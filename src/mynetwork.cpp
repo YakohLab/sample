@@ -21,10 +21,11 @@ void MyNetwork::onRecvFromServer(char *msg){
 	h=(Header *)msg;
 	Member tmp;
 	Manager &mgr = Manager::getInstance();
+	ViewManager &vmr=ViewManager::getInstance();
+
 	switch(h->command){
 	case Header::STATUS:
-		statusBar->push(Glib::ustring(msg+sizeof(Header)), statusId++);
-		g_timeout_add(5000, eraseStatusbar, 0);
+		vmr.push(std::string(msg+sizeof(Header)));
 		break;
 	case Header::DRAW:
 		mgr.scene.receiveScene(msg+sizeof(Header));
@@ -185,6 +186,7 @@ bool MyNetwork::showStatus(void){
 		unsigned int r=0;
 		Header h;
 		Manager &mgr = Manager::getInstance();
+		ViewManager &vmr=ViewManager::getInstance();
 
 		for(std::map<int, Member>::iterator i=mgr.members.begin(); i!=mgr.members.end(); ++i){
 			if(i->second.ready){
@@ -201,8 +203,7 @@ bool MyNetwork::showStatus(void){
 				sendToClient(i->first, buffer, h.length);
 			}
 		}
-		statusBar->push(Glib::ustring(buffer), statusId++);
-		g_timeout_add(5000, eraseStatusbar, 0);
+		vmr.push(std::string(buffer));
 
 		if (r==mgr.members.size()){
 			return true;

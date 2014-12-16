@@ -273,8 +273,8 @@ bool MyDrawingArea::on_button_press_event (GdkEventButton* event){
 
 MyImageMenuItem::MyImageMenuItem(BaseObjectType* o, const Glib::RefPtr<Gtk::Builder>& g):
 					Gtk::ImageMenuItem(o){
-	g->get_widget("window2", subWindow);
-	g->get_widget("window3", fileWindow);
+//	g->get_widget("window2", vmr.subWindow);
+//	g->get_widget("window3", fileWindow);
 	menuId=-1;
 }
 
@@ -286,13 +286,13 @@ void MyImageMenuItem::on_activate(void){
 
 	Manager &mgr = Manager::getInstance();
 	MyNetwork &net=MyNetwork::getInstance();
+	ViewManager &vmr=ViewManager::getInstance();
 
 	switch(menuId){
 	case 0:
 		if(mgr.get_state() != Manager::Run){
 			mgr.set_state(Manager::Run);
-			statusBar->push(Glib::ustring("Run"), statusId++);
-			g_timeout_add(5000, eraseStatusbar, 0);
+			vmr.push(std::string("Run"));
 			switch(mgr.get_mode()){
 			case Manager::Standalone:
 				mgr.init_objects();
@@ -311,8 +311,7 @@ void MyImageMenuItem::on_activate(void){
 	case 1:
 		if(mgr.get_state() != Manager::Stop){
 			mgr.set_state(Manager::Stop);
-			statusBar->push(Glib::ustring("Stop"), statusId++);
-			g_timeout_add(5000, eraseStatusbar, 0);
+			vmr.push(std::string("Stop"));
 			switch(mgr.get_mode()){
 			case Manager::Server:
 				net.stopServer();
@@ -327,17 +326,126 @@ void MyImageMenuItem::on_activate(void){
 		break;
 	case 2:
 		if(Manager::getInstance().get_state()==Manager::Stop){
-			subWindow->show();
+			vmr.subWindow->show();
 		}
 		break;
 	case 3:
-		fileWindow->show();
+		vmr.chooser->show();
 		break;
 	case 4:
 		net.disconnect();
 		net.closeServer();
 		exit(0);
 	}
+}
+
+MyStatusbar::MyStatusbar(BaseObjectType* o, const Glib::RefPtr<Gtk::Builder>& g):
+Gtk::Statusbar(o){
+	statusId=0;
+}
+
+MyStatusbar::~MyStatusbar(void){
+
+}
+
+void MyStatusbar::pushTemp(std::string s){
+	push(s, statusId);
+	sigc::slot<bool> slot = sigc::bind(sigc::mem_fun(*this, &MyStatusbar::erase), statusId);
+	Glib::signal_timeout().connect(slot, 5000);
+	statusId++;
+}
+
+bool MyStatusbar::erase(int i){
+	pop(i);
+	return false;
+}
+
+ViewManager::ViewManager(void){
+
+}
+
+void ViewManager::subCancel(void){
+	chooser->hide();
+}
+
+void ViewManager::subSend(void){
+	MySmartphone &smapho = MySmartphone::getInstance();
+	if(smapho.isConnected()){
+		smapho.sendImage((const char *)(chooser->get_filename().c_str()));
+	}
+	chooser->hide();
+}
+
+void ViewManager::subHide(void) {
+	Manager &mgr = Manager::getInstance();
+	MyNetwork &net=MyNetwork::getInstance();
+	MySmartphone &smapho = MySmartphone::getInstance();
+
+	if (server->get_active() && mgr.get_mode()!=Manager::Server){
+		net.disconnect();
+		if(net.startServer(std::atoi(sport->get_text().c_str()), name->get_text().c_str())){
+			mgr.set_mode(Manager::Server);
+		}else{
+			mgr.set_mode(Manager::Standalone);
+		}
+	} else if (client->get_active() && mgr.get_mode()!=Manager::Client){
+		net.closeServer();
+
+		if(net.connectClient(cip->get_text().c_str(), std::atoi(cport->get_text().c_str()),
+				name->get_text().c_str())){
+			mgr.set_mode(Manager::Client);
+		}else{
+			mgr.set_mode(Manager::Standalone);
+		}
+	} else {
+		net.closeServer();
+		net.disconnect();
+		mgr.set_mode(Manager::Standalone);
+	}
+	switch(mgr.get_mode()){
+	case Manager::Standalone:
+		standalone->set_active();
+		break;
+	case Manager::Server:
+		server->set_active();
+		break;
+	case Manager::Client:
+		client->set_active();
+		break;
+	}
+	subWindow->hide();
+	smapho.open(8888);
+}
+
+Gtk::Window *ViewManager::init(Glib::RefPtr<Gtk::Builder> builder){
+	builder->get_widget("window1", mainWindow);
+	builder->get_widget("window2", subWindow);
+	builder->get_widget("window3", chooser);
+	builder->get_widget("button1", ok);
+	ok->signal_clicked().connect(sigc::mem_fun(*this, &ViewManager::subHide));
+	builder->get_widget("button2", ok);
+	ok->signal_clicked().connect(sigc::mem_fun(*this, &ViewManager::subCancel));
+	builder->get_widget("button3", ok);
+	ok->signal_clicked().connect(sigc::mem_fun(*this, &ViewManager::subSend));
+	builder->get_widget("sip", sip);
+	builder->get_widget("sport", sport);
+	builder->get_widget("cip", cip);
+	builder->get_widget("cport", cport);
+	builder->get_widget("name", name);
+	builder->get_widget("standalone", standalone);
+	builder->get_widget("server", server);
+	builder->get_widget("client", client);
+	builder->get_widget_derived("drawingarea1", drawingArea);
+	builder->get_widget_derived("statusbar1", statusbar);
+	builder->get_widget_derived("Start", menu[0]);
+	builder->get_widget_derived("Stop", menu[1]);
+	builder->get_widget_derived("SetMode", menu[2]);
+	builder->get_widget_derived("SendImage", menu[3]);
+	builder->get_widget_derived("Quit", menu[4]);
+	for (int i = 0; i < 5; ++i) {
+		menu[i]->menuId = i;
+	}
+	return mainWindow;
 }
 
 void ViewManager::checkInput(void){ // 自分の入力を与える
