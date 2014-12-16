@@ -13,9 +13,6 @@
 
 class Model {
 public:
-	Model();
-	virtual ~Model();
-
 	void initModel(void);
 	void preAction();
 	void stepPlayer(int fd);

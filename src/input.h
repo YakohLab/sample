@@ -7,7 +7,7 @@
 
 const int max_msglen = 1000;
 
-class InputData {
+class InputData { // 要素数を可変にしたい場合は、packInputとreceiveInputを注意深く書き直す必要がある
 public:
 	int up, down, left, right;
 	int x, y;
@@ -51,7 +51,7 @@ struct Dot {
 };
 
 const int max_dots = 5;
-struct Player {
+struct Player { // 要素数を可変にしたい場合は、packSceneとreceiveSceneを注意深く書き直す必要がある
 	char name[20];
 	int x, y;
 	double ax, ay, az;

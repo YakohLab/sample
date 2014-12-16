@@ -1,30 +1,12 @@
 #include "input.h"
 #include <iostream>
 void Input::receiveInput(char *tmp, InputData &data){ // サーバとして、クライアントの入力を受け取る
-	data.up=*(short int *)tmp; tmp+=sizeof(short int);
-	data.down=*(short int *)tmp; tmp+=sizeof(short int);
-	data.left=*(short int *)tmp; tmp+=sizeof(short int);
-	data.right=*(short int *)tmp; tmp+=sizeof(short int);
-	data.x=*(short int *)tmp; tmp+=sizeof(short int);
-	data.y=*(short int *)tmp; tmp+=sizeof(short int);
-	data.key=*(short int *)tmp; tmp+=sizeof(short int);
-	data.ax=*(double *)tmp; tmp+=sizeof(double);
-	data.ay=*(double *)tmp; tmp+=sizeof(double);
-	data.az=*(double *)tmp; tmp+=sizeof(double);
+	data=*(InputData *)tmp;
 }
 
 char *Input::packInput(int &len){
 	char *tmp=buffer;
-	*(short int *)tmp=input.up; tmp+=sizeof(short int);
-	*(short int *)tmp=input.down; tmp+=sizeof(short int);
-	*(short int *)tmp=input.left; tmp+=sizeof(short int);
-	*(short int *)tmp=input.right; tmp+=sizeof(short int);
-	*(short int *)tmp=input.x; tmp+=sizeof(short int);
-	*(short int *)tmp=input.y; tmp+=sizeof(short int);
-	*(short int *)tmp=input.key; tmp+=sizeof(short int);
-	*(double *)tmp=input.ax; tmp+=sizeof(double);
-	*(double *)tmp=input.ay; tmp+=sizeof(double);
-	*(double *)tmp=input.az; tmp+=sizeof(double);
+	*(InputData *)tmp=input; tmp+=sizeof(InputData);
 	clearInput();
 	len=tmp-buffer;
 	if(len>max_msglen){

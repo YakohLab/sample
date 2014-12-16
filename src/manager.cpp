@@ -78,7 +78,6 @@ bool Manager::tickServer(void) {
 	MyNetwork &net=MyNetwork::getInstance();
 	Input &input=Input::getInstance();
 
-	view.checkInput(); // 他のプレーヤーの入力は、既に通信で非同期に届いている
 	mgr.members[0].input=input.input;
 	input.clearInput();
 	mgr.model.preAction();
@@ -89,6 +88,7 @@ bool Manager::tickServer(void) {
 	net.sendScene(mgr.scene);
 	mgr.scene.valid=true;
 	view.update();
+	view.checkInput(); // 他のプレーヤーの入力は、既に通信で非同期に届いている
 	if (mgr.get_state() == Run) { // trueを返すとタイマーを再設定し、falseならタイマーを停止する
 		return true;
 	} else {

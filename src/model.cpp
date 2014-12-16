@@ -11,14 +11,6 @@
 
 #include "input.h"
 
-Model::Model() {
-	// TODO Auto-generated constructor stub
-}
-
-Model::~Model() {
-	// TODO Auto-generated destructor stub
-}
-
 void Model::initModel(void){
 //	std::cout << "Init" << std::endl;
 	Scene &scene=Manager::getInstance().scene;
@@ -35,18 +27,18 @@ void Model::initModel(void){
 	}
 }
 
-void Model::preAction(void){
+void Model::preAction(void){ // 衝突判定など、判定のみを行う。公平のため、ここで動かしてはいけない
 	time_t t;
 	Scene &scene=Manager::getInstance().scene;
 	t=time(NULL);
 	localtime_r(&t, &scene.tm);
 }
 
-void Model::postAction(void){
+void Model::postAction(void){ // 全プレイヤーの動作を終えた後に、全体の状況を変えたい場合はここで処理する
 
 }
 
-void Model::stepPlayer(int fd){
+void Model::stepPlayer(int fd){ // 各プレイヤーの動作を行う。公平のため、ここでは判断を行ってはいけない
 	Manager &mgr = Manager::getInstance();
 	Scene &scene=mgr.scene;
 	InputData &input=mgr.members[fd].input;
