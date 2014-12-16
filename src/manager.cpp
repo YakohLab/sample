@@ -106,7 +106,7 @@ void Manager::startServerTick(void){
 	scene.init();
 	for(std::map<int, Member>::iterator i=members.begin(); i!=members.end(); ++i, ++j){
 		// 参加者のnameとidを確定する
-		p.name=i->second.name;
+		strcpy(p.name, i->second.name.c_str());
 		// 初期化したinputをコピーすることで、各々のinputを初期化する
 		members[i->first].input=input.input;
 		scene.p[j]=p;

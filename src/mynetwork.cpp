@@ -1,10 +1,3 @@
-/* -*- Mode: C; indent-tabs-mode: t; c-basic-offset: 4; tab-width: 4 -*- */
-/*
- * network.cc
- * Copyright (C) Takahiro Yakoh 2011 <yakoh@sd.keio.ac.jp>
- * $Revision: 1.20 $
- */
-
 #include "mynetwork.h"
 
 #include "input.h"
@@ -198,7 +191,7 @@ bool MyNetwork::showStatus(void){
 				r++;
 			}
 		}
-		sprintf(buffer, "%d / %lu", r, mgr.members.size());
+		sprintf(buffer, "%d / %d", r, (int)mgr.members.size());
 
 		h.command=Header::STATUS;
 		h.length=strlen(buffer)+1;

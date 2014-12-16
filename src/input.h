@@ -51,7 +51,7 @@ struct Dot {
 
 const int max_dots = 5;
 struct Player {
-	std::string name;
+	char name[20];
 	int x, y;
 	double ax, ay, az;
 	Dot dots[max_dots];
