@@ -58,23 +58,16 @@ public:
 		return instance;
 	}
 
-	void init_view(MyDrawingArea *area) {
-		drawingArea = area;
-	}
-
-	void update() {
+	void update(void){
 		drawingArea->update();
 	}
 	void checkInput(void);
 
+	MyDrawingArea *drawingArea;
 private:
 	ViewManager(){drawingArea=0;}
 	ViewManager(ViewManager&);
 	void operator =(ViewManager&);
-
-	MyDrawingArea *drawingArea;
 };
-
-extern MyDrawingArea *drawingArea;
 
 #endif /* VIEW_H_ */

@@ -88,6 +88,7 @@ int main(int argc, char *argv[]) {
 	gdk_gl_init(&argc, &argv);
 #endif
 	Manager &mgr = Manager::getInstance();
+	ViewManager &vmr=ViewManager::getInstance();
 	mgr.init_status();
 	model=new Model;
 	Glib::RefPtr<Gtk::Builder> builder;
@@ -114,7 +115,7 @@ int main(int argc, char *argv[]) {
 	builder->get_widget("standalone", standalone);
 	builder->get_widget("server", server);
 	builder->get_widget("client", client);
-	builder->get_widget_derived("drawingarea1", drawingArea);
+	builder->get_widget_derived("drawingarea1", vmr.drawingArea);
 	builder->get_widget("statusbar1", statusBar);
 	builder->get_widget_derived("Start", menu[0]);
 	builder->get_widget_derived("Stop", menu[1]);
@@ -124,8 +125,6 @@ int main(int argc, char *argv[]) {
 	for (int i = 0; i < 5; ++i) {
 		menu[i]->menuId = i;
 	}
-
-	ViewManager::getInstance().init_view(drawingArea);
 
 	kit.run(*(mainWindow));
 	return 0;
