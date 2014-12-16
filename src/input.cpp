@@ -27,6 +27,9 @@ char *Input::packInput(int &len){
 	*(double *)tmp=input.az; tmp+=sizeof(double);
 	clearInput();
 	len=tmp-buffer;
+	if(len>max_msglen){
+		std::cout << "Input size exceeds max_msglen." << std::endl;
+	}
 	return buffer;
 }
 
@@ -56,6 +59,9 @@ char *Scene::packScene(int &len){
 		*(Player *)tmp=i->second; tmp+=sizeof(Player);
 	}
 	len=tmp-buffer;
+	if(len>max_msglen){
+		std::cout << "Scene size exceeds max_msglen." << std::endl;
+	}
 	return buffer;
 }
 

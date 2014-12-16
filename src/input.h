@@ -5,6 +5,8 @@
 #include <map>
 #include <gtkmm.h>
 
+const int max_msglen = 1000;
+
 class InputData {
 public:
 	int up, down, left, right;
@@ -34,7 +36,7 @@ private:
 	}
 	Input(Input&);
 	void operator =(Input&);
-	char buffer[1000];
+	char buffer[max_msglen];
 };
 
 class Member {
@@ -68,7 +70,7 @@ public:
 	void init();
 	Scene(){init();};
 private:
-	char buffer[1000];
+	char buffer[max_msglen];
 };
 
 #endif
