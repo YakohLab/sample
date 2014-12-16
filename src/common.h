@@ -38,6 +38,7 @@ struct player_t {
 struct Scene {
 	char c[2];
 	struct tm tm;
+	int id;
 	player_t p[max_players];
 };
 

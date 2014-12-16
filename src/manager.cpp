@@ -81,6 +81,7 @@ gboolean Manager::tickServer(void *p) {
 	mgr.model.postAction();
 	for (int i = 1; i < max_players; ++i) { // 自分には送る必要ないので1から
 		if (mgr.scene.p[i].attend) {
+			mgr.scene.id=i;
 			sendScene(i, &mgr.scene);
 		}
 	}
