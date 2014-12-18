@@ -1,3 +1,8 @@
+/*
+ * input.cpp
+ * InputDataやSceneをパケットに詰め込むpack関数と、パケットからメンバに取り込むreceive関数
+ * 各種入力デバイスからのイベントを、InputDataへ反映させる方法を定める関数
+ */
 #include "input.h"
 #include "view.h"
 #include "mysmartphone.h"

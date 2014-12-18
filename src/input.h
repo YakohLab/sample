@@ -1,3 +1,8 @@
+/*
+ * input.h
+ * 受け付ける入力データを定義するInputDataと、関連するInputクラス
+ * 表示するデータを定義するSceneクラス
+ */
 #ifndef INPUT_H_
 #define INPUT_H_
 

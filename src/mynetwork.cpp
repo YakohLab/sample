@@ -1,5 +1,8 @@
+/*
+ * mynetwork.h
+ * Networkを継承した、ゲーム用の通信関数をまとめたもの
+ */
 #include "mynetwork.h"
-
 #include "input.h"
 #include "view.h"
 #include "model.h"

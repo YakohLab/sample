@@ -1,14 +1,12 @@
 /*
  * manager.cpp
- *
- *  Created on: 2013/12/17
- *      Author: sdjikken
+ * ゲームの進行を司る。
+ * タイマーを利用し、サンプリング周期毎に入力・処理・出力を繰り返すという流れを実現する。
  */
-
 #include "manager.h"
 #include "input.h"
 
-const int period = 30; // in millisecond
+const int period = 33; // in millisecond
 
 Manager::Manager(void){
 	init_status();

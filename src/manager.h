@@ -1,10 +1,7 @@
 /*
  * manager.h
- *
- *  Created on: 2013/12/17
- *      Author: sdjikken
+ * ゲームの状態を表すManagerクラスを定義
  */
-
 #ifndef MANAGER_H_
 #define MANAGER_H_
 

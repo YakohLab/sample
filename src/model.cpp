@@ -1,14 +1,11 @@
 /*
  * model.cpp
- *
- *  Created on: 2013/12/09
- *      Author: yakoh
+ * 入力データInputDataの内容を場面Sceneに反映させる
+ * 不公平にならないよう注意が必要
  */
-
 #include <iostream>
 #include "model.h"
 #include "manager.h"
-
 #include "input.h"
 
 void Model::initModel(void){

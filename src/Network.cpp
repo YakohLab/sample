@@ -1,3 +1,8 @@
+/*
+ * Network.cpp
+ * TCP/IPソケット通信による基本的なサーバ・クライアント通信機能を実現
+ * サーバ・クライアント間の通信方法、基本的なパケット構造を定義
+ */
 #include <iostream>
 #include <vector>
 #include <sys/types.h>

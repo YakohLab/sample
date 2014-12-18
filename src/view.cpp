@@ -1,3 +1,7 @@
+/*
+ * view.cpp
+ * 画面表示を司る関数群
+ */
 #include <iostream>
 #include <cmath>
 #include "view.h"
@@ -7,7 +11,7 @@
 #include <gdk/gdkx.h>
 #include <gdk/gdk.h>
 
-MyDrawingArea *drawingArea;
+const int ss_divisor = 3; // frames
 
 MyDrawingArea::MyDrawingArea(BaseObjectType* o, const Glib::RefPtr<Gtk::Builder>& g):
 Gtk::DrawingArea(o){
@@ -187,10 +191,11 @@ bool MyDrawingArea::on_expose_event( GdkEventExpose* e ){
 		glFlush();
 	}
 	gdk_gl_drawable_gl_end(gl_drawable);
-#else
+
+	#else
 	MySmartphone &smapho=MySmartphone::getInstance();
 	static int frame=0;
-	if((++frame%3)==0 && smapho.isConnected()){
+	if((++frame%ss_divisor)==0 && smapho.isConnected()){
 		Glib::RefPtr<Gdk::Pixmap> pixmap=this->get_snapshot();
 		Glib::RefPtr<Gdk::Pixbuf> rp=Gdk::Pixbuf::create((Glib::RefPtr<Gdk::Drawable>)pixmap,
 				0, 0, this->get_width(), this->get_height());
@@ -208,11 +213,11 @@ bool MyDrawingArea::on_expose_event( GdkEventExpose* e ){
 		cc->stroke();
 	}
 
-	cc->set_font_size(30);
+	cc->set_font_size(16);
 	cc->move_to((double)(ls+ls*sin(2.0*M_PI*scene.tm.tm_sec/60)),
 			(double)(ls-ls*cos(2.0*M_PI*scene.tm.tm_sec/60)));
 	cc->show_text(std::string(scene.c).c_str());
-	cc->move_to(0, 30);
+	cc->move_to(4, 20);
 	if(scene.id==-1){
 		cc->show_text(std::string("Standalone"));
 	}else if(scene.id==0){

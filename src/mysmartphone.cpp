@@ -1,3 +1,7 @@
+/*
+ * mysmartphone.cpp
+ * Smartphoneを継承して、ゲーム用のスマホサーバ機能を実現
+ */
 #include "mysmartphone.h"
 #include <iostream>
 

@@ -1,6 +1,6 @@
 /*
- * smartphone.cpp
- * smartphone.h および smartphone.cpp は、変更してはならない！
+ * Smartphone.cpp
+ * Smartphone.h および Smartphone.cpp は、変更してはならない！
  * 使い方はsmartphone.hのコメントを参照のこと。
  */
 #include <iostream>

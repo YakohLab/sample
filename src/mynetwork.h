@@ -1,10 +1,7 @@
 /*
  * mynetwork.h
- *
- *  Created on: 2014/12/09
- *      Author: sdjikken
+ * Networkを継承した、ゲーム用の通信関数をまとめたもの
  */
-
 #ifndef MYNETWORK_H_
 #define MYNETWORK_H_
 #include "Network.h"

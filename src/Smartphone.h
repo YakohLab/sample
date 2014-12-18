@@ -1,4 +1,5 @@
 /*
+ * Smartphone.h
  * 使い方
  * smartphone.h および smartphone.cpp は、変更してはならない！
  * クラスSmartphoneを継承して、独自の派生クラスを作成すること。

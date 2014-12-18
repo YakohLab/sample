@@ -1,3 +1,7 @@
+/*
+ * Network.h
+ * TCP/IPソケット通信による基本的なサーバ・クライアント通信機能を実現
+ */
 #ifndef NETWORK_H
 #define NETWORK_H
 #include <iostream>
