@@ -61,6 +61,15 @@ bool MyDrawingArea::on_expose_event( GdkEventExpose* e ){
 		return true;
 	}
 	//	std::cout << "Exposed" << std::endl;
+	MySmartphone &smapho=MySmartphone::getInstance();
+	static int frame=0;
+	if((++frame%3)==0 && smapho.isConnected()){
+		Glib::RefPtr<Gdk::Pixmap> pixmap=this->get_snapshot();
+		Glib::RefPtr<Gdk::Pixbuf> rp=Gdk::Pixbuf::create((Glib::RefPtr<Gdk::Drawable>)pixmap,
+				0, 0, this->get_width(), this->get_height());
+		rp=rp->scale_simple(smapho.get_width(), smapho.get_height(),  Gdk::INTERP_NEAREST);
+		smapho.sendPixbuf((Glib::RefPtr<Gdk::Pixbuf>)rp);
+	}
 
 	int ls=fmin(this->get_width()*0.5f, this->get_height()*0.5f);
 	int lm=fmin(this->get_width()*0.4f, this->get_height()*0.4f);
@@ -239,6 +248,7 @@ bool MyDrawingArea::on_expose_event( GdkEventExpose* e ){
 	}
 #endif
 	scene.valid=false;
+
 	return true;
 }
 

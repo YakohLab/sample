@@ -28,6 +28,7 @@ public:
 	void set_key(GdkEventKey* k);
 	void reset_key(GdkEventKey* k);
 	void set_input(int argx, int argy);
+	void set_SmaphoInput(int argx, int argy);
 	void set_angle(double, double, double);
 	InputData input;
 private:

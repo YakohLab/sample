@@ -34,7 +34,7 @@ public:
 	bool open(int port);
 	void close(void);
 	void sendMessage(char *msg);
-	void sendPixbuf(Glib::RefPtr<Gdk::Pixbuf> pixbuf);
+	void sendPixbuf(Glib::RefPtr<Gdk::Pixbuf> pixbuf, int quality=80);
 	bool isConnected(void);
 	virtual void onConnect(const char *, int w, int h){};
 	virtual void onDisconnect(void){};
@@ -51,6 +51,7 @@ private:
 	Glib::RefPtr<Glib::IOSource> ss, ws;
 #endif
 	int port;
+	bool connected;
 	char *keyReply(const char *key);
 	std::string ipaddr;
 	bool onAccept(Glib::IOCondition condition);

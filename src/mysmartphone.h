@@ -10,6 +10,8 @@ public:
 	void onConnect(const char *from, int w, int h);
 	void onDisconnect(void);
 	void sendImage(const char *filename);
+	int get_width(void);
+	int get_height(void);
 private:
 	MySmartphone():Smartphone(){}
 	MySmartphone(MySmartphone&);

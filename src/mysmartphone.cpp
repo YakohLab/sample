@@ -21,7 +21,7 @@ void MySmartphone::onRecvBinary(float *array, int n){
 		std::cout << std::endl;
 		std::flush(std::cout);
 		if(n>1){
-			input.set_input(w, h);
+			input.set_SmaphoInput(w, h);
 		}
 		break;
 	case 4: // accelerometer
@@ -48,4 +48,12 @@ void MySmartphone::sendImage(const char *filename){
 		return;
 	}
 	sendPixbuf(pixbuf);
+}
+
+int MySmartphone::get_width(void){
+	return width;
+}
+
+int MySmartphone::get_height(void){
+	return height;
 }

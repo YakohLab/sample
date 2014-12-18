@@ -1,4 +1,6 @@
 #include "input.h"
+#include "view.h"
+#include "mysmartphone.h"
 #include <iostream>
 void Input::receiveInput(char *tmp, InputData &data){ // サーバとして、クライアントの入力を受け取る
 	data=*(InputData *)tmp;
@@ -57,6 +59,13 @@ void Input::clearInput(void){
 void Input::set_input(int argx, int argy){
 	input.x=argx;
 	input.y=argy;
+}
+
+void Input::set_SmaphoInput(int argx, int argy){
+	ViewManager &vmr=ViewManager::getInstance();
+	MySmartphone &smapho=MySmartphone::getInstance();
+	input.x=vmr.get_width()*argx/smapho.get_width();
+	input.y=vmr.get_height()*argy/smapho.get_height();
 }
 
 void Input::set_angle(double argax, double argay, double argaz){

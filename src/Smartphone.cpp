@@ -23,6 +23,7 @@
 
 Smartphone::Smartphone(void){
 	height=width=port=0;
+	connected=false;
 }
 
 void Smartphone::close(void){
@@ -97,14 +98,14 @@ void Smartphone::sendMessage(char *msg){
 	s->send(msg, n);
 }
 
-void Smartphone::sendPixbuf(Glib::RefPtr<Gdk::Pixbuf> pixbuf){
+void Smartphone::sendPixbuf(Glib::RefPtr<Gdk::Pixbuf> pixbuf, int quality){
 	char header[10];
 	gsize length;
 	if(!s || !s->is_connected())return;
 	char *cp;
 	std::vector<Glib::ustring> option_keys, option_values;
 	option_keys.push_back(Glib::ustring("quality"));
-	option_values.push_back(Glib::ustring("80"));
+	option_values.push_back(std::to_string(quality));
 	pixbuf->save_to_buffer(cp, length, Glib::ustring("jpeg"), option_keys, option_values);
 
 	if(length<126){
@@ -246,6 +247,7 @@ bool Smartphone::onReceive(Glib::IOCondition condition){
 			width=(int)(*(float *)&buff[offset+sizeof(float)]);
 			height=(int)(*(float *)&buff[offset+sizeof(float)*2]);
 			onConnect(ipaddr.c_str(), width, height);
+			connected=true;
 		}else{
 			onRecvBinary((float *)&buff[offset], size/sizeof(float));
 		}

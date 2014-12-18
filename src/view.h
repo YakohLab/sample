@@ -68,6 +68,12 @@ public:
 	void push(std::string s){
 		statusbar->pushTemp(s);
 	}
+	int get_width(void){
+		return drawingArea->get_width();
+	}
+	int get_height(void){
+		return drawingArea->get_height();
+	}
 	Gtk::Window *init(Glib::RefPtr<Gtk::Builder>);
 private:
 	ViewManager();
