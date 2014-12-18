@@ -86,6 +86,7 @@ bool Manager::tickServer(void) {
 	}
 	mgr.model.postAction();
 	net.sendScene(mgr.scene);
+	mgr.scene.id=0; // serverのidはゼロ
 	mgr.scene.valid=true;
 	view.update();
 	view.checkInput(); // 他のプレーヤーの入力は、既に通信で非同期に届いている
@@ -97,6 +98,11 @@ bool Manager::tickServer(void) {
 }
 
 void Manager::startStandaloneTick(void){
+	Input &input=Input::getInstance();
+	Manager &mgr = Manager::getInstance();
+	input.clearInput();
+	mgr.scene.init();
+	mgr.scene.id=-1;
 	sigc::slot<bool> slot = sigc::mem_fun(*this, &Manager::tick);
 	Glib::signal_timeout().connect(slot, period);
 }

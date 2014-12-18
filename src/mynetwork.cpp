@@ -158,10 +158,12 @@ void MyNetwork::sendScene(Scene &s){
 	Header h;
 	Manager &mgr = Manager::getInstance();
 	char *p;
+	int j=0;
 
-	for(std::map<int, Member>::iterator i=mgr.members.begin(); i!=mgr.members.end(); ++i){
+	for(std::map<int, Member>::iterator i=mgr.members.begin(); i!=mgr.members.end(); ++i, ++j){
 		if(i->first!=0){
 			h.command=Header::DRAW;
+			s.id=j;
 			p=s.packScene(h.length);
 			sendToClient(i->first, &h, sizeof(Header));
 			sendToClient(i->first, p, h.length);

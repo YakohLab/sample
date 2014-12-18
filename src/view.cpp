@@ -208,17 +208,25 @@ bool MyDrawingArea::on_expose_event( GdkEventExpose* e ){
 		cc->stroke();
 	}
 
+	cc->set_font_size(30);
+	cc->move_to((double)(ls+ls*sin(2.0*M_PI*scene.tm.tm_sec/60)),
+			(double)(ls-ls*cos(2.0*M_PI*scene.tm.tm_sec/60)));
+	cc->show_text(std::string(scene.c).c_str());
+	cc->move_to(0, 30);
+	if(scene.id==-1){
+		cc->show_text(std::string("Standalone"));
+	}else if(scene.id==0){
+		cc->show_text(std::string("Server"));
+	}else{
+		cc->show_text(std::string("Client #")+std::to_string(scene.id));
+	}
+
 	cc->set_line_width(3.0); // second hand
 	cc->set_source_rgb(0.0, 0.0, 1.0);
 	cc->move_to(ls, ls);
 	cc->line_to((double)(ls+ls*sin(2.0*M_PI*scene.tm.tm_sec/60)),
 			(double)(ls-ls*cos(2.0*M_PI*scene.tm.tm_sec/60)));
 	cc->stroke();
-
-	cc->set_font_size(30);
-	cc->move_to((double)(ls+ls*sin(2.0*M_PI*scene.tm.tm_sec/60)),
-			(double)(ls-ls*cos(2.0*M_PI*scene.tm.tm_sec/60)));
-	cc->show_text(std::string(scene.c).c_str());
 
 	cc->set_line_width(8.0); // minute hand
 	cc->set_source_rgb(0.0, 1.0, 0.0);

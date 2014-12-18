@@ -65,6 +65,7 @@ public:
 	char c[2];
 	struct tm tm;
 	std::map<int, Player> p;
+	int id;
 	void receiveScene(char *);
 	char *packScene(int &len);
 	bool valid;
