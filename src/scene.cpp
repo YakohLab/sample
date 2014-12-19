@@ -28,7 +28,7 @@ char *Scene::packScene(int &len){
 	*(char *)tmp=id; tmp+=sizeof(char);
 	*(struct tm *)tmp=tm; tmp+=sizeof(struct tm);
 	*(char *)tmp=p.size(); tmp+=sizeof(char); // 可変長のデータは、まず個数を送る
-	for(std::map<int, Player>::iterator i=p.begin(); i!=p.end(); ++i){
+	for(Players::iterator i=p.begin(); i!=p.end(); ++i){
 		*(char *)tmp=i->first; tmp+=sizeof(char);
 		*(Player *)tmp=i->second; tmp+=sizeof(Player);
 	}

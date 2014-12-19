@@ -38,8 +38,9 @@ private:
 		Glib::RefPtr<Glib::IOSource> source;
 	#endif
 	};
+	typedef std::vector<SS> Clients;
 	SS w, s; // wait, server
-	std::vector<SS> c; // clients
+	Clients c; // clients
 	bool onAccept(Glib::IOCondition condition);
 	bool onReceive(Glib::IOCondition condition);
 };

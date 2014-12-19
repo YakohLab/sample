@@ -16,7 +16,7 @@ void Model::initModel(void){
 	localtime_r(&t, &scene.tm);
 	scene.c[0]=0;
 	scene.c[1]=0;
-	for(std::map<int, Player>::iterator i=scene.p.begin(); i!=scene.p.end(); ++i){
+	for(Players::iterator i=scene.p.begin(); i!=scene.p.end(); ++i){
 		i->second.curDots=0;
 		for(int j=0; j<max_dots; ++j){
 			i->second.dots[j].visible=0;
@@ -40,7 +40,7 @@ void Model::stepPlayer(int fd){ // 各プレイヤーの動作を行う。公平
 	Scene &scene=mgr.scene;
 	InputData &input=mgr.members[fd].input;
 	int id=0;
-	for(std::map<int, Member>::iterator i=mgr.members.begin(); i!=mgr.members.end(); ++i, ++id){
+	for(Members::iterator i=mgr.members.begin(); i!=mgr.members.end(); ++i, ++id){
 		if(i->first==fd)break;
 	}
 	Player &player=scene.p[id];

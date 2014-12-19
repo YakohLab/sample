@@ -6,7 +6,6 @@
 #define SCENE_H_
 #include <gtkmm.h>
 
-
 const int max_scenelen = 1000;
 
 struct Dot {
@@ -22,11 +21,13 @@ struct Player { // 要素数を可変にしたい場合は、packSceneとreceive
 	int curDots;
 };
 
+typedef std::map<int, Player> Players;
+
 class Scene {
 public:
 	char c[2];
 	struct tm tm;
-	std::map<int, Player> p;
+	Players p;
 	int id;
 	void receiveScene(char *);
 	char *packScene(int &len);

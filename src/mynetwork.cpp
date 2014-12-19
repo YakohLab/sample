@@ -60,7 +60,7 @@ void MyNetwork::onRecvFromClient(int fd, char *msg){
 		}
 		tmp.name=std::string(msg+sizeof(Header));
 		tmp.ready=0;
-		mgr.members[fd]=tmp;
+		mgr.members.insert(Members::value_type(fd, tmp));
 		showStatus();
 		break;
 	case Header::START:
@@ -70,7 +70,7 @@ void MyNetwork::onRecvFromClient(int fd, char *msg){
 		}
 		break;
 	case Header::STOP:
-		for(std::map<int, Member>::iterator i=mgr.members.begin(); i!=mgr.members.end(); ++i){
+		for(Members::iterator i=mgr.members.begin(); i!=mgr.members.end(); ++i){
 			i->second.ready=0;
 		}
 		mgr.set_state(Manager::Stop);
@@ -135,7 +135,8 @@ bool MyNetwork::startServer(int port, const char *name){
 	Member tmp;
 	tmp.name=std::string(name);
 	tmp.ready=0;
-	mgr.members[0]=tmp;
+	tmp.id=0;
+	mgr.members.insert(Members::value_type(0, tmp));
 	return true;
 }
 
@@ -149,7 +150,7 @@ void MyNetwork::runServer(void){
 
 void MyNetwork::stopServer(void){
 	Manager &mgr = Manager::getInstance();
-	for(std::map<int, Member>::iterator i=mgr.members.begin(); i!=mgr.members.end(); ++i){
+	for(Members::iterator i=mgr.members.begin(); i!=mgr.members.end(); ++i){
 		i->second.ready=0;
 	}
 	mgr.set_state(Manager::Stop);
@@ -161,12 +162,11 @@ void MyNetwork::sendScene(Scene &s){
 	Header h;
 	Manager &mgr = Manager::getInstance();
 	char *p;
-	int j=0;
 
-	for(std::map<int, Member>::iterator i=mgr.members.begin(); i!=mgr.members.end(); ++i, ++j){
+	for(Members::iterator i=mgr.members.begin(); i!=mgr.members.end(); ++i){
 		if(i->first!=0){
 			h.command=Header::DRAW;
-			s.id=j;
+			s.id=i->second.id;
 			p=s.packScene(h.length);
 			sendToClient(i->first, &h, sizeof(Header));
 			sendToClient(i->first, p, h.length);
@@ -179,7 +179,7 @@ void MyNetwork::sendStop(void){
 	Manager &mgr = Manager::getInstance();
 	h.command=Header::STOP;
 	h.length=0;
-	for(std::map<int, Member>::iterator i=mgr.members.begin(); i!=mgr.members.end(); ++i){
+	for(Members::iterator i=mgr.members.begin(); i!=mgr.members.end(); ++i){
 		if(i->first!=0){
 			sendToClient(i->first, &h, sizeof(Header));
 		}
@@ -193,7 +193,7 @@ bool MyNetwork::showStatus(void){
 		Manager &mgr = Manager::getInstance();
 		ViewManager &vmr=ViewManager::getInstance();
 
-		for(std::map<int, Member>::iterator i=mgr.members.begin(); i!=mgr.members.end(); ++i){
+		for(Members::iterator i=mgr.members.begin(); i!=mgr.members.end(); ++i){
 			if(i->second.ready){
 				r++;
 			}
@@ -202,7 +202,7 @@ bool MyNetwork::showStatus(void){
 
 		h.command=Header::STATUS;
 		h.length=strlen(buffer)+1;
-		for(std::map<int, Member>::iterator i=mgr.members.begin(); i!=mgr.members.end(); ++i){
+		for(Members::iterator i=mgr.members.begin(); i!=mgr.members.end(); ++i){
 			if(i->first!=0){
 				sendToClient(i->first, &h, sizeof(Header));
 				sendToClient(i->first, buffer, h.length);

@@ -79,7 +79,7 @@ bool Manager::tickServer(void) {
 	mgr.members[0].input=input.input;
 	input.clearInput();
 	mgr.model.preAction();
-	for(std::map<int, Member>::iterator i=mgr.members.begin(); i!=mgr.members.end(); ++i){
+	for(Members::iterator i=mgr.members.begin(); i!=mgr.members.end(); ++i){
 		mgr.model.stepPlayer(i->first);
 	}
 	mgr.model.postAction();
@@ -111,12 +111,13 @@ void Manager::startServerTick(void){
 	int j=0;
 	input.clearInput();
 	scene.init();
-	for(std::map<int, Member>::iterator i=members.begin(); i!=members.end(); ++i, ++j){
+	for(Members::iterator i=members.begin(); i!=members.end(); ++i, ++j){
 		// 参加者のnameとidを確定する
 		strcpy(p.name, i->second.name.c_str());
 		// 初期化したinputをコピーすることで、各々のinputを初期化する
 		members[i->first].input=input.input;
-		scene.p[j]=p;
+		members[i->first].id=j;
+		scene.p.insert(Players::value_type(j, p));
 	}
 	model.initModel();
 	set_state(Run);

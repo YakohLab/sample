@@ -13,9 +13,12 @@
 class Member {
 public:
 	int ready;
+	int id;
 	std::string name;
 	InputData input;
 };
+
+typedef std::map<int, Member> Members;
 
 class Manager {
 public:
@@ -41,7 +44,7 @@ public:
 	void tickClient(void);
 	void startServerTick(void);
 	void startStandaloneTick(void);
-	std::map<int, Member> members;
+	Members members;
 
 	Scene scene;
 private:

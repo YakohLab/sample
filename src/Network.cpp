@@ -27,7 +27,7 @@ Network::Network(void){
 }
 
 Network::~Network(void){
-	for(std::vector<SS>::iterator i=c.begin(); i!=c.end(); ++i){
+	for(Clients::iterator i=c.begin(); i!=c.end(); ++i){
 		i->socket.reset();
 	}
 	s.socket.reset();
@@ -126,7 +126,7 @@ void Network::disconnect(void){
 }
 
 void Network::sendToClient(int fd, void *msg, int len){
-	for(std::vector<SS>::iterator i=c.begin(); i!=c.end(); ++i){
+	for(Clients::iterator i=c.begin(); i!=c.end(); ++i){
 		if(i->socket && i->socket->get_fd()==fd){
 			i->socket->send((char *)msg, len);
 			return;
@@ -194,7 +194,7 @@ bool Network::onReceive(Glib::IOCondition condition){
 			onRecvFromServer(buff);
 		}
 	}else{
-		for(std::vector<SS>::iterator i=c.begin(); i!=c.end(); ++i){
+		for(Clients::iterator i=c.begin(); i!=c.end(); ++i){
 			if(i->socket->condition_check(condition)){
 				length=i->socket->receive(buff, sizeof(Header));
 				if(length<1){
