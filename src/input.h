@@ -1,7 +1,6 @@
 /*
  * input.h
  * 受け付ける入力データを定義するInputDataと、関連するInputクラス
- * 表示するデータを定義するSceneクラス
  */
 #ifndef INPUT_H_
 #define INPUT_H_
@@ -10,10 +9,9 @@
 #include <map>
 #include <gtkmm.h>
 
-const int max_msglen = 1000;
+const int max_inputlen = 100;
 
-class InputData { // 要素数を可変にしたい場合は、packInputとreceiveInputを注意深く書き直す必要がある
-public:
+struct InputData { // 要素数を可変にしたい場合は、packInputとreceiveInputを注意深く書き直す必要がある
 	int up, down, left, right;
 	int x, y;
 	int key;
@@ -42,42 +40,7 @@ private:
 	}
 	Input(Input&);
 	void operator =(Input&);
-	char buffer[max_msglen];
-};
-
-class Member {
-public:
-	int ready;
-	std::string name;
-	InputData input;
-};
-
-struct Dot {
-	int x, y, visible;
-};
-
-const int max_dots = 5;
-struct Player { // 要素数を可変にしたい場合は、packSceneとreceiveSceneを注意深く書き直す必要がある
-	char name[20];
-	int x, y;
-	double ax, ay, az;
-	Dot dots[max_dots];
-	int curDots;
-};
-
-class Scene {
-public:
-	char c[2];
-	struct tm tm;
-	std::map<int, Player> p;
-	int id;
-	void receiveScene(char *);
-	char *packScene(int &len);
-	bool valid;
-	void init();
-	Scene(){init();};
-private:
-	char buffer[max_msglen];
+	char buffer[max_inputlen];
 };
 
 #endif

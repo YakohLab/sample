@@ -10,6 +10,13 @@
 #include "mysmartphone.h"
 #include "mynetwork.h"
 
+class Member {
+public:
+	int ready;
+	std::string name;
+	InputData input;
+};
+
 class Manager {
 public:
 	enum State {

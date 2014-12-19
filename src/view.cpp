@@ -16,7 +16,9 @@ const int ss_divisor = 3; // frames
 MyDrawingArea::MyDrawingArea(BaseObjectType* o, const Glib::RefPtr<Gtk::Builder>& g):
 Gtk::DrawingArea(o){
 	Manager &mgr = Manager::getInstance();
+	MySmartphone &smapho = MySmartphone::getInstance();
 	mgr.scene.init();;
+	smapho.open(8888);
 
 #ifdef USE_OPENGL
 	gl_config = gdk_gl_config_new_by_mode((GdkGLConfigMode)
@@ -195,12 +197,12 @@ bool MyDrawingArea::on_expose_event( GdkEventExpose* e ){
 	#else
 	MySmartphone &smapho=MySmartphone::getInstance();
 	static int frame=0;
-	if((++frame%ss_divisor)==0 && smapho.isConnected()){
+	if((++frame%ss_divisor)==0 && smapho.isConnected() && mgr.get_mode()==Manager::Server && mgr.members.size()==1){
 		Glib::RefPtr<Gdk::Pixmap> pixmap=this->get_snapshot();
-		Glib::RefPtr<Gdk::Pixbuf> rp=Gdk::Pixbuf::create((Glib::RefPtr<Gdk::Drawable>)pixmap,
+		Glib::RefPtr<Gdk::Pixbuf> pixbuf=Gdk::Pixbuf::create((Glib::RefPtr<Gdk::Drawable>)pixmap,
 				0, 0, this->get_width(), this->get_height());
-		rp=rp->scale_simple(smapho.get_width(), smapho.get_height(),  Gdk::INTERP_NEAREST);
-		smapho.sendPixbuf((Glib::RefPtr<Gdk::Pixbuf>)rp);
+		pixbuf=pixbuf->scale_simple(smapho.get_width(), smapho.get_height(),  Gdk::INTERP_NEAREST);
+		smapho.sendPixbuf((Glib::RefPtr<Gdk::Pixbuf>)pixbuf);
 	}
 
 	cc->set_source_rgb(0.8, 0.8, 0.8);
@@ -273,19 +275,19 @@ void MyDrawingArea::update(){
 // 押し続けている状態を把握できるようにできるが、
 // これらは即時性のない入力なので使わない。
 // 替わりに毎回checkInputを呼び出して、類似のイベントを発生するようにした。
-bool MyDrawingArea::on_key_press_event(GdkEventKey* k){
-	//	std::cout << "Pressed " << k->keyval << std::endl;
+//bool MyDrawingArea::on_key_press_event(GdkEventKey* k){
+//	std::cout << "Pressed " << k->keyval << std::endl;
 //	Input &input=Input::getInstance();
 //	input.set_key(k);
-	return true;
-}
+//	return true;
+//}
 
-bool MyDrawingArea::on_key_release_event(GdkEventKey* k){
-	//	std::cout << "Released " << k->keyval << std::endl;
+//bool MyDrawingArea::on_key_release_event(GdkEventKey* k){
+//	std::cout << "Released " << k->keyval << std::endl;
 //	Input &input=Input::getInstance();
 //	input.reset_key(k);
-	return true;
-}
+//	return true;
+//}
 
 bool MyDrawingArea::on_button_press_event (GdkEventButton* event){
 	//	std::cout << "Pressed " << event->x << "," << event->y << std::endl;
@@ -402,7 +404,6 @@ void ViewManager::subSend(void){
 void ViewManager::subHide(void) {
 	Manager &mgr = Manager::getInstance();
 	MyNetwork &net=MyNetwork::getInstance();
-	MySmartphone &smapho = MySmartphone::getInstance();
 
 	if (server->get_active() && mgr.get_mode()!=Manager::Server){
 		net.disconnect();
@@ -437,7 +438,6 @@ void ViewManager::subHide(void) {
 		break;
 	}
 	subWindow->hide();
-	smapho.open(8888);
 }
 
 Gtk::Window *ViewManager::init(Glib::RefPtr<Gtk::Builder> builder){

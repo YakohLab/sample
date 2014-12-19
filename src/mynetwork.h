@@ -6,6 +6,7 @@
 #define MYNETWORK_H_
 #include "Network.h"
 #include "input.h"
+#include "scene.h"
 
 class MyNetwork : public Network {
 public:

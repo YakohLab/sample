@@ -23,8 +23,8 @@ public:
 	void update();
 protected:
 	virtual void on_realize();
-	virtual bool on_key_press_event(GdkEventKey*);
-	virtual bool on_key_release_event(GdkEventKey*);
+//	virtual bool on_key_press_event(GdkEventKey*);
+//	virtual bool on_key_release_event(GdkEventKey*);
 	virtual bool on_button_press_event(GdkEventButton*);
 #if GTKMM3
 	virtual bool on_draw(const Cairo::RefPtr<Cairo::Context>&);
