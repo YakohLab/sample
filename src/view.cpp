@@ -298,8 +298,6 @@ bool MyDrawingArea::on_button_press_event (GdkEventButton* event){
 
 MyImageMenuItem::MyImageMenuItem(BaseObjectType* o, const Glib::RefPtr<Gtk::Builder>& g):
 					Gtk::ImageMenuItem(o){
-//	g->get_widget("window2", vmr.subWindow);
-//	g->get_widget("window3", fileWindow);
 	menuId=-1;
 }
 
@@ -315,44 +313,46 @@ void MyImageMenuItem::on_activate(void){
 
 	switch(menuId){
 	case 0:
-		if(mgr.get_state() != Manager::Run){
-			mgr.set_state(Manager::Run);
-			vmr.push(std::string("Run"));
-			switch(mgr.get_mode()){
-			case Manager::Standalone:
-				mgr.init_objects();
-				mgr.startStandaloneTick();
-				break;
-			case Manager::Server:
-				mgr.init_objects();
-				net.runServer();
-				break;
-			case Manager::Client:
-				net.runClient();
-				break;
-			}
+		vmr.menu[0]->set_sensitive(false);
+		vmr.menu[1]->set_sensitive(true);
+		vmr.menu[2]->set_sensitive(false);
+		vmr.menu[4]->set_sensitive(false);
+		mgr.set_state(Manager::Run);
+		vmr.push(std::string("Run"));
+		switch(mgr.get_mode()){
+		case Manager::Standalone:
+			mgr.init_objects();
+			mgr.startStandaloneTick();
+			break;
+		case Manager::Server:
+			mgr.init_objects();
+			net.runServer();
+			break;
+		case Manager::Client:
+			net.runClient();
+			break;
 		}
 		break;
 	case 1:
-		if(mgr.get_state() != Manager::Stop){
-			mgr.set_state(Manager::Stop);
-			vmr.push(std::string("Stop"));
-			switch(mgr.get_mode()){
-			case Manager::Server:
-				net.stopServer();
-				break;
-			case Manager::Client:
-				net.stopClient();
-				break;
-			default:
-				break;
-			}
+		vmr.menu[0]->set_sensitive(true);
+		vmr.menu[1]->set_sensitive(false);
+		vmr.menu[2]->set_sensitive(true);
+		vmr.menu[4]->set_sensitive(true);
+		mgr.set_state(Manager::Stop);
+		vmr.push(std::string("Stop"));
+		switch(mgr.get_mode()){
+		case Manager::Server:
+			net.stopServer();
+			break;
+		case Manager::Client:
+			net.stopClient();
+			break;
+		default:
+			break;
 		}
 		break;
 	case 2:
-		if(Manager::getInstance().get_state()==Manager::Stop){
-			vmr.subWindow->show();
-		}
+		vmr.subWindow->show();
 		break;
 	case 3:
 		vmr.chooser->show();
@@ -461,7 +461,7 @@ Gtk::Window *ViewManager::init(Glib::RefPtr<Gtk::Builder> builder){
 	builder->get_widget_derived("drawingarea1", drawingArea);
 	builder->get_widget_derived("statusbar1", statusbar);
 	builder->get_widget_derived("Start", menu[0]);
-	builder->get_widget_derived("Stop", menu[1]);
+	builder->get_widget_derived("Stop", menu[1]); menu[1]->set_sensitive(false);
 	builder->get_widget_derived("SetMode", menu[2]);
 	builder->get_widget_derived("SendImage", menu[3]);
 	builder->get_widget_derived("Quit", menu[4]);
