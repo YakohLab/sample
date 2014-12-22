@@ -19,7 +19,6 @@ class ViewManager;
 class MyDrawingArea: public Gtk::DrawingArea {
 public:
 	MyDrawingArea(BaseObjectType*, const Glib::RefPtr<Gtk::Builder>&);
-	virtual ~MyDrawingArea();
 	void update();
 protected:
 	virtual void on_realize();
@@ -41,7 +40,6 @@ class MyImageMenuItem: public Gtk::ImageMenuItem {
 	friend class ViewManager;
 public:
 	MyImageMenuItem(BaseObjectType*, const Glib::RefPtr<Gtk::Builder>&);
-	virtual ~MyImageMenuItem();
 protected:
 	virtual void on_activate();
 private:
@@ -51,7 +49,6 @@ private:
 class MyStatusbar: public Gtk::Statusbar{
 public:
 	MyStatusbar(BaseObjectType*, const Glib::RefPtr<Gtk::Builder>&);
-	virtual ~MyStatusbar();
 	void pushTemp(std::string);
 private:
 	bool erase(int);
@@ -79,8 +76,9 @@ public:
 		return drawingArea->get_height();
 	}
 	Gtk::Window *init(Glib::RefPtr<Gtk::Builder>);
+	MyImageMenuItem *menu[5];
 private:
-	ViewManager();
+	ViewManager(){};
 	ViewManager(ViewManager&);
 	void operator =(ViewManager&);
 	void subCancel(void);
@@ -91,7 +89,6 @@ private:
 	Gtk::Entry *sip, *sport, *cip, *cport, *name;
 	Gtk::RadioButton *standalone, *server, *client;
 	Gtk::Button *ok;
-	MyImageMenuItem *menu[5];
 	MyDrawingArea *drawingArea;
 	MyStatusbar *statusbar;
 };

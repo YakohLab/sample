@@ -35,11 +35,15 @@ void MySmartphone::onRecvBinary(float *array, int n){
 }
 
 void MySmartphone::onConnect(const char *from, int w, int h){
+	ViewManager &vmr=ViewManager::getInstance();
 	std::cout << "Connected from " << from << ", screen size="<< w << "x" << h << std::endl;
+	vmr.menu[3]->set_sensitive(true);
 }
 
 void MySmartphone::onDisconnect(void){
+	ViewManager &vmr=ViewManager::getInstance();
 	std::cout << "Closed" << std::endl;
+	vmr.menu[3]->set_sensitive(false);
 }
 
 void MySmartphone::sendImage(const char *filename){

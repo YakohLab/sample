@@ -28,9 +28,6 @@ Gtk::DrawingArea(o){
 #endif
 }
 
-MyDrawingArea::~MyDrawingArea(void){
-}
-
 void MyDrawingArea::on_realize(void){
 	//	std::cout << "Realized" << std::endl;
 	Gtk::DrawingArea::on_realize();
@@ -301,9 +298,6 @@ MyImageMenuItem::MyImageMenuItem(BaseObjectType* o, const Glib::RefPtr<Gtk::Buil
 	menuId=-1;
 }
 
-MyImageMenuItem::~MyImageMenuItem(void){
-}
-
 void MyImageMenuItem::on_activate(void){
 	Gtk::ImageMenuItem::on_activate();
 
@@ -369,10 +363,6 @@ Gtk::Statusbar(o){
 	statusId=0;
 }
 
-MyStatusbar::~MyStatusbar(void){
-
-}
-
 void MyStatusbar::pushTemp(std::string s){
 	push(s, statusId);
 	sigc::slot<bool> slot = sigc::bind(sigc::mem_fun(*this, &MyStatusbar::erase), statusId);
@@ -383,10 +373,6 @@ void MyStatusbar::pushTemp(std::string s){
 bool MyStatusbar::erase(int i){
 	pop(i);
 	return false;
-}
-
-ViewManager::ViewManager(void){
-
 }
 
 void ViewManager::subCancel(void){
@@ -463,7 +449,7 @@ Gtk::Window *ViewManager::init(Glib::RefPtr<Gtk::Builder> builder){
 	builder->get_widget_derived("Start", menu[0]);
 	builder->get_widget_derived("Stop", menu[1]); menu[1]->set_sensitive(false);
 	builder->get_widget_derived("SetMode", menu[2]);
-	builder->get_widget_derived("SendImage", menu[3]);
+	builder->get_widget_derived("SendImage", menu[3]); menu[3]->set_sensitive(false);
 	builder->get_widget_derived("Quit", menu[4]);
 	for (int i = 0; i < 5; ++i) {
 		menu[i]->menuId = i;
