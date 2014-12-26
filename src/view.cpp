@@ -36,6 +36,8 @@ void MyDrawingArea::on_realize(void){
 #if GTKMM3
 bool MyDrawingArea::on_draw(const Cairo::RefPtr<Cairo::Context>& cc ){
 	Gtk::DrawingArea::on_draw(cc);
+	Manager &mgr = Manager::getInstance();
+	Scene &scene=mgr.scene;
 #else
 bool MyDrawingArea::on_expose_event( GdkEventExpose* e ){
 	Cairo::RefPtr<Cairo::Context> cc = this->get_window()->create_cairo_context();
@@ -192,6 +194,8 @@ bool MyDrawingArea::on_expose_event( GdkEventExpose* e ){
 	gdk_gl_drawable_gl_end(gl_drawable);
 
 	#else
+#if GTKMM3
+#else
 	MySmartphone &smapho=MySmartphone::getInstance();
 	static int frame=0;
 	if((++frame%ss_divisor)==0 && smapho.isConnected() && mgr.get_mode()==Manager::Server && mgr.members.size()==1){
@@ -201,7 +205,7 @@ bool MyDrawingArea::on_expose_event( GdkEventExpose* e ){
 		pixbuf=pixbuf->scale_simple(smapho.get_width(), smapho.get_height(),  Gdk::INTERP_NEAREST);
 		smapho.sendPixbuf((Glib::RefPtr<Gdk::Pixbuf>)pixbuf);
 	}
-
+#endif
 	cc->set_source_rgb(0.8, 0.8, 0.8);
 	cc->paint();
 	cc->set_line_width(1.0);
