@@ -98,9 +98,11 @@ bool Manager::tickServer(void) {
 void Manager::startStandaloneTick(void){
 	Input &input=Input::getInstance();
 	Manager &mgr = Manager::getInstance();
+	Player p;
 	input.clearInput();
 	mgr.scene.init();
 	mgr.scene.id=-1;
+	model.initModel();
 	sigc::slot<bool> slot = sigc::mem_fun(*this, &Manager::tick);
 	Glib::signal_timeout().connect(slot, period);
 }
@@ -120,7 +122,6 @@ void Manager::startServerTick(void){
 		scene.p.insert(Players::value_type(j, p));
 	}
 	model.initModel();
-	set_state(Run);
 	sigc::slot<bool> slot = sigc::mem_fun(*this, &Manager::tickServer);
 	Glib::signal_timeout().connect(slot, period);
 }
