@@ -39,11 +39,10 @@ public:
 	const Mode get_mode() const;
 	void set_mode(Mode s);
 
-	bool tick(void);
 	bool tickServer(void);
 	void tickClient(void);
 	void startServerTick(void);
-	void startStandaloneTick(void);
+	void startStandaloneTick(std::string);
 	Members members;
 
 	Scene scene;

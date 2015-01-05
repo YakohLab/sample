@@ -320,7 +320,7 @@ void MyImageMenuItem::on_activate(void){
 		switch(mgr.get_mode()){
 		case Manager::Standalone:
 			mgr.init_objects();
-			mgr.startStandaloneTick();
+			mgr.startStandaloneTick(vmr.name->get_text());
 			break;
 		case Manager::Server:
 			mgr.init_objects();

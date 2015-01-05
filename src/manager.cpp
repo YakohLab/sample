@@ -43,27 +43,6 @@ void Manager::set_mode(Manager::Mode s) {
 	mode = s;
 }
 
-bool Manager::tick(void) {
-	Manager &mgr = Manager::getInstance();
-	ViewManager &view = ViewManager::getInstance();
-	Input &input = Input::getInstance();
-
-	view.checkInput();
-	mgr.members[0].input=input.input;
-	input.clearInput();
-	mgr.model.preAction();
-	mgr.model.stepPlayer(0);
-	mgr.model.postAction();
-	mgr.scene.valid=true;
-	view.update();
-
-	if (mgr.get_state() == Run) { // trueを返すとタイマーを再設定し、falseならタイマーを停止する
-		return true;
-	} else {
-		return false;
-	}
-}
-
 void Manager::tickClient(void){
 	ViewManager &view =ViewManager::getInstance();
 	view.update();
@@ -76,7 +55,7 @@ bool Manager::tickServer(void) {
 	MyNetwork &net=MyNetwork::getInstance();
 	Input &input=Input::getInstance();
 
-	mgr.members[0].input=input.input;
+	mgr.members[0].input=input.input; // 自分は必ず0番に入っている
 	input.clearInput();
 	mgr.model.preAction();
 	for(Members::iterator i=mgr.members.begin(); i!=mgr.members.end(); ++i){
@@ -84,7 +63,7 @@ bool Manager::tickServer(void) {
 	}
 	mgr.model.postAction();
 	net.sendScene(mgr.scene);
-	mgr.scene.id=0; // serverのidはゼロ
+	mgr.scene.id=mgr.members[0].id; // 自分は必ず0番に入っている
 	mgr.scene.valid=true;
 	view.update();
 	view.checkInput(); // 他のプレーヤーの入力は、既に通信で非同期に届いている
@@ -95,15 +74,21 @@ bool Manager::tickServer(void) {
 	}
 }
 
-void Manager::startStandaloneTick(void){
+void Manager::startStandaloneTick(std::string n){
 	Input &input=Input::getInstance();
 	Manager &mgr = Manager::getInstance();
-	Player p;
 	input.clearInput();
 	mgr.scene.init();
-	mgr.scene.id=-1;
+
+	mgr.members.clear();
+	Member tmp;
+	tmp.name=n;
+	tmp.ready=1;
+	tmp.id=-1; // standaloneの時はidを-1にすることで、servermodeと区別できるようにしている
+	mgr.members.insert(Members::value_type(0, tmp));
+
 	model.initModel();
-	sigc::slot<bool> slot = sigc::mem_fun(*this, &Manager::tick);
+	sigc::slot<bool> slot = sigc::mem_fun(*this, &Manager::tickServer);
 	Glib::signal_timeout().connect(slot, period);
 }
 
