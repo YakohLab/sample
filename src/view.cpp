@@ -469,6 +469,7 @@ void ViewManager::checkInput(void){ // 自分の入力を与える
 	int i, j, k;
 	KeyCode keycode;
 	GdkEventKey e;
+	GdkKeymap *keymap=gdk_keymap_get_for_display(Glib::unwrap(drawingArea->get_display()));
 	Display* d=GDK_WINDOW_XDISPLAY(Glib::unwrap(drawingArea->get_window()));
 	XQueryKeymap(d, keys);
 	for(i=0; i<32; ++i){
@@ -476,7 +477,7 @@ void ViewManager::checkInput(void){ // 自分の入力を与える
 			for(j=0; j<8; ++j){
 				if(keys[i] & 1<<j){
 					keycode=i*8+j;
-					if(gdk_keymap_get_entries_for_keycode(NULL, keycode, NULL, &keyval, &n)){
+					if(gdk_keymap_get_entries_for_keycode(keymap, keycode, NULL, &keyval, &n)){
 						// std::cout << n << ": ";
 						for(k=0; k<n; ++k){
 							e.keyval=keyval[k];
