@@ -2,6 +2,8 @@
  * mysmartphone.h
  * Smartphoneを継承して、ゲーム用のスマホサーバ機能を実現
  */
+#ifndef MYSMARTPHONE_H_
+#define MYSMARTPHONE_H_
 #include "Smartphone.h"
 
 class MySmartphone : public Smartphone {
@@ -21,3 +23,5 @@ private:
 	MySmartphone(MySmartphone&);
 	void operator =(MySmartphone&);
 };
+
+#endif

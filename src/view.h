@@ -2,6 +2,9 @@
  * view.h
  * 画面に関連するウィジェットの定義と、それらをまとめるためのViewManagerクラスの定義
  */
+#ifndef VIEW_H_
+#define VIEW_H_
+
 // #define USE_OPENGL
 #include <gtkmm.h>
 #define GTKMM3	GTK_VERSION_GE(3,0)
@@ -10,9 +13,6 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 #endif
-
-#ifndef VIEW_H_
-#define VIEW_H_
 
 class ViewManager;
 
