@@ -11,7 +11,9 @@
 #include <gdk/gdkx.h>
 #include <gdk/gdk.h>
 
+#ifndef GTKMM3
 const int ss_divisor = 3; // frames
+#endif
 
 MyDrawingArea::MyDrawingArea(BaseObjectType* o, const Glib::RefPtr<Gtk::Builder>& g):
 Gtk::DrawingArea(o){
