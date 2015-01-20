@@ -28,10 +28,20 @@ Network::Network(void){
 
 Network::~Network(void){
 	for(Clients::iterator i=c.begin(); i!=c.end(); ++i){
+		i->source.reset();
+		i->socket->close();
 		i->socket.reset();
 	}
-	s.socket.reset();
-	w.socket.reset();
+	if(s.socket && !s.socket->is_closed()){
+		s.source.reset();
+		s.socket->close();
+		s.socket.reset();
+	}
+	if(w.socket && !w.socket->is_closed()){
+		w.source.reset();
+		w.socket->close();
+		w.socket.reset();
+	}
 }
 
 bool Network::openServer(int p){
@@ -74,8 +84,9 @@ bool Network::openServer(int p){
 
 void Network::closeServer(void){
 	if(w.socket && !w.socket->is_closed()){
-		w.source->destroy();
+		w.source.reset();
 		w.socket->close();
+		w.socket.reset();
 	}
 }
 
@@ -120,8 +131,9 @@ bool Network::connect(const char *ip, int port){
 
 void Network::disconnect(void){
 	if(s.socket && !s.socket->is_closed()){
-		s.source->destroy();
+		s.source.reset();
 		s.socket->close();
+		s.socket.reset();
 	}
 }
 
@@ -173,50 +185,50 @@ bool Network::onReceive(Glib::IOCondition condition){
 	Header *hp=(Header *)buff;
 
 	if(s.socket && s.socket->condition_check(condition)){
-		length=s.socket->receive(buff, sizeof(Header));
-		if(length<1){
+		try{
+			length=s.socket->receive(buff, sizeof(Header));
+		}catch(const Glib::Error &ex){
+			std::cout << ex.what() << std::endl;
 			onDisconnect(s.socket->get_fd());
-			s.source->destroy();
 			s.source.reset();
 			s.socket->close();
 			s.socket.reset();
 			return false;
-		}else{
-			if(hp->length>0){
-				p=buff+sizeof(Header);
-				remain=hp->length;
-				do{
-					length=s.socket->receive(p, remain);
-					remain-=length;
-					p+=length;
-				}while(remain>0);
-			}
-			onRecvFromServer(buff);
 		}
+		if(hp->length>0){
+			p=buff+sizeof(Header);
+			remain=hp->length;
+			do{
+				length=s.socket->receive(p, remain);
+				remain-=length;
+				p+=length;
+			}while(remain>0);
+		}
+		onRecvFromServer(buff);
 	}else{
 		for(Clients::iterator i=c.begin(); i!=c.end(); ++i){
 			if(i->socket->condition_check(condition)){
-				length=i->socket->receive(buff, sizeof(Header));
-				if(length<1){
+				try{
+					length=i->socket->receive(buff, sizeof(Header));
+				}catch(const Glib::Error &ex){
+					std::cout << ex.what() << std::endl;
 					onDisconnect(i->socket->get_fd());
-					i->source->destroy();
 					i->source.reset();
 					i->socket->close();
 					i->socket.reset();
 					i=c.erase(i);
 					return false;
-				}else{
-					if(hp->length>0){
-						p=buff+sizeof(Header);
-						remain=hp->length;
-						do{
-							length=i->socket->receive(p, remain);
-							remain-=length;
-							p+=length;
-						}while(remain>0);
-					}
-					onRecvFromClient(i->socket->get_fd(), buff);
 				}
+				if(hp->length>0){
+					p=buff+sizeof(Header);
+					remain=hp->length;
+					do{
+						length=i->socket->receive(p, remain);
+						remain-=length;
+						p+=length;
+					}while(remain>0);
+				}
+				onRecvFromClient(i->socket->get_fd(), buff);
 			}
 		}
 	}

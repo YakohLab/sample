@@ -11,7 +11,7 @@
 #include <gdk/gdkx.h>
 #include <gdk/gdk.h>
 
-#ifndef GTKMM3
+#if !GTKMM3
 const int ss_divisor = 3; // frames
 #endif
 

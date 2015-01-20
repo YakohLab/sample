@@ -37,6 +37,10 @@ void MyNetwork::onRecvFromServer(char *msg){
 		break;
 	case Header::STOP:
 		mgr.set_state(Manager::Stop);
+		vmr.menu[0]->set_sensitive(true);
+		vmr.menu[1]->set_sensitive(false);
+		vmr.menu[2]->set_sensitive(true);
+		vmr.menu[4]->set_sensitive(true);
 		break;
 	case Header::CONNECT: // Followings are not sent from server
 	case Header::START:
@@ -49,6 +53,7 @@ void MyNetwork::onRecvFromServer(char *msg){
 void MyNetwork::onRecvFromClient(int fd, char *msg){
 	Manager &mgr = Manager::getInstance();
 	Input &input = Input::getInstance();
+	ViewManager &vmr=ViewManager::getInstance();
 	Header *h;
 	h=(Header *)msg;
 	Member tmp;
@@ -76,6 +81,10 @@ void MyNetwork::onRecvFromClient(int fd, char *msg){
 		mgr.set_state(Manager::Stop);
 		showStatus();
 		sendStop();
+		vmr.menu[0]->set_sensitive(true);
+		vmr.menu[1]->set_sensitive(false);
+		vmr.menu[2]->set_sensitive(true);
+		vmr.menu[4]->set_sensitive(true);
 		break;
 	case Header::INPUT:
 		input.receiveInput(msg+sizeof(Header), mgr.members[fd].input);
