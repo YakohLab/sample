@@ -28,13 +28,11 @@ Smartphone::Smartphone(void){
 
 void Smartphone::close(void){
 	if(s && !s->is_closed()){
-		ss->destroy();
 		ss.reset();
 		s->close();
 		s.reset();
 	}
 	if(w && !w->is_closed()){
-		ws->destroy();
 		ws.reset();
 		w->close();
 		w.reset();
@@ -49,7 +47,6 @@ bool Smartphone::open(int p){
 		return true;
 	}
 	if(w && !w->is_closed()){
-		ws->destroy();
 		ws.reset();
 		w->close();
 		w.reset();
@@ -266,12 +263,14 @@ bool Smartphone::onReceive(Glib::IOCondition condition){
 
 Smartphone::~Smartphone(void){
 	if(s && !s->is_closed()){
-		ss->destroy();
+		ss.reset();
 		s->close();
+		s.reset();
 	}
 	if(w && !w->is_closed()){
-		ws->destroy();
+		ws.reset();
 		w->close();
+		s.reset();
 	}
 }
 
