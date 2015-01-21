@@ -20,6 +20,7 @@
 #include <unistd.h>
 
 #include "Network.h"
+#include "manager.h"
 
 Network::Network(void){
 	s.socket.reset();
@@ -183,6 +184,7 @@ bool Network::onReceive(Glib::IOCondition condition){
 	gchar buff[4096], *p;
 	int length, remain;
 	Header *hp=(Header *)buff;
+	Manager &mgr=Manager::getInstance();
 
 	if(s.socket && s.socket->condition_check(condition)){
 		try{
@@ -193,6 +195,15 @@ bool Network::onReceive(Glib::IOCondition condition){
 			s.source.reset();
 			s.socket->close();
 			s.socket.reset();
+			mgr.init_status();
+			return false;
+		}
+		if(length==0){
+			onDisconnect(s.socket->get_fd());
+			s.source.reset();
+			s.socket->close();
+			s.socket.reset();
+			mgr.init_status();
 			return false;
 		}
 		if(hp->length>0){
@@ -212,6 +223,14 @@ bool Network::onReceive(Glib::IOCondition condition){
 					length=i->socket->receive(buff, sizeof(Header));
 				}catch(const Glib::Error &ex){
 					std::cout << ex.what() << std::endl;
+					onDisconnect(i->socket->get_fd());
+					i->source.reset();
+					i->socket->close();
+					i->socket.reset();
+					i=c.erase(i);
+					return false;
+				}
+				if(length==0){
 					onDisconnect(i->socket->get_fd());
 					i->source.reset();
 					i->socket->close();
