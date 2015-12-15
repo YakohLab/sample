@@ -7,8 +7,6 @@
 #include "view.h"
 #include "manager.h"
 #include "mynetwork.h"
-#include <gdk/gdkx.h>
-#include <gdk/gdk.h>
 
 #if !GTKMM3
 const int ss_divisor = 3; // frames
@@ -274,25 +272,20 @@ void MyDrawingArea::update(){
 }
 
 // PressイベントとReleaseイベントの両方を見ることで
-// 押し続けている状態を把握できるようにできるが、
-// これらは即時性のない入力なので使わない。
-// 替わりに毎回checkInputを呼び出して、類似のイベントを発生するようにした。
+// 押し続けている状態を把握できるようにできる
 bool MyDrawingArea::on_key_press_event(GdkEventKey* k){
-	std::cout << "Pressed " << k->keyval << std::endl;
 	Input &input=Input::getInstance();
 	input.set_key(k);
 	return false;
 }
 
 bool MyDrawingArea::on_key_release_event(GdkEventKey* k){
-	std::cout << "Released " << k->keyval << std::endl;
 	Input &input=Input::getInstance();
 	input.reset_key(k);
 	return true;
 }
 
 bool MyDrawingArea::on_button_press_event (GdkEventButton* event){
-	//	std::cout << "Pressed " << event->x << "," << event->y << std::endl;
 	Input &input=Input::getInstance();
 	input.set_input(event->x, event->y);
 	return true;
