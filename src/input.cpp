@@ -23,9 +23,7 @@ char *Input::packInput(int &len){
 }
 
 void Input::clearInput(void){
-	input.up=input.down=input.left=input.right=0;
 	input.x=input.y=-1;
-	input.key=0;
 	input.ax=input.ay=input.az=0;
 }
 
@@ -37,8 +35,8 @@ void Input::set_input(int argx, int argy){
 void Input::set_SmaphoInput(int argx, int argy){
 	ViewManager &vmr=ViewManager::getInstance();
 	MySmartphone &smapho=MySmartphone::getInstance();
-	input.x=vmr.get_width()*argx/smapho.get_width();
-	input.y=vmr.get_height()*argy/smapho.get_height();
+	set_input(vmr.get_width()*argx/smapho.get_width(),
+			vmr.get_height()*argy/smapho.get_height());
 }
 
 void Input::set_angle(double argax, double argay, double argaz){
@@ -48,7 +46,7 @@ void Input::set_angle(double argax, double argay, double argaz){
 }
 
 void Input::set_key(GdkEventKey* k){
-	//	std::cout << "Released " << k->keyval << std::endl;
+	std::cout << "Pressed " << k->keyval << std::endl;
 	switch(k->keyval){
 	case GDK_KEY_Up:
 		input.up=1;
@@ -72,7 +70,7 @@ void Input::set_key(GdkEventKey* k){
 }
 
 void Input::reset_key(GdkEventKey* k){
-	//	std::cout << "Released " << k->keyval << std::endl;
+	std::cout << "Released " << k->keyval << std::endl;
 	switch(k->keyval){
 	case GDK_KEY_Up:
 		input.up=0;

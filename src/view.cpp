@@ -7,7 +7,6 @@
 #include "view.h"
 #include "manager.h"
 #include "mynetwork.h"
-#include <X11/Xlib.h>
 #include <gdk/gdkx.h>
 #include <gdk/gdk.h>
 
@@ -278,19 +277,19 @@ void MyDrawingArea::update(){
 // 押し続けている状態を把握できるようにできるが、
 // これらは即時性のない入力なので使わない。
 // 替わりに毎回checkInputを呼び出して、類似のイベントを発生するようにした。
-//bool MyDrawingArea::on_key_press_event(GdkEventKey* k){
-//	std::cout << "Pressed " << k->keyval << std::endl;
-//	Input &input=Input::getInstance();
-//	input.set_key(k);
-//	return true;
-//}
+bool MyDrawingArea::on_key_press_event(GdkEventKey* k){
+	std::cout << "Pressed " << k->keyval << std::endl;
+	Input &input=Input::getInstance();
+	input.set_key(k);
+	return false;
+}
 
-//bool MyDrawingArea::on_key_release_event(GdkEventKey* k){
-//	std::cout << "Released " << k->keyval << std::endl;
-//	Input &input=Input::getInstance();
-//	input.reset_key(k);
-//	return true;
-//}
+bool MyDrawingArea::on_key_release_event(GdkEventKey* k){
+	std::cout << "Released " << k->keyval << std::endl;
+	Input &input=Input::getInstance();
+	input.reset_key(k);
+	return true;
+}
 
 bool MyDrawingArea::on_button_press_event (GdkEventButton* event){
 	//	std::cout << "Pressed " << event->x << "," << event->y << std::endl;
@@ -461,36 +460,4 @@ Gtk::Window *ViewManager::init(Glib::RefPtr<Gtk::Builder> builder){
 		menu[i]->menuId = i;
 	}
 	return mainWindow;
-}
-
-void ViewManager::checkInput(void){ // 自分の入力を与える
-	Input &input = Input::getInstance();
-	guint *keyval;
-	gint n;
-	char keys[32];
-	int i, j, k;
-	KeyCode keycode;
-	GdkEventKey e;
-	GdkKeymap *keymap=gdk_keymap_get_for_display(Glib::unwrap(drawingArea->get_display()));
-	Display* d=GDK_WINDOW_XDISPLAY(Glib::unwrap(drawingArea->get_window()));
-	XQueryKeymap(d, keys);
-	for(i=0; i<32; ++i){
-		if(keys[i]!=0){
-			for(j=0; j<8; ++j){
-				if(keys[i] & 1<<j){
-					keycode=i*8+j;
-					if(gdk_keymap_get_entries_for_keycode(keymap, keycode, NULL, &keyval, &n)){
-						// std::cout << n << ": ";
-						for(k=0; k<n; ++k){
-							e.keyval=keyval[k];
-							input.set_key(&e);
-							// std::cout << std::hex << e.keyval << ", ";
-						}
-						g_free(keyval);
-						// std::cout << std::endl;
-					}
-				}
-			}
-		}
-	}
 }

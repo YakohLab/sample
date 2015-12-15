@@ -5,7 +5,7 @@
 #ifndef VIEW_H_
 #define VIEW_H_
 
-#define USE_OPENGL
+// #define USE_OPENGL
 #include <gtkmm.h>
 #define GTKMM3	GTK_VERSION_GE(3,0)
 #ifdef USE_OPENGL
@@ -22,8 +22,8 @@ public:
 	void update();
 protected:
 	virtual void on_realize();
-//	virtual bool on_key_press_event(GdkEventKey*);
-//	virtual bool on_key_release_event(GdkEventKey*);
+	virtual bool on_key_press_event(GdkEventKey*);
+	virtual bool on_key_release_event(GdkEventKey*);
 	virtual bool on_button_press_event(GdkEventButton*);
 #if GTKMM3
 	virtual bool on_draw(const Cairo::RefPtr<Cairo::Context>&);
@@ -65,7 +65,6 @@ public:
 	void update(void){
 		drawingArea->update();
 	}
-	void checkInput(void);
 	void push(std::string s){
 		statusbar->pushTemp(s);
 	}

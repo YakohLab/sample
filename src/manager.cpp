@@ -46,7 +46,6 @@ void Manager::set_mode(Manager::Mode s) {
 void Manager::tickClient(void){
 	ViewManager &view =ViewManager::getInstance();
 	view.update();
-	view.checkInput();
 }
 
 bool Manager::tickServer(void) {
@@ -66,7 +65,6 @@ bool Manager::tickServer(void) {
 	mgr.scene.id=mgr.members[0].id; // 自分は必ず0番に入っている
 	mgr.scene.valid=true;
 	view.update();
-	view.checkInput(); // 他のプレーヤーの入力は、既に通信で非同期に届いている
 	if (mgr.get_state() == Run) { // trueを返すとタイマーを再設定し、falseならタイマーを停止する
 		return true;
 	} else {
