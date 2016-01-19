@@ -18,11 +18,15 @@ void MySmartphone::onRecvBinary(float *array, int n){
 	case 3: // touch end
 #ifdef SMAPHO_VERBOSE
 		std::cout << (int)array[0] << " ";
+#endif
 		for(int i=1; i<n; i+=2){
 			w=(int)array[i];
 			h=(int)array[i+1];
+#ifdef SMAPHO_VERBOSE
 			std::cout << "(" << w << "," << h << ") ";
+#endif
 		}
+#ifdef SMAPHO_VERBOSE
 		std::cout << std::endl;
 		std::flush(std::cout);
 #endif
