@@ -185,6 +185,16 @@ bool MyDrawingArea::on_expose_event( GdkEventExpose* e ){
 	gdk_gl_draw_teapot(true, lh/4);
 	glPopMatrix();
 
+	glPushMatrix();
+	glLineWidth(5);
+	char *s="Yakoh";
+	glColor3f(1, 0, 0);
+	for(int i=0; i<strlen(s); ++i){
+		glRasterPos2i(20*i, 100);
+		glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, s[i]);
+	}
+	glPopMatrix();
+
 	if (gdk_gl_drawable_is_double_buffered(gl_drawable)){
 		gdk_gl_drawable_swap_buffers(gl_drawable);
 	}else{

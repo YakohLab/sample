@@ -14,6 +14,7 @@ int main(int argc, char *argv[]) {
 	Gtk::Main kit(argc, argv);
 #ifdef USE_OPENGL
 	gdk_gl_init(&argc, &argv);
+	glutInit(&argc, argv);
 #endif
 	Manager &mgr = Manager::getInstance();
 	ViewManager &vmr=ViewManager::getInstance();
