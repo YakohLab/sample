@@ -429,11 +429,11 @@ Gtk::Window *ViewManager::init(Glib::RefPtr<Gtk::Builder> builder){
 	builder->get_widget("window2", subWindow);
 	builder->get_widget("window3", chooser);
 	builder->get_widget("button1", ok);
-	ok->signal_clicked().connect(sigc::mem_fun(*this, &ViewManager::subHide));
+	ok->signal_clicked().connect(sigc::mem_fun0(*this, &ViewManager::subHide));
 	builder->get_widget("button2", ok);
-	ok->signal_clicked().connect(sigc::mem_fun(*this, &ViewManager::subCancel));
+	ok->signal_clicked().connect(sigc::mem_fun0(*this, &ViewManager::subCancel));
 	builder->get_widget("button3", ok);
-	ok->signal_clicked().connect(sigc::mem_fun(*this, &ViewManager::subSend));
+	ok->signal_clicked().connect(sigc::mem_fun0(*this, &ViewManager::subSend));
 	builder->get_widget("sip", sip);
 	builder->get_widget("sport", sport);
 	builder->get_widget("cip", cip);

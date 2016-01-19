@@ -24,7 +24,7 @@ char *Input::packInput(int &len){
 
 void Input::clearInput(void){
 	input.x=input.y=-1;
-	input.ax=input.ay=input.az=0;
+//	input.ax=input.ay=input.az=0;
 }
 
 void Input::set_input(int argx, int argy){
@@ -46,7 +46,9 @@ void Input::set_angle(double argax, double argay, double argaz){
 }
 
 void Input::set_key(GdkEventKey* k){
+#ifdef INPUT_VERBOSE
 	std::cout << "Pressed " << k->keyval << std::endl;
+#endif
 	switch(k->keyval){
 	case GDK_KEY_Up:
 		input.up=1;
@@ -70,7 +72,9 @@ void Input::set_key(GdkEventKey* k){
 }
 
 void Input::reset_key(GdkEventKey* k){
+#ifdef INPUT_VERBOSE
 	std::cout << "Released " << k->keyval << std::endl;
+#endif
 	switch(k->keyval){
 	case GDK_KEY_Up:
 		input.up=0;

@@ -5,6 +5,7 @@
 #ifndef INPUT_H_
 #define INPUT_H_
 
+// #define INPUT_VERBOSE
 #include <vector>
 #include <map>
 #include <gtkmm.h>

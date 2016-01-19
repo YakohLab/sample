@@ -16,6 +16,7 @@ void MySmartphone::onRecvBinary(float *array, int n){
 	case 1: // touch start
 	case 2: // touch move
 	case 3: // touch end
+#ifdef SMAPHO_VERBOSE
 		std::cout << (int)array[0] << " ";
 		for(int i=1; i<n; i+=2){
 			w=(int)array[i];
@@ -24,11 +25,15 @@ void MySmartphone::onRecvBinary(float *array, int n){
 		}
 		std::cout << std::endl;
 		std::flush(std::cout);
+#endif
 		if(n>1){
 			input.set_SmaphoInput(w, h);
 		}
 		break;
 	case 4: // accelerometer
+#ifdef SMAPHO_VERBOSE
+		std::cout << array[0] << ", " << array[1] << ", " << array[2] << std::endl;
+#endif
 		input.set_angle(array[1], array[2], array[3]);
 		break;
 	}
@@ -36,13 +41,17 @@ void MySmartphone::onRecvBinary(float *array, int n){
 
 void MySmartphone::onConnect(const char *from, int w, int h){
 	ViewManager &vmr=ViewManager::getInstance();
+#ifdef SMAPHO_VERBOSE
 	std::cout << "Connected from " << from << ", screen size="<< w << "x" << h << std::endl;
+#endif
 	vmr.menu[3]->set_sensitive(true);
 }
 
 void MySmartphone::onDisconnect(void){
 	ViewManager &vmr=ViewManager::getInstance();
+#ifdef SMAPHO_VERBOSE
 	std::cout << "Closed" << std::endl;
+#endif
 	vmr.menu[3]->set_sensitive(false);
 }
 

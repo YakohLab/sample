@@ -6,6 +6,8 @@
 #define MYSMARTPHONE_H_
 #include "Smartphone.h"
 
+// #define SMAPHO_VERBOSE
+
 class MySmartphone : public Smartphone {
 public:
 	static MySmartphone& getInstance() {
