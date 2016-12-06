@@ -12,6 +12,11 @@
 const int ss_divisor = 3; // frames
 #endif
 
+#ifdef USE_OPENGL
+GLuint texname;
+Glib::RefPtr<Gdk::Pixbuf> img;
+#endif
+
 MyDrawingArea::MyDrawingArea(BaseObjectType* o, const Glib::RefPtr<Gtk::Builder>& g):
 Gtk::DrawingArea(o){
 	Manager &mgr = Manager::getInstance();
@@ -28,8 +33,11 @@ Gtk::DrawingArea(o){
 }
 
 void MyDrawingArea::on_realize(void){
-	//	std::cout << "Realized" << std::endl;
+//		std::cout << "Realized" << std::endl;
 	Gtk::DrawingArea::on_realize();
+#ifdef USE_OPENGL
+	img = Gdk::Pixbuf::create_from_file("sample.jpg");
+#endif
 }
 
 #if GTKMM3
@@ -103,10 +111,10 @@ bool MyDrawingArea::on_expose_event( GdkEventExpose* e ){
 	glLightfv(GL_LIGHT0, GL_POSITION, position);
 //	color[0]=0.0; color[1]=0.0; color[2]=0.0; color[3]=1.0;
 //	glLightfv(GL_LIGHT0, GL_AMBIENT, color);
-	color[0]=0.7; color[1]=0.7; color[2]=0.7; color[3]=1.0;
-	glLightfv(GL_LIGHT0, GL_DIFFUSE, color);
-//	color[0]=1.0; color[1]=1.0; color[2]=1.0; color[3]=1.0;
-//	glLightfv(GL_LIGHT0, GL_SPECULAR, color);
+//	color[0]=0.7; color[1]=0.7; color[2]=0.7; color[3]=1.0;
+//	glLightfv(GL_LIGHT0, GL_DIFFUSE, color);
+	color[0]=1.0; color[1]=1.0; color[2]=1.0; color[3]=1.0;
+	glLightfv(GL_LIGHT0, GL_SPECULAR, color);
 	q = gluNewQuadric();
 
 	//	color[0]=0.2; color[1]=0.2; color[2]=0.2; color[3]=1.0;
@@ -159,6 +167,41 @@ bool MyDrawingArea::on_expose_event( GdkEventExpose* e ){
 	glRotated(-30.0*(scene.tm.tm_hour+scene.tm.tm_min/60.0)+180, 0.0, 1.0, 0.0);
 	gluCylinder(q, z/2, z/3, lh, 10, 10);
 	glPopMatrix();
+
+
+	///画像の読み込み
+	color[0]=0.8; color[1]=1.0; color[2]=1.0; color[3]=0.8;
+	glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, color);
+	glGenTextures(1,&texname);
+	glBindTexture(GL_TEXTURE_2D,texname);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_CLAMP);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_CLAMP);
+	glTexEnvf(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_REPLACE);
+//	glTexEnvf(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_DECAL);
+	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+
+	glPixelStorei(GL_UNPACK_ALIGNMENT,1);
+
+	if(img->get_n_channels()==3){
+		glTexImage2D(GL_TEXTURE_2D,0,GL_RGB,img->get_width(),img->get_height(),0,GL_RGB,GL_UNSIGNED_BYTE,img->get_pixels());
+	}else {
+		glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,img->get_width(),img->get_height(),0,GL_RGBA,GL_UNSIGNED_BYTE,img->get_pixels());
+	}
+
+	//テクスチャ貼り付け
+	glNormal3d(0,1,0);
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D,texname);
+	glColor3d(0,0,0);
+	glBegin(GL_QUADS);
+	glTexCoord2d(0,1); glVertex3d(ls/2,10,ls/2);
+	glTexCoord2d(0,0); glVertex3d(ls/2,10,0);
+	glTexCoord2d(1,0); glVertex3d(0,10,0);
+	glTexCoord2d(1,1); glVertex3d(0,10,ls/2);
+	glEnd();
+	glDisable(GL_TEXTURE_2D);
 
 #ifdef USE_OPENGLUT
 	std::string s("SD Experiments F");
