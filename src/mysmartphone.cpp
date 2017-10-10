@@ -36,7 +36,7 @@ void MySmartphone::onRecvBinary(float *array, int n){
 		break;
 	case 4: // accelerometer
 #ifdef SMAPHO_VERBOSE
-		std::cout << array[0] << ", " << array[1] << ", " << array[2] << std::endl;
+		std::cout << array[0] << ", " << array[1] << ", " << array[2] << ", " << array[3] << std::endl;
 #endif
 		input.set_angle(array[1], array[2], array[3]);
 		break;
