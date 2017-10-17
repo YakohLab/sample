@@ -104,25 +104,7 @@ void Manager::startServerTick(void){
 		members[i->first].id=j;
 		scene.p.insert(Players::value_type(j, p));
 	}
-<<<<<<< HEAD
 	model.initModel();
 	sigc::slot<bool> slot = sigc::mem_fun(*this, &Manager::tickServer);
 	Glib::signal_timeout().connect(slot, period);
-=======
-	mgr.model.postAction();
-	for (int i = 1; i < max_players; ++i) { // 自分には送る必要ないので1から
-		if (mgr.scene.p[i].attend) {
-			mgr.scene.id=i;
-			sendScene(i, &mgr.scene);
-		}
-	}
-	view.update();
-	if (mgr.get_state() == Manager::Run) { // trueを返すとタイマーを再設定し、falseならタイマーを停止する
-		return true;
-	} else {
-		view.init_view_with_scene(NULL);
-		return false;
-	}
-	return true;
->>>>>>> refs/remotes/origin/master
 }
