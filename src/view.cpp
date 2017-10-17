@@ -327,14 +327,61 @@ void MyDrawingArea::update(){
 // PressイベントとReleaseイベントの両方を見ることで
 // 押し続けている状態を把握できるようにできる
 bool MyDrawingArea::on_key_press_event(GdkEventKey* k){
+<<<<<<< HEAD
 	Input &input=Input::getInstance();
 	input.set_key(k);
 	return false;
+=======
+	//	std::cout << "Pressed " << k->keyval << std::endl;
+	switch(k->keyval){
+	case GDK_KEY_Up:
+		input.up=1;
+		break;
+	case GDK_KEY_Down:
+		input.down=1;
+		break;
+	case GDK_KEY_Left:
+		input.left=1;
+		break;
+	case GDK_KEY_Right:
+		input.right=1;
+		break;
+	default:
+		if(GDK_KEY_A<=k->keyval && k->keyval<=GDK_KEY_z){
+			input.key=k->keyval;
+		}
+		break;
+	}
+	return true;
+>>>>>>> refs/remotes/origin/master
 }
 
 bool MyDrawingArea::on_key_release_event(GdkEventKey* k){
+<<<<<<< HEAD
 	Input &input=Input::getInstance();
 	input.reset_key(k);
+=======
+	//	std::cout << "Released " << k->keyval << std::endl;
+	switch(k->keyval){
+	case GDK_KEY_Up:
+		input.up=0;
+		break;
+	case GDK_KEY_Down:
+		input.down=0;
+		break;
+	case GDK_KEY_Left:
+		input.left=0;
+		break;
+	case GDK_KEY_Right:
+		input.right=0;
+		break;
+	default:
+		if(GDK_KEY_A<=k->keyval && k->keyval<=GDK_KEY_z){
+			input.key=0;
+		}
+		break;
+	}
+>>>>>>> refs/remotes/origin/master
 	return true;
 }
 
