@@ -8,6 +8,9 @@
 #include "input.h"
 #include "view.h"
 
+MySmartphone::MySmartphone(void):Smartphone(){
+}
+
 void MySmartphone::onRecvBinary(float *array, int n){
 	int w, h;
 	Input &input=Input::getInstance();

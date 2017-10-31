@@ -31,9 +31,7 @@ private:
 	bool showStatus(void);
 	void sendStop(void);
 
-	MyNetwork():Network(){}
-	MyNetwork(MyNetwork&);
-	void operator =(MyNetwork&);
+	MyNetwork(void);
 };
 
 #endif /* MYNETWORK_H_ */

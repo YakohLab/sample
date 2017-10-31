@@ -8,6 +8,9 @@
 #include "model.h"
 #include "manager.h"
 
+MyNetwork::MyNetwork(void):Network(){
+}
+
 void MyNetwork::onDisconnect(int fd){
 	Manager &mgr = Manager::getInstance();
 	if(mgr.get_mode()==Manager::Server){

@@ -21,9 +21,7 @@ public:
 	int get_width(void);
 	int get_height(void);
 private:
-	MySmartphone():Smartphone(){}
-	MySmartphone(MySmartphone&);
-	void operator =(MySmartphone&);
+	MySmartphone(void);
 };
 
 #endif
