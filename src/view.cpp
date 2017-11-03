@@ -73,9 +73,9 @@ bool MyDrawingArea::on_expose_event( GdkEventExpose* e ){
 		return true;
 	}
 	//	std::cout << "Exposed" << std::endl;
-	int ls=fmin(this->get_width()*0.5f, this->get_height()*0.5f);
-	int lm=fmin(this->get_width()*0.4f, this->get_height()*0.4f);
-	int lh=fmin(this->get_width()*0.25f, this->get_height()*0.25f);
+	int ls=(int)fmin(this->get_width()*0.5d, this->get_height()*0.5d);
+	int lm=(int)fmin(this->get_width()*0.4d, this->get_height()*0.4d);
+	int lh=(int)fmin(this->get_width()*0.25d, this->get_height()*0.25d);
 
 #ifdef USE_OPENGL
 	int z=ls/30;
@@ -340,7 +340,7 @@ bool MyDrawingArea::on_key_release_event(GdkEventKey* k){
 
 bool MyDrawingArea::on_button_press_event (GdkEventButton* event){
 	Input &input=Input::getInstance();
-	input.set_input(event->x, event->y);
+	input.set_input((int)event->x, (int)event->y);
 	return true;
 }
 
@@ -444,7 +444,7 @@ void ViewManager::subHide(void) {
 
 	if (server->get_active() && mgr.get_mode()!=Manager::Server){
 		net.disconnect();
-		if(net.startServer(std::atoi(sport->get_text().c_str()), name->get_text().c_str())){
+		if(net.startServer((short unsigned int)std::atoi(sport->get_text().c_str()), name->get_text().c_str())){
 			mgr.set_mode(Manager::Server);
 		}else{
 			mgr.set_mode(Manager::Standalone);
@@ -452,7 +452,7 @@ void ViewManager::subHide(void) {
 	} else if (client->get_active() && mgr.get_mode()!=Manager::Client){
 		net.closeServer();
 
-		if(net.connectClient(cip->get_text().c_str(), std::atoi(cport->get_text().c_str()),
+		if(net.connectClient(cip->get_text().c_str(), (short unsigned int)std::atoi(cport->get_text().c_str()),
 				name->get_text().c_str())){
 			mgr.set_mode(Manager::Client);
 		}else{

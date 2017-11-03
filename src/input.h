@@ -26,7 +26,7 @@ public:
 		return instance;
 	}
 	void receiveInput(char *, InputData &data);
-	char *packInput(int &);
+	char *packInput(unsigned long int &);
 	void checkInput(void);
 	void clearInput(void);
 	void set_key(GdkEventKey* k);

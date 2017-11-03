@@ -30,7 +30,7 @@ public:
 	Players p;
 	int id;
 	void receiveScene(char *);
-	char *packScene(int &len);
+	char *packScene(unsigned long int &len);
 	bool valid;
 	void init();
 	Scene(){init();};

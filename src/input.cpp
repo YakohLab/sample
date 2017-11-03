@@ -11,11 +11,11 @@ void Input::receiveInput(char *tmp, InputData &data){ // サーバとして、�
 	data=*(InputData *)tmp;
 }
 
-char *Input::packInput(int &len){
+char *Input::packInput(unsigned long int &len){
 	char *tmp=buffer;
 	*(InputData *)tmp=input; tmp+=sizeof(InputData);
 	clearInput();
-	len=tmp-buffer;
+	len=(int)(tmp-buffer);
 	if(len>max_inputlen){
 		std::cout << "Input size exceeds max_msglen." << std::endl;
 	}

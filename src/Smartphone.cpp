@@ -39,7 +39,7 @@ void Smartphone::close(void){
 	}
 }
 
-bool Smartphone::open(int p){
+bool Smartphone::open(unsigned short p){
 	Glib::RefPtr<Gio::SocketAddress> src_address;
 
 	port=p;
@@ -85,12 +85,12 @@ bool Smartphone::open(int p){
 }
 
 void Smartphone::sendMessage(char *msg){
-	int n;
+	unsigned long int n;
 	char header[2];
 	if(!s || !s->is_connected())return;
 	n=strlen(msg)+1;
-	header[0]=0x81;
-	header[1]=n;
+	header[0]=(char)0x81;
+	header[1]=(char)n;
 	s->send(header, 2);
 	s->send(msg, n);
 }
@@ -106,21 +106,21 @@ void Smartphone::sendPixbuf(Glib::RefPtr<Gdk::Pixbuf> pixbuf, int quality){
 	pixbuf->save_to_buffer(cp, length, Glib::ustring("jpeg"), option_keys, option_values);
 
 	if(length<126){
-		header[0]=0x82;
-		header[1]=length;
+		header[0]=(char)0x82;
+		header[1]=(char)length;
 		s->send(header, 4);
 	}else if(length<0xffff){
-		header[0]=0x82;
-		header[1]=0x7e;
+		header[0]=(char)0x82;
+		header[1]=(char)0x7e;
 		for(int i=0; i<2; ++i){
-			header[3-i]=(length>>(i*8))&0xff;
+			header[3-i]=(char)((length>>(i*8))&0xff);
 		}
 		s->send(header, 4);
 	}else if(length<0x7fffffffffffffff){
-		header[0]=0x82;
-		header[1]=0x7f;
+		header[0]=(char)0x82;
+		header[1]=(char)0x7f;
 		for(int i=0; i<8; ++i){
-			header[9-i]=(length>>(i*8))&0xff;
+			header[9-i]=(char)((length>>(i*8))&0xff);
 		}
 		s->send(header, 10);
 	}else{
@@ -201,7 +201,8 @@ bool Smartphone::onAccept(Glib::IOCondition condition){
 bool Smartphone::onReceive(Glib::IOCondition condition){
 	Glib::RefPtr<Gio::SocketAddress> address;
 	gchar buff[4096];
-	int length, type;
+	unsigned long int length;
+	int type;
 	char opcode;
 	int size;
 	int masked;
@@ -250,7 +251,7 @@ bool Smartphone::onReceive(Glib::IOCondition condition){
 		}
 		break;
 		case 0x9: // ping
-			buff[0]=(buff[0]&0xf0) + 0x9;
+			buff[0]=(char)((buff[0]&0xf0) + 0x9);
 			s->send(buff, length);
 			break;
 		case 0xa: // pong
@@ -276,7 +277,7 @@ Smartphone::~Smartphone(void){
 
 char *Smartphone::keyReply(const char *key){
 	static char hex[]="0123456789abcdef";
-	int l;
+	unsigned long int l;
 	char *cat, *base64, *sha1;
 
 	cat=g_strconcat(key, "258EAFA5-E914-47DA-95CA-C5AB0DC85B11", NULL);
@@ -284,9 +285,9 @@ char *Smartphone::keyReply(const char *key){
 	g_free(cat);
 
 	l=strlen(sha1)/2;
-	for(int i=0; i<l; ++i){
-		sha1[i]=((strchr(hex, sha1[2*i])-hex)<<4)+
-				(strchr(hex, sha1[2*i+1])-hex);
+	for(unsigned long int i=0; i<l; ++i){
+		sha1[i]=(char)(((strchr(hex, sha1[2*i])-hex)<<4)+
+				(strchr(hex, sha1[2*i+1])-hex));
 	}
 	base64=g_base64_encode((guchar *)sha1, l);
 	g_free(sha1);

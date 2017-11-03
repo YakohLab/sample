@@ -21,15 +21,15 @@ void Scene::receiveScene(char *tmp){
 	valid=true;
 }
 
-char *Scene::packScene(int &len){
+char *Scene::packScene(unsigned long int &len){
 	char *tmp=buffer;
 	*(char *)tmp=c[0]; tmp+=sizeof(char);
 	*(char *)tmp=c[1]; tmp+=sizeof(char);
-	*(char *)tmp=id; tmp+=sizeof(char);
+	*(char *)tmp=(char)id; tmp+=sizeof(char);
 	*(struct tm *)tmp=tm; tmp+=sizeof(struct tm);
-	*(char *)tmp=p.size(); tmp+=sizeof(char); // 可変長のデータは、まず個数を送る
+	*(char *)tmp=(char)(p.size()); tmp+=sizeof(char); // 可変長のデータは、まず個数を送る
 	for(Players::iterator i=p.begin(); i!=p.end(); ++i){
-		*(char *)tmp=i->first; tmp+=sizeof(char);
+		*(char *)tmp=(char)(i->first); tmp+=sizeof(char);
 		*(Player *)tmp=i->second; tmp+=sizeof(Player);
 	}
 	len=tmp-buffer;

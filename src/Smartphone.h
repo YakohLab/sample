@@ -32,15 +32,15 @@
 class Smartphone {
 public:
 	Smartphone(void);
-	bool open(int port);
+	bool open(unsigned short port);
 	void close(void);
 	void sendMessage(char *msg);
 	void sendPixbuf(Glib::RefPtr<Gdk::Pixbuf> pixbuf, int quality=80);
 	bool isConnected(void);
 	virtual void onConnect(const char *, int w, int h){};
 	virtual void onDisconnect(void){};
-	virtual void onRecvMessage(char *msg, int n){};
-	virtual void onRecvBinary(float *array, int n){};
+	virtual void onRecvMessage(char *msg, unsigned long int n){};
+	virtual void onRecvBinary(float *array, unsigned long int n){};
 	virtual ~Smartphone(void);
 protected:
 	int width, height;
@@ -51,7 +51,7 @@ private:
 #else
 	Glib::RefPtr<Glib::IOSource> ss, ws;
 #endif
-	int port;
+	unsigned short port;
 	bool connected;
 	char *keyReply(const char *key);
 	std::string ipaddr;

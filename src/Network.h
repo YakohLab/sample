@@ -11,7 +11,7 @@
 
 struct Header {
 	enum {CONNECT, START, STOP, INPUT, STATUS, DRAW} command;
-	int length;
+	unsigned long int length;
 };
 
 class Network {
@@ -20,10 +20,10 @@ public:
 	virtual ~Network(void);
 	void closeServer(void);
 	void disconnect(void);
-	bool openServer(int port);
-	bool connect(const char *, int port);
-	void sendToServer(void *, int len);
-	void sendToClient(int fd, void *, int len);
+	bool openServer(short unsigned int port);
+	bool connect(const char *, short unsigned int port);
+	void sendToServer(void *, unsigned long int len);
+	void sendToClient(int fd, void *, unsigned long int len);
 protected:
 	virtual void onConnect(int fd){};
 	virtual void onDisconnect(int fd){};

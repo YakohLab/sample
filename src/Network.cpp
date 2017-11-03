@@ -45,8 +45,8 @@ Network::~Network(void){
 	}
 }
 
-bool Network::openServer(int p){
-	int pp=p;
+bool Network::openServer(short unsigned int p){
+	short unsigned int pp=p;
 	Glib::RefPtr<Gio::SocketAddress> src_address;
 
 	s.socket.reset();
@@ -91,7 +91,7 @@ void Network::closeServer(void){
 	}
 }
 
-bool Network::connect(const char *ip, int port){
+bool Network::connect(const char *ip, short unsigned int port){
 	Glib::RefPtr<Gio::SocketAddress> srv_address;
 
 	s.socket=Gio::Socket::create(Gio::SOCKET_FAMILY_IPV4, Gio::SOCKET_TYPE_STREAM, Gio::SOCKET_PROTOCOL_DEFAULT);
@@ -138,7 +138,7 @@ void Network::disconnect(void){
 	}
 }
 
-void Network::sendToClient(int fd, void *msg, int len){
+void Network::sendToClient(int fd, void *msg, unsigned long int len){
 	for(Clients::iterator i=c.begin(); i!=c.end(); ++i){
 		if(i->socket && i->socket->get_fd()==fd){
 			i->socket->send((char *)msg, len);
@@ -147,7 +147,7 @@ void Network::sendToClient(int fd, void *msg, int len){
 	}
 }
 
-void Network::sendToServer(void *msg, int len){
+void Network::sendToServer(void *msg, unsigned long int len){
 	if(s.socket){
 		s.socket->send((char *)msg, len);
 	}
@@ -182,7 +182,7 @@ bool Network::onAccept(Glib::IOCondition condition){
 
 bool Network::onReceive(Glib::IOCondition condition){
 	gchar buff[4096], *p;
-	int length, remain;
+	unsigned long int length, remain;
 	Header *hp=(Header *)buff;
 	Manager &mgr=Manager::getInstance();
 

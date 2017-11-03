@@ -99,7 +99,7 @@ void MyNetwork::onRecvFromClient(int fd, char *msg){
 	}
 }
 
-bool MyNetwork::connectClient(const char *host, int port, const char *name){
+bool MyNetwork::connectClient(const char *host, short unsigned int port, const char *name){
 	Header h;
 	if(!connect(host, port)){
 		return false;
@@ -138,7 +138,7 @@ void MyNetwork::sendInput(void){
 	sendToServer(c, h.length);
 }
 
-bool MyNetwork::startServer(int port, const char *name){
+bool MyNetwork::startServer(short unsigned int port, const char *name){
 	Manager &mgr = Manager::getInstance();
 	if(!openServer(port)){
 		return false;
