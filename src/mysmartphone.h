@@ -22,6 +22,7 @@ public:
 	int get_height(void);
 private:
 	MySmartphone(void);
+	void operator =(MySmartphone&);
 };
 
 #endif

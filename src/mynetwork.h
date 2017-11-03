@@ -32,6 +32,7 @@ private:
 	void sendStop(void);
 
 	MyNetwork(void);
+	void operator =(MyNetwork&);
 };
 
 #endif /* MYNETWORK_H_ */
