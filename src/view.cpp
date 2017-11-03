@@ -58,7 +58,7 @@ bool MyDrawingArea::on_expose_event( GdkEventExpose* e ){
 		GdkGLContext *gl_context = gtk_widget_get_gl_context((GtkWidget *)this->gobj());
 		GdkGLDrawable *gl_drawable = gtk_widget_get_gl_drawable((GtkWidget *)this->gobj());
 		gdk_gl_drawable_gl_begin(gl_drawable, gl_context);
-		glClearColor(0.2, 0.2, 0.2, 1.0);
+		glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		if (gdk_gl_drawable_is_double_buffered(gl_drawable)){
 			gdk_gl_drawable_swap_buffers(gl_drawable);
@@ -92,7 +92,7 @@ bool MyDrawingArea::on_expose_event( GdkEventExpose* e ){
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	glClearColor(0.2, 0.2, 0.2, 1.0);
+	glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	glEnable(GL_DEPTH_TEST);
@@ -128,7 +128,7 @@ bool MyDrawingArea::on_expose_event( GdkEventExpose* e ){
 	color[0]=0; color[1]=0; color[2]=0; color[3]=1.0;
 	glMaterialfv(GL_FRONT, GL_EMISSION, color);
 
-	color[0]=0.8; color[1]=0.8; color[2]=0.8; color[3]=1.0;
+	color[0]=0.8f; color[1]=0.8f; color[2]=0.8f; color[3]=1.0f;
 	glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, color);
 	glPushMatrix();
 	glTranslated(0, -z/2, 0);
@@ -144,7 +144,7 @@ bool MyDrawingArea::on_expose_event( GdkEventExpose* e ){
 		glPopMatrix();
 	}
 
-	color[0]=0.0; color[1]=0.0; color[2]=1.0; color[3]=0.8;
+	color[0]=0.0f; color[1]=0.0f; color[2]=1.0f; color[3]=0.8f;
 	glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, color);
 	glPushMatrix();
 	glTranslated(0, z, 0);
@@ -152,7 +152,7 @@ bool MyDrawingArea::on_expose_event( GdkEventExpose* e ){
 	gluCylinder(q, z/2, z/3, ls, 10, 10);
 	glPopMatrix();
 
-	color[0]=0.0; color[1]=1.0; color[2]=0.0; color[3]=0.8;
+	color[0]=0.0f; color[1]=1.0f; color[2]=0.0f; color[3]=0.8f;
 	glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, color);
 	glPushMatrix();
 	glTranslated(0, 2*z, 0);
@@ -160,7 +160,7 @@ bool MyDrawingArea::on_expose_event( GdkEventExpose* e ){
 	gluCylinder(q, z/2, z/3, lm, 10, 10);
 	glPopMatrix();
 
-	color[0]=1.0; color[1]=0.0; color[2]=0.0; color[3]=0.8;
+	color[0]=1.0f; color[1]=0.0f; color[2]=0.0f; color[3]=0.8f;
 	glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, color);
 	glPushMatrix();
 	glTranslated(0, 3*z, 0);
@@ -170,7 +170,7 @@ bool MyDrawingArea::on_expose_event( GdkEventExpose* e ){
 
 
 	///画像の読み込み
-	color[0]=0.8; color[1]=1.0; color[2]=1.0; color[3]=0.8;
+	color[0]=0.8f; color[1]=1.0f; color[2]=1.0f; color[3]=0.8f;
 	glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, color);
 	glGenTextures(1,&texname);
 	glBindTexture(GL_TEXTURE_2D,texname);
@@ -226,7 +226,7 @@ bool MyDrawingArea::on_expose_event( GdkEventExpose* e ){
 		}
 	}
 
-	color[0]=0.8; color[1]=0.8; color[2]=0.8; color[3]=0.8;
+	color[0]=0.8f; color[1]=0.8f; color[2]=0.8f; color[3]=0.8f;
 	glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, color);
 	glCullFace(GL_FRONT);
 	glPushMatrix();
