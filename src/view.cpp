@@ -35,6 +35,7 @@ Gtk::DrawingArea(o){
 void MyDrawingArea::on_realize(void){
 //		std::cout << "Realized" << std::endl;
 	Gtk::DrawingArea::on_realize();
+	Gtk::DrawingArea::set_size_request(800, 600);
 #ifdef USE_OPENGL
 	img = Gdk::Pixbuf::create_from_file("sample.jpg");
 #endif
