@@ -27,7 +27,6 @@ public:
 	}
 	void receiveInput(char *, InputData &data);
 	char *packInput(unsigned long int &);
-	void checkInput(void);
 	void clearInput(void);
 	void set_key(GdkEventKey* k);
 	void reset_key(GdkEventKey* k);
@@ -40,7 +39,6 @@ private:
 		clearInput();
 	}
 	Input(Input&);
-	void operator =(Input&);
 	char buffer[max_inputlen];
 };
 

@@ -3,6 +3,7 @@
  * ゲームの進行を司る。
  * タイマーを利用し、サンプリング周期毎に入力・処理・出力を繰り返すという流れを実現する。
  */
+#include <cstring>
 #include "manager.h"
 #include "input.h"
 

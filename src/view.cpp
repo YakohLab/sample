@@ -73,9 +73,9 @@ bool MyDrawingArea::on_expose_event( GdkEventExpose* e ){
 		return true;
 	}
 	//	std::cout << "Exposed" << std::endl;
-	int ls=(int)fmin(this->get_width()*0.5d, this->get_height()*0.5d);
-	int lm=(int)fmin(this->get_width()*0.4d, this->get_height()*0.4d);
-	int lh=(int)fmin(this->get_width()*0.25d, this->get_height()*0.25d);
+	int ls=(int)fmin(this->get_width()*0.5, this->get_height()*0.5);
+	int lm=(int)fmin(this->get_width()*0.4, this->get_height()*0.4);
+	int lh=(int)fmin(this->get_width()*0.25, this->get_height()*0.25);
 
 #ifdef USE_OPENGL
 	int z=ls/30;
