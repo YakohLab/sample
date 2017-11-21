@@ -43,7 +43,8 @@ void Model::stepPlayer(int fd){ // 各プレイヤーの動作を行う。公平
 	for(Members::iterator i=mgr.members.begin(); i!=mgr.members.end(); ++i, ++id){
 		if(i->first==fd)break;
 	}
-	Player &player=scene.p[id];
+    if(scene.p.size()==0)return;
+    Player &player=scene.p[id];
 
 	for(int i=0; i<max_dots; ++i){
 		player.dots[i].x+=(input.right-input.left)*5;

@@ -19,6 +19,8 @@ struct Player { // 要素数を可変にしたい場合は、packSceneとreceive
 	double ax, ay, az;
 	Dot dots[max_dots];
 	int curDots;
+    Player(int);
+    Player(void){};
 };
 
 typedef std::map<int, Player> Players;
@@ -32,8 +34,8 @@ public:
 	void receiveScene(char *);
 	char *packScene(unsigned long int &len);
 	bool valid;
-	void init();
-	Scene(){init();};
+	void init(void);
+	Scene(void);
 private:
 	char buffer[max_scenelen];
 };
