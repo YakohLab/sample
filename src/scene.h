@@ -13,9 +13,15 @@ struct Dot {
 };
 
 const int max_dots = 5;
-struct Player { // 要素数を可変にしたい場合は、packSceneとreceiveSceneを注意深く書き直す必要がある
+class Player { // 要素数を可変にしたい場合は、packSceneとreceiveSceneを注意深く書き直す必要がある
+public:
+	Player(void){};
+	void setName(const char *);
+	void setAccel(double ax, double ay, double az);
+private:
 	char name[20];
 	int x, y;
+public:
 	double ax, ay, az;
 	Dot dots[max_dots];
 	int curDots;

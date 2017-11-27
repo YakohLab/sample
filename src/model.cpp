@@ -55,9 +55,7 @@ void Model::stepPlayer(int fd){ // 各プレイヤーの動作を行う。公平
 		player.dots[player.curDots].visible=1;
 		player.curDots=(player.curDots+1)%max_dots;
 	}
-	player.ax=input.ax;
-	player.ay=input.ay;
-	player.az=input.az;
+	player.setAccel(input.ax, input.ay, input.az);
 	if(input.key!=0){
 		scene.c[0]=(char)input.key;
 	}

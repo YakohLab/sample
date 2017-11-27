@@ -98,7 +98,7 @@ void Manager::startServerTick(void){
 	scene.init();
 	for(Members::iterator i=members.begin(); i!=members.end(); ++i, ++j){
 		// 参加者のnameとidを確定する
-		strcpy(p.name, i->second.name.c_str());
+		p.setName(i->second.name.c_str());
 		// 初期化したinputをコピーすることで、各々のinputを初期化する
 		members[i->first].input=input.input;
 		members[i->first].id=j;

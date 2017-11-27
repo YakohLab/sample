@@ -5,8 +5,8 @@
 #ifndef VIEW_H_
 #define VIEW_H_
 
-// #define USE_OPENGL
-// #define USE_OPENGLUT
+#define USE_OPENGL
+#define USE_OPENGLUT
 #include <gtkmm.h>
 #define GTKMM3	GTK_VERSION_GE(3,0)
 #ifdef USE_OPENGL

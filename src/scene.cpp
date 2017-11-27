@@ -45,3 +45,11 @@ void Scene::init(void){
 	p.clear();
 	valid=false;
 }
+
+void Player::setName(const char *c){
+	strcpy(name, c);
+}
+
+void Player::setAccel(double x, double y, double z){
+	ax=x; ay=y; az=z;
+}
