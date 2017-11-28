@@ -15,7 +15,6 @@ struct Dot {
 const int max_dots = 5;
 class Player { // 要素数を可変にしたい場合は、packSceneとreceiveSceneを注意深く書き直す必要がある
 public:
-	Player(void){};
 	void setName(const char *);
 	void setAccel(double ax, double ay, double az);
 private:
@@ -25,6 +24,8 @@ public:
 	double ax, ay, az;
 	Dot dots[max_dots];
 	int curDots;
+    Player(int);
+    Player(void){};
 };
 
 typedef std::map<int, Player> Players;
@@ -38,8 +39,8 @@ public:
 	void receiveScene(char *);
 	char *packScene(unsigned long int &len);
 	bool valid;
-	void init();
-	Scene(){init();};
+	void init(void);
+	Scene(void);
 private:
 	char buffer[max_scenelen];
 };

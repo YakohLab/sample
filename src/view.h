@@ -83,7 +83,6 @@ public:
 private:
 	ViewManager(){};
 	ViewManager(ViewManager&);
-	void operator =(ViewManager&);
 	void subCancel(void);
 	void subSend(void);
 	void subHide(void);

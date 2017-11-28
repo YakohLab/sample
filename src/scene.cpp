@@ -39,17 +39,25 @@ char *Scene::packScene(unsigned long int &len){
 	return buffer;
 }
 
+Scene::Scene(void){
+	std::cout << "Scene is constructed." << std::endl;
+	init();
+}
+
 void Scene::init(void){
 	c[0]=c[1]=0;
 	id=0;
 	p.clear();
 	valid=false;
 }
-
 void Player::setName(const char *c){
 	strcpy(name, c);
 }
 
 void Player::setAccel(double x, double y, double z){
 	ax=x; ay=y; az=z;
+}
+
+Player::Player(int id){
+	std::cout << "Player is constructed." << std::endl;
 }

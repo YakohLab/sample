@@ -10,7 +10,7 @@
 #include <map>
 #include <gtkmm.h>
 
-const int max_inputlen = 100;
+const unsigned long int max_inputlen = 100;
 
 struct InputData { // 要素数を可変にしたい場合は、packInputとreceiveInputを注意深く書き直す必要がある
 	int up, down, left, right;
@@ -27,7 +27,6 @@ public:
 	}
 	void receiveInput(char *, InputData &data);
 	char *packInput(unsigned long int &);
-	void checkInput(void);
 	void clearInput(void);
 	void set_key(GdkEventKey* k);
 	void reset_key(GdkEventKey* k);
@@ -40,7 +39,6 @@ private:
 		clearInput();
 	}
 	Input(Input&);
-	void operator =(Input&);
 	char buffer[max_inputlen];
 };
 

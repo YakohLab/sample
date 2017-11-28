@@ -49,8 +49,6 @@ public:
 private:
 	Manager(void);
 	Manager(Manager&);
-	Manager &operator =(Manager&);
-
 	State state;
 	Mode mode;
 	Model model;
