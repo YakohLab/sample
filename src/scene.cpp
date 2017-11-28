@@ -40,7 +40,7 @@ char *Scene::packScene(unsigned long int &len){
 }
 
 Scene::Scene(void){
-	std::cout << "Scene is constructed." << std::endl;
+//	std::cout << "Scene is constructed." << std::endl;
 	p.clear();
 	valid=false;
 }

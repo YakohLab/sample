@@ -40,20 +40,21 @@ void MyDrawingArea::on_realize(void){
 #endif
 }
 
-void showPlayer(int x, int y){
 #ifdef USE_OPENGL
+void showPlayer(int x, int y){
 	GLfloat color[4];
 	GLUquadricObj *q;
 	q = gluNewQuadric();
 	color[0]=0.0f; color[1]=0.0f; color[2]=1.0f; color[3]=0.8f;
 	glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, color);
 	glPushMatrix();
-	glTranslated(0, 1, 0);
-	gluCylinder(q, 1, 2, 3, 10, 10);
+	glRotated(90, 1, 0, 0);
+	glTranslated(x, y, -100);
+	gluCylinder(q, 0, 20, 100, 100, 20);
+	gluSphere(q, 10, 100, 100);
 	glPopMatrix();
-#endif
 }
-
+#endif
 
 #if GTKMM3
 bool MyDrawingArea::on_draw(const Cairo::RefPtr<Cairo::Context>& cc ){
@@ -166,7 +167,13 @@ bool MyDrawingArea::on_expose_event( GdkEventExpose* e ){
 	glRotated(-6.0*scene.tm.tm_sec+180, 0.0, 1.0, 0.0);
 	gluCylinder(q, z/2, z/3, ls, 10, 10);
 	glPopMatrix();
-	showPlayer(10, 10);
+
+	{
+		int x, y;
+		x=200*sin(2.0*M_PI*scene.tm.tm_sec/60.0);
+		y=-200*cos(2.0*M_PI*scene.tm.tm_sec/60.0);
+		showPlayer(x, y);
+	}
 
 	color[0]=0.0f; color[1]=1.0f; color[2]=0.0f; color[3]=0.8f;
 	glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, color);
