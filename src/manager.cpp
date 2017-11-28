@@ -6,7 +6,7 @@
 #include <cstring>
 #include "manager.h"
 #include "input.h"
-typedef int (Manager::*MethodType)() const;
+typedef int (Manager::*MethodType)(void) const;
 
 const int period = 33; // in millisecond
 
@@ -14,31 +14,31 @@ Manager::Manager(void){
 	init_status();
 }
 
-Manager& Manager::getInstance() {
+Manager& Manager::getInstance(void) {
 	static Manager instance;
 
 	return instance;
 }
 
-void Manager::init_status() {
+void Manager::init_status(void) {
 	state = Stop;
 	mode = Standalone;
 }
 
-void Manager::init_objects() {
+void Manager::init_objects(void) {
 	model.initModel();
 	Input &input=Input::getInstance();
 	input.clearInput();
 }
 
-const Manager::State Manager::get_state() const {
+const Manager::State Manager::get_state(void) const {
 	return state;
 }
 void Manager::set_state(State s) {
 	state = s;
 }
 
-const Manager::Mode Manager::get_mode() const {
+const Manager::Mode Manager::get_mode(void) const {
 	return mode;
 }
 void Manager::set_mode(Manager::Mode s) {

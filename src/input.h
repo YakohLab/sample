@@ -21,7 +21,7 @@ struct InputData { // 要素数を可変にしたい場合は、packInputとrece
 
 class Input {
 public:
-	static Input& getInstance() {
+	static Input& getInstance(void) {
 		static Input instance;
 		return instance;
 	}
@@ -35,7 +35,7 @@ public:
 	void set_angle(double, double, double);
 	InputData input;
 private:
-	Input(){
+	Input(void){
 		clearInput();
 	}
 	Input(Input&);

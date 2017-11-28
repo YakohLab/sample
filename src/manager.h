@@ -28,15 +28,15 @@ public:
 	enum Mode {
 		Server, Client, Standalone
 	};
-	static Manager& getInstance();
+	static Manager& getInstance(void);
 
-	void init_status();
-	void init_objects();
+	void init_status(void);
+	void init_objects(void);
 
-	const State get_state() const;
+	const State get_state(void) const;
 	void set_state(State s);
 
-	const Mode get_mode() const;
+	const Mode get_mode(void) const;
 	void set_mode(Mode s);
 
 	bool tickServer(void);

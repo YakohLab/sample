@@ -17,7 +17,7 @@ struct Header {
 class Network {
 public:
 	Network(void);
-	virtual ~Network(void);
+	~Network(void);
 	void closeServer(void);
 	void disconnect(void);
 	bool openServer(short unsigned int port);

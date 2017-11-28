@@ -32,6 +32,7 @@
 class Smartphone {
 public:
 	Smartphone(void);
+	~Smartphone(void);
 	bool open(unsigned short port);
 	void close(void);
 	void sendMessage(char *msg);
@@ -41,7 +42,6 @@ public:
 	virtual void onDisconnect(void){};
 	virtual void onRecvMessage(char *msg, unsigned long int n){};
 	virtual void onRecvBinary(float *array, unsigned long int n){};
-	virtual ~Smartphone(void);
 protected:
 	int width, height;
 private:

@@ -5,7 +5,7 @@
 #ifndef VIEW_H_
 #define VIEW_H_
 
-//#define USE_OPENGL
+#define USE_OPENGL
 //#define USE_OPENGLUT
 #include <gtkmm.h>
 #define GTKMM3	GTK_VERSION_GE(3,0)
@@ -23,16 +23,16 @@ class ViewManager;
 class MyDrawingArea: public Gtk::DrawingArea {
 public:
 	MyDrawingArea(BaseObjectType*, const Glib::RefPtr<Gtk::Builder>&);
-	void update();
+	void update(void);
 protected:
-	virtual void on_realize();
-	virtual bool on_key_press_event(GdkEventKey*);
-	virtual bool on_key_release_event(GdkEventKey*);
-	virtual bool on_button_press_event(GdkEventButton*);
+	void on_realize(void);
+	bool on_key_press_event(GdkEventKey*);
+	bool on_key_release_event(GdkEventKey*);
+	bool on_button_press_event(GdkEventButton*);
 #if GTKMM3
-	virtual bool on_draw(const Cairo::RefPtr<Cairo::Context>&);
+	bool on_draw(const Cairo::RefPtr<Cairo::Context>&);
 #else
-	virtual bool on_expose_event(GdkEventExpose*);
+	bool on_expose_event(GdkEventExpose*);
 #endif
 private:
 #ifdef USE_OPENGL
@@ -45,7 +45,7 @@ class MyImageMenuItem: public Gtk::ImageMenuItem {
 public:
 	MyImageMenuItem(BaseObjectType*, const Glib::RefPtr<Gtk::Builder>&);
 protected:
-	virtual void on_activate();
+	void on_activate(void);
 private:
 	int menuId;
 };
@@ -62,7 +62,7 @@ private:
 class ViewManager {
 	friend class MyImageMenuItem;
 public:
-	static ViewManager& getInstance() {
+	static ViewManager& getInstance(void) {
 		static ViewManager instance;
 		return instance;
 	}
@@ -81,7 +81,7 @@ public:
 	Gtk::Window *init(Glib::RefPtr<Gtk::Builder>);
 	MyImageMenuItem *menu[5];
 private:
-	ViewManager(){};
+	ViewManager(void){};
 	ViewManager(ViewManager&);
 	void subCancel(void);
 	void subSend(void);

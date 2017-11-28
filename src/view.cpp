@@ -170,8 +170,8 @@ bool MyDrawingArea::on_expose_event( GdkEventExpose* e ){
 
 	{
 		int x, y;
-		x=200*sin(2.0*M_PI*scene.tm.tm_sec/60.0);
-		y=-200*cos(2.0*M_PI*scene.tm.tm_sec/60.0);
+		x=(int)(200*sin(2.0*M_PI*scene.tm.tm_sec/60.0));
+		y=(int)(-200*cos(2.0*M_PI*scene.tm.tm_sec/60.0));
 		showPlayer(x, y);
 	}
 
@@ -236,10 +236,10 @@ bool MyDrawingArea::on_expose_event( GdkEventExpose* e ){
 #endif
 
 	for(Players::iterator p=scene.p.begin(); p!=scene.p.end(); ++p){
-		color[0]=p->second.r;
-		color[1]=p->second.g;
-		color[2]=p->second.b;
-		color[3]=1.0;
+		color[0]=(float)p->second.r;
+		color[1]=(float)p->second.g;
+		color[2]=(float)p->second.b;
+		color[3]=(float)1.0;
 		glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, color);
 		for(int j=0; j<max_dots; ++j){
 			if(p->second.dots[j].visible==1){
@@ -348,7 +348,7 @@ bool MyDrawingArea::on_expose_event( GdkEventExpose* e ){
 	return true;
 }
 
-void MyDrawingArea::update(){
+void MyDrawingArea::update(void){
 	this->queue_draw();
 }
 

@@ -10,9 +10,9 @@
 class Model {
 public:
 	void initModel(void);
-	void preAction();
+	void preAction(void);
 	void stepPlayer(int fd);
-	void postAction();
+	void postAction(void);
 };
 
 #endif /* MODEL_H_ */
