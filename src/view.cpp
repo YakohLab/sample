@@ -4,6 +4,7 @@
  */
 #include <iostream>
 #include <cmath>
+#include <sstream>
 #include "view.h"
 #include "manager.h"
 #include "mynetwork.h"
@@ -296,7 +297,9 @@ bool MyDrawingArea::on_expose_event( GdkEventExpose* e ){
 	}else if(scene.id==0){
 		cc->show_text(std::string("Server"));
 	}else{
-		cc->show_text(std::string("Client #")+std::to_string(scene.id));
+		std::stringstream ss;
+		ss << scene.id;
+		cc->show_text(std::string("Client #")+ss.str());
 	}
 
 	cc->set_line_width(3.0); // second hand

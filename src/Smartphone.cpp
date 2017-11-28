@@ -5,6 +5,7 @@
  */
 #include <iostream>
 #include <vector>
+#include <sstream>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -102,7 +103,9 @@ void Smartphone::sendPixbuf(Glib::RefPtr<Gdk::Pixbuf> pixbuf, int quality){
 	char *cp;
 	std::vector<Glib::ustring> option_keys, option_values;
 	option_keys.push_back(Glib::ustring("quality"));
-	option_values.push_back(std::to_string(quality));
+	std::stringstream ss;
+	ss << quality;
+	option_values.push_back(ss.str());
 	pixbuf->save_to_buffer(cp, length, Glib::ustring("jpeg"), option_keys, option_values);
 
 	if(length<126){
@@ -188,7 +191,9 @@ bool Smartphone::onAccept(Glib::IOCondition condition){
 	address=s->get_remote_address();
 	Glib::RefPtr<Gio::InetSocketAddress> isockaddr=
 			Glib::RefPtr<Gio::InetSocketAddress>::cast_dynamic(address);
-	ipaddr=isockaddr->get_address()->to_string();
+	std::stringstream ss;
+	ss << isockaddr->get_address();
+	ipaddr=ss.str();
 
 	ws->destroy();
 	ws.reset();
