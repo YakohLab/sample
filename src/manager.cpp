@@ -6,6 +6,7 @@
 #include <cstring>
 #include "manager.h"
 #include "input.h"
+typedef int (Manager::*MethodType)() const;
 
 const int period = 33; // in millisecond
 
@@ -87,7 +88,7 @@ void Manager::startStandaloneTick(std::string n){
 	mgr.members.insert(Members::value_type(0, tmp));
 
 	model.initModel();
-	sigc::slot<bool> slot = sigc::mem_fun(*this, &Manager::tickServer);
+	sigc::slot<bool> slot = sigc::mem_fun(*this, MethodType(&Manager::tickServer));
 	Glib::signal_timeout().connect(slot, period);
 }
 
@@ -105,6 +106,6 @@ void Manager::startServerTick(void){
 		scene.p.insert(Players::value_type(j, p));
 	}
 	model.initModel();
-	sigc::slot<bool> slot = sigc::mem_fun(*this, &Manager::tickServer);
+	sigc::slot<bool> slot = sigc::mem_fun(*this, MethodType(&Manager::tickServer));
 	Glib::signal_timeout().connect(slot, period);
 }

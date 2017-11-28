@@ -2,7 +2,7 @@ CXX=g++
 LD=g++
 #CXXFLAGS=-std=c++0x `pkg-config --cflags gtkmm-3.0`
 #LDFLAGS=`pkg-config --libs gtkmm-3.0`
-CXXFLAGS=-std=c++11 -Wall -Wconversion $(shell pkg-config --cflags gtkmm-2.4 gtkglext-1.0)
+CXXFLAGS=-Wall -Wconversion $(shell pkg-config --cflags gtkmm-2.4 gtkglext-1.0)
 LDFLAGS=$(shell pkg-config --libs gtkmm-2.4 gtkglext-1.0) -lglut
 PROGRAM=sample
 SRCS=$(wildcard *.cpp)
