@@ -78,7 +78,6 @@ void Manager::startStandaloneTick(std::string n){
 	Manager &mgr = Manager::getInstance();
     Player p(0);
 	input.clearInput();
-	mgr.scene.init();
     mgr.scene.p.insert(Players::value_type(0, p));
 	mgr.members.clear();
 	Member tmp;
@@ -96,7 +95,6 @@ void Manager::startServerTick(void){
 	Input &input=Input::getInstance();
 	int j=0;
 	input.clearInput();
-	scene.init();
 	for(Members::iterator i=members.begin(); i!=members.end(); ++i, ++j){
         Player p(j);
 		// 参加者のnameとidを確定する

@@ -16,10 +16,20 @@ void Model::initModel(void){
 	localtime_r(&t, &scene.tm);
 	scene.c[0]=0;
 	scene.c[1]=0;
+	scene.valid=false;
 	for(Players::iterator i=scene.p.begin(); i!=scene.p.end(); ++i){
-		i->second.curDots=0;
+		Player &pl=i->second;
+		switch(i->first){
+		case 0: pl.g=pl.b=0; pl.r=1; break;
+		case 1: pl.r=pl.g=0; pl.b=1; break;
+		case 2: pl.r=pl.b=0; pl.g=1; break;
+		case 3: pl.g=pl.b=1; pl.r=0; break;
+		case 4: pl.r=pl.g=1; pl.b=0; break;
+		case 5: pl.r=pl.b=1; pl.g=0; break;
+		}
+		pl.curDots=0;
 		for(int j=0; j<max_dots; ++j){
-			i->second.dots[j].visible=0;
+			pl.dots[j].visible=0;
 		}
 	}
 }

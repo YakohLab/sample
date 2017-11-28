@@ -24,6 +24,7 @@ public:
 	double ax, ay, az;
 	Dot dots[max_dots];
 	int curDots;
+	int r, g, b;
     Player(int);
     Player(void){};
 };
@@ -39,7 +40,6 @@ public:
 	void receiveScene(char *);
 	char *packScene(unsigned long int &len);
 	bool valid;
-	void init(void);
 	Scene(void);
 private:
 	char buffer[max_scenelen];
