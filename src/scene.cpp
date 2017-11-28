@@ -59,5 +59,5 @@ void Player::setAccel(double x, double y, double z){
 }
 
 Player::Player(int id){
-	std::cout << "Player is constructed." << std::endl;
+	std::cout << "Player " << id << " is constructed." << std::endl;
 }

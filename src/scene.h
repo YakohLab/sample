@@ -6,7 +6,7 @@
 #define SCENE_H_
 #include <gtkmm.h>
 
-const int max_scenelen = 1000;
+const unsigned long int max_scenelen = 1000;
 
 struct Dot {
 	int x, y, visible;

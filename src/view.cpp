@@ -42,6 +42,7 @@ void MyDrawingArea::on_realize(void){
 }
 
 void showPlayer(int x, int y){
+#ifdef USE_OPENGL
 	GLfloat color[4];
 	GLUquadricObj *q;
 	q = gluNewQuadric();
@@ -51,6 +52,7 @@ void showPlayer(int x, int y){
 	glTranslated(0, 1, 0);
 	gluCylinder(q, 1, 2, 3, 10, 10);
 	glPopMatrix();
+#endif
 }
 
 
