@@ -14,7 +14,7 @@ public:
 		static MySmartphone instance;
 		return instance;
 	}
-	void onRecvBinary(float *array, int n);
+	void onRecvBinary(float *array, unsigned long int n);
 	void onConnect(const char *from, int w, int h);
 	void onDisconnect(void);
 	void sendImage(const char *filename);

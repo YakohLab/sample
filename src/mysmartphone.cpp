@@ -11,7 +11,7 @@
 MySmartphone::MySmartphone(void):Smartphone(){
 }
 
-void MySmartphone::onRecvBinary(float *array, int n){
+void MySmartphone::onRecvBinary(float *array, unsigned long int n){
 	int w, h;
 	Input &input=Input::getInstance();
 
@@ -22,7 +22,7 @@ void MySmartphone::onRecvBinary(float *array, int n){
 #ifdef SMAPHO_VERBOSE
 		std::cout << (int)array[0] << " ";
 #endif
-		for(int i=1; i<n; i+=2){
+		for(unsigned long int i=1; i<n; i+=2){
 			w=(int)array[i];
 			h=(int)array[i+1];
 #ifdef SMAPHO_VERBOSE
