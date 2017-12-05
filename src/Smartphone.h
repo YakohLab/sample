@@ -32,7 +32,7 @@
 class Smartphone {
 public:
 	Smartphone(void);
-	~Smartphone(void);
+	virtual ~Smartphone(void);
 	bool open(unsigned short port);
 	void close(void);
 	void sendMessage(char *msg);
