@@ -18,6 +18,9 @@ int main(int argc, char *argv[]) {
 	glutInit(&argc, argv);
 #endif
 #endif
+	MySmartphone &smapho = MySmartphone::getInstance();
+	smapho.open(8888);
+
 	Manager &mgr = Manager::getInstance();
 	ViewManager &vmr=ViewManager::getInstance();
 	mgr.init_status();

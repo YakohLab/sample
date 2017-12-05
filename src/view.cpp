@@ -20,9 +20,6 @@ Glib::RefPtr<Gdk::Pixbuf> img;
 
 MyDrawingArea::MyDrawingArea(BaseObjectType* o, const Glib::RefPtr<Gtk::Builder>& g):
 Gtk::DrawingArea(o){
-	MySmartphone &smapho = MySmartphone::getInstance();
-	smapho.open(8888);
-
 #ifdef USE_OPENGL
 	gl_config = gdk_gl_config_new_by_mode((GdkGLConfigMode)
 			(GDK_GL_MODE_RGBA|GDK_GL_MODE_DEPTH|GDK_GL_MODE_DOUBLE));
@@ -45,7 +42,7 @@ void showPlayer(int x, int y){
 	GLfloat color[4];
 	GLUquadricObj *q;
 	q = gluNewQuadric();
-	color[0]=0.0f; color[1]=0.0f; color[2]=1.0f; color[3]=0.8f;
+	color[0]=0.0f; color[1]=0.0f; color[2]=1.0f; color[3]=0.3f;
 	glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, color);
 	glPushMatrix();
 	glRotated(90, 1, 0, 0);
