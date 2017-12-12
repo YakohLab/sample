@@ -42,17 +42,25 @@ void MySmartphone::onRecvBinary(float *array, unsigned long int n){
 			}
 		}
 		if((int)array[0]==2){
-			w=(int)array[1];
-			h=(int)array[2];
 			if(n>3){
+				pinch=true;
+				w=(int)array[1];
+				h=(int)array[2];
 				w2=(int)array[3];
 				h2=(int)array[4];
-				pinch=true;
 				input.set_SmaphoPinch(sqrt((w2-w)*(w2-w)+(h2-h)*(h2-h))/sqrt((startw2-startw)*(startw2-startw)+(starth2-starth)*(starth2-starth)),
 						atan2(w2-w,h2-h)-atan2(startw2-startw,starth2-starth));
+				startw=(int)array[1];
+				starth=(int)array[2];
+				startw2=(int)array[3];
+				starth2=(int)array[4];
 			}else{
 				drag=true;
+				w=(int)array[1];
+				h=(int)array[2];
 				input.set_SmaphoDrag(w-startw, h-starth);
+				startw=(int)array[1];
+				starth=(int)array[2];
 			}
 		}
 		if((int)array[0]==3){
