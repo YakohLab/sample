@@ -52,6 +52,7 @@ void MySmartphone::onConnect(const char *from, int w, int h){
 	std::cout << "Connected from " << from << ", screen size="<< w << "x" << h << std::endl;
 #endif
 	vmr.menu[3]->set_sensitive(true);
+	sendImage("smapho.png");
 }
 
 void MySmartphone::onDisconnect(void){

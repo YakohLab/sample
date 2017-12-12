@@ -36,9 +36,23 @@ void Model::initModel(void){
 
 void Model::preAction(void){ // 衝突判定など、判定のみを行う。公平のため、ここで動かしてはいけない
 	time_t t;
+	Manager &mgr = Manager::getInstance();
 	Scene &scene=Manager::getInstance().scene;
+	int ii, jj;
 	t=time(NULL);
 	localtime_r(&t, &scene.tm);
+	ii=0;
+	for(Members::iterator i=mgr.members.begin(); i!=mgr.members.end(); ++i, ++ii){
+		jj=0;
+		for(Members::iterator j=mgr.members.begin(); j!=mgr.members.end(); ++j, ++jj){
+			if(ii==jj)continue;
+			Player &pi=scene.p[ii];
+		    Player &pj=scene.p[jj];
+		    if(pi.curDots==pj.curDots){
+		    	std::cout << "Bingo!" << std::endl;
+		    }
+		}
+	}
 }
 
 void Model::postAction(void){ // 全プレイヤーの動作を終えた後に、全体の状況を変えたい場合はここで処理する
