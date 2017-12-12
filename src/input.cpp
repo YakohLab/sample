@@ -25,6 +25,8 @@ char *Input::packInput(unsigned long int &len){
 void Input::clearInput(void){
 	input.x=input.y=-1;
 //	input.ax=input.ay=input.az=0;
+	input.scale=1.0;
+	input.angle=0.0;
 }
 
 void Input::set_input(int argx, int argy){
@@ -39,10 +41,21 @@ void Input::set_SmaphoInput(int argx, int argy){
 			vmr.get_height()*argy/smapho.get_height());
 }
 
-void Input::set_angle(double argax, double argay, double argaz){
+void Input::set_SmaphoAngle(double argax, double argay, double argaz){
 	input.ax=argax;
 	input.ay=argay;
 	input.az=argaz;
+}
+
+void Input::set_SmaphoPinch(double scale, double angle){
+	input.scale=scale;
+	input.angle=angle;
+}
+
+void Input::set_SmaphoDrag(int w, int h){
+	input.ax=-w/30.0;
+	input.ay=h/30.0;
+	input.az=10.0;
 }
 
 void Input::set_key(GdkEventKey* k){

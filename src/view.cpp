@@ -95,6 +95,8 @@ bool MyDrawingArea::on_expose_event( GdkEventExpose* e ){
 	GdkGLContext *gl_context = gtk_widget_get_gl_context((GtkWidget *)this->gobj());
 	GdkGLDrawable *gl_drawable = gtk_widget_get_gl_drawable((GtkWidget *)this->gobj());
 
+	std::cout << scene.p[0].scale << ", " << scene.p[0].angle << std::endl;
+
 	gdk_gl_drawable_gl_begin(gl_drawable, gl_context);
 	glViewport(0, 0, this->get_width(), this->get_height());
 

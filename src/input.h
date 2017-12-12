@@ -16,7 +16,7 @@ struct InputData { // 要素数を可変にしたい場合は、packInputとrece
 	int up, down, left, right;
 	int x, y;
 	int key;
-	double ax, ay, az;
+	double ax, ay, az, scale, angle;
 };
 
 class Input {
@@ -32,7 +32,9 @@ public:
 	void reset_key(GdkEventKey* k);
 	void set_input(int argx, int argy);
 	void set_SmaphoInput(int argx, int argy);
-	void set_angle(double, double, double);
+	void set_SmaphoAngle(double, double, double);
+	void set_SmaphoPinch(double scale, double angle);
+	void set_SmaphoDrag(int, int);
 	InputData input;
 private:
 	Input(void){

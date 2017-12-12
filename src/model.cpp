@@ -31,6 +31,8 @@ void Model::initModel(void){
 		for(int j=0; j<max_dots; ++j){
 			pl.dots[j].visible=0;
 		}
+		pl.scale=1.0;
+		pl.angle=0.0;
 	}
 }
 
@@ -84,4 +86,6 @@ void Model::stepPlayer(int fd){ // 各プレイヤーの動作を行う。公平
 	if(input.key!=0){
 		scene.c[0]=(char)input.key;
 	}
+	player.scale*=input.scale;
+	player.angle+=input.angle;
 }

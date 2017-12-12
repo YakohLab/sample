@@ -14,6 +14,8 @@ public:
 		static MySmartphone instance;
 		return instance;
 	}
+	int startw, starth, startw2, starth2;
+	bool drag, pinch;
 	void onRecvBinary(float *array, unsigned long int n);
 	void onConnect(const char *from, int w, int h);
 	void onDisconnect(void);

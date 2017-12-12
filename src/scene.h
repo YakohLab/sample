@@ -22,6 +22,7 @@ private:
 	int x, y;
 public:
 	double ax, ay, az;
+	double scale, angle;
 	Dot dots[max_dots];
 	int curDots;
 	int r, g, b;
