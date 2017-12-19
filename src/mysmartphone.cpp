@@ -45,6 +45,7 @@ void MySmartphone::onRecvBinary(float *array, unsigned long int n){
 		if((int)array[0]==2){
 			if(n>3){
 				pinch=true;
+				drag=false;
 				w=(int)array[1];
 				h=(int)array[2];
 				w2=(int)array[3];
@@ -52,19 +53,24 @@ void MySmartphone::onRecvBinary(float *array, unsigned long int n){
 				input.set_SmaphoPinch(sqrt((w2-w)*(w2-w)+(h2-h)*(h2-h))/sqrt((startw2-startw)*(startw2-startw)+(starth2-starth)*(starth2-starth)),
 						atan2(h2-h,w2-w)-atan2(starth2-starth, startw2-startw));
 			}else{
-				input.set_SmaphoClear();
-				drag=true;
-				w=(int)array[1];
-				h=(int)array[2];
-				input.set_SmaphoDrag(w-startw, h-starth);
+				if(!pinch){
+					input.set_SmaphoClear();
+					drag=true;
+					w=(int)array[1];
+					h=(int)array[2];
+					input.set_SmaphoDrag(w-startw, h-starth);
+				}
 			}
 		}
 		if((int)array[0]==3){
-			if(drag || pinch){
-				drag=pinch=false;
-				input.set_SmaphoClear();
-			}else{
-				input.set_SmaphoInput(startw, starth);
+			if(n==1){
+				if(drag || pinch){
+					drag=pinch=false;
+					input.set_SmaphoClear();
+					input.set_SmaphoDrag(0, 0);
+				}else{
+					input.set_SmaphoInput(startw, starth);
+				}
 			}
 		}
 		break;
