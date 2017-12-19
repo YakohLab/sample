@@ -13,7 +13,7 @@
 const unsigned long int max_inputlen = 100;
 
 struct InputData { // 要素数を可変にしたい場合は、packInputとreceiveInputを注意深く書き直す必要がある
-	int up, down, left, right;
+	int up, down, left, right, dragx, dragy;
 	int x, y;
 	int key;
 	double ax, ay, az, scale, angle, scaleHold, angleHold;

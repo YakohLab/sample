@@ -27,6 +27,8 @@ void Input::clearInput(void){
 //	input.ax=input.ay=input.az=0;
 //	input.scale=0.0;
 //	input.angle=0.0;
+	input.dragx=0;
+	input.dragy=0;
 }
 
 void Input::set_input(int argx, int argy){
@@ -61,6 +63,8 @@ void Input::set_SmaphoDrag(int w, int h){
 	input.ax=-w;
 	input.ay=h;
 	input.az=100;
+	input.dragx=w;
+	input.dragy=h;
 }
 
 void Input::set_key(GdkEventKey* k){

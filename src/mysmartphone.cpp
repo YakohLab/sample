@@ -35,26 +35,34 @@ void MySmartphone::onRecvBinary(float *array, unsigned long int n){
 		std::flush(std::cout);
 #endif
 		if((int)array[0]==1){
+			drag=pinch=false;
 			startw=(int)array[1];
 			starth=(int)array[2];
 			if(n>3){
 				startw2=(int)array[3];
 				starth2=(int)array[4];
+			}else{
+				startw2=starth2=0;
 			}
 		}
 		if((int)array[0]==2){
 			if(n>3){
 				pinch=true;
 				drag=false;
+				input.set_SmaphoDrag(0, 0);
 				w=(int)array[1];
 				h=(int)array[2];
 				w2=(int)array[3];
 				h2=(int)array[4];
-				input.set_SmaphoPinch(sqrt((w2-w)*(w2-w)+(h2-h)*(h2-h))/sqrt((startw2-startw)*(startw2-startw)+(starth2-starth)*(starth2-starth)),
+				if(startw2==0 && starth2==0){
+					startw2=w2;
+					starth2=h2;
+				}else{
+					input.set_SmaphoPinch(sqrt((w2-w)*(w2-w)+(h2-h)*(h2-h))/sqrt((startw2-startw)*(startw2-startw)+(starth2-starth)*(starth2-starth)),
 						atan2(h2-h,w2-w)-atan2(starth2-starth, startw2-startw));
+				}
 			}else{
 				if(!pinch){
-					input.set_SmaphoClear();
 					drag=true;
 					w=(int)array[1];
 					h=(int)array[2];
@@ -64,10 +72,12 @@ void MySmartphone::onRecvBinary(float *array, unsigned long int n){
 		}
 		if((int)array[0]==3){
 			if(n==1){
-				if(drag || pinch){
-					drag=pinch=false;
-					input.set_SmaphoClear();
+				if(drag){
+					drag=false;
 					input.set_SmaphoDrag(0, 0);
+				}else if(pinch){
+					pinch=false;
+					input.set_SmaphoClear();
 				}else{
 					input.set_SmaphoInput(startw, starth);
 				}
