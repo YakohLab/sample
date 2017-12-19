@@ -86,6 +86,6 @@ void Model::stepPlayer(int fd){ // 各プレイヤーの動作を行う。公平
 	if(input.key!=0){
 		scene.c[0]=(char)input.key;
 	}
-	player.scale*=input.scale;
-	player.angle+=input.angle;
+	player.scale=input.scale;
+	player.angle=input.angle;
 }

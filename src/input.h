@@ -16,7 +16,7 @@ struct InputData { // 要素数を可変にしたい場合は、packInputとrece
 	int up, down, left, right;
 	int x, y;
 	int key;
-	double ax, ay, az, scale, angle;
+	double ax, ay, az, scale, angle, scaleHold, angleHold;
 };
 
 class Input {
@@ -35,10 +35,14 @@ public:
 	void set_SmaphoAngle(double, double, double);
 	void set_SmaphoPinch(double scale, double angle);
 	void set_SmaphoDrag(int, int);
+	void set_SmaphoClear(void);
 	InputData input;
 private:
 	Input(void){
 		clearInput();
+		input.scale=1;
+		input.scaleHold=1;
+		input.angleHold=0;
 	}
 	Input(Input&);
 	char buffer[max_inputlen];

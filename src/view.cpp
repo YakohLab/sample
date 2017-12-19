@@ -95,7 +95,7 @@ bool MyDrawingArea::on_expose_event( GdkEventExpose* e ){
 	GdkGLContext *gl_context = gtk_widget_get_gl_context((GtkWidget *)this->gobj());
 	GdkGLDrawable *gl_drawable = gtk_widget_get_gl_drawable((GtkWidget *)this->gobj());
 
-	std::cout << scene.p[0].scale << ", " << scene.p[0].angle << std::endl;
+	// std::cout << scene.p[0].scale << ", " << scene.p[0].angle << std::endl;
 
 	gdk_gl_drawable_gl_begin(gl_drawable, gl_context);
 	glViewport(0, 0, this->get_width(), this->get_height());
@@ -259,7 +259,8 @@ bool MyDrawingArea::on_expose_event( GdkEventExpose* e ){
 	double pitch=atan2(scene.p[0].ay, scene.p[0].az)*180/M_PI;
 	glRotated(pitch, 1.0, 0.0, 0.0);
 	glRotated(roll, 0.0, 0.0, 1.0);
-	gdk_gl_draw_teapot(true, lh/4);
+	glRotated(-scene.p[0].angle*180/M_PI, 0.0, 1.0, 0.0);
+	gdk_gl_draw_teapot(true, lh/4*scene.p[0].scale);
 	glPopMatrix();
 
 

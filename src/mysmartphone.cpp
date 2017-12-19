@@ -9,6 +9,7 @@
 #include "view.h"
 
 MySmartphone::MySmartphone(void):Smartphone(){
+	drag=pinch=false;
 }
 
 void MySmartphone::onRecvBinary(float *array, unsigned long int n){
@@ -20,7 +21,7 @@ void MySmartphone::onRecvBinary(float *array, unsigned long int n){
 	case 2: // touch move
 	case 3: // touch end
 #ifdef SMAPHO_VERBOSE
-		std::cout << (int)array[0] << " ";
+		std::cout << n << ":" << (int)array[0] << " ";
 #endif
 		for(unsigned long int i=1; i<n; i+=2){
 			w=(int)array[i];
@@ -49,23 +50,19 @@ void MySmartphone::onRecvBinary(float *array, unsigned long int n){
 				w2=(int)array[3];
 				h2=(int)array[4];
 				input.set_SmaphoPinch(sqrt((w2-w)*(w2-w)+(h2-h)*(h2-h))/sqrt((startw2-startw)*(startw2-startw)+(starth2-starth)*(starth2-starth)),
-						atan2(w2-w,h2-h)-atan2(startw2-startw,starth2-starth));
-				startw=(int)array[1];
-				starth=(int)array[2];
-				startw2=(int)array[3];
-				starth2=(int)array[4];
+						atan2(h2-h,w2-w)-atan2(starth2-starth, startw2-startw));
 			}else{
+				input.set_SmaphoClear();
 				drag=true;
 				w=(int)array[1];
 				h=(int)array[2];
 				input.set_SmaphoDrag(w-startw, h-starth);
-				startw=(int)array[1];
-				starth=(int)array[2];
 			}
 		}
 		if((int)array[0]==3){
 			if(drag || pinch){
 				drag=pinch=false;
+				input.set_SmaphoClear();
 			}else{
 				input.set_SmaphoInput(startw, starth);
 			}
