@@ -15,7 +15,7 @@ const int ss_divisor = 3; // frames
 #endif
 
 #ifdef USE_OPENGL
-GLuint texname;
+GLuint texnames[1];
 Glib::RefPtr<Gdk::Pixbuf> img;
 #endif
 
@@ -36,7 +36,42 @@ void MyDrawingArea::on_realize(void) {
 	Gtk::DrawingArea::on_realize();
 	Gtk::DrawingArea::set_size_request(800, 600);
 #ifdef USE_OPENGL
+	GdkGLContext *gl_context = gtk_widget_get_gl_context(
+			(GtkWidget *) this->gobj());
+	GdkGLDrawable *gl_drawable =
+			gtk_widget_get_gl_drawable((GtkWidget *)this->gobj());
+	gdk_gl_drawable_gl_begin(gl_drawable, gl_context);
+	glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	if (gdk_gl_drawable_is_double_buffered(gl_drawable)) {
+		gdk_gl_drawable_swap_buffers(gl_drawable);
+	} else {
+		glFlush();
+	}
+	gdk_gl_drawable_gl_end(gl_drawable);
+
 	img = Gdk::Pixbuf::create_from_file("sample.jpg");
+	glGenTextures(1, texnames);
+	glBindTexture(GL_TEXTURE_2D, texnames[0]);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+//	glTexEnvf(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_DECAL);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+	if (img->get_n_channels() == 3) {
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, img->get_width(),
+				img->get_height(), 0, GL_RGB, GL_UNSIGNED_BYTE,
+				img->get_pixels());
+	} else {
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, img->get_width(),
+				img->get_height(), 0, GL_RGBA, GL_UNSIGNED_BYTE,
+				img->get_pixels());
+	}
 #endif
 }
 
@@ -233,32 +268,11 @@ bool MyDrawingArea::on_expose_event(GdkEventExpose* e) {
 	color[2] = 1.0f;
 	color[3] = 0.8f;
 	glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, color);
-	glGenTextures(1, &texname);
-	glBindTexture(GL_TEXTURE_2D, texname);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-//	glTexEnvf(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_DECAL);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-
-	if (img->get_n_channels() == 3) {
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, img->get_width(),
-				img->get_height(), 0, GL_RGB, GL_UNSIGNED_BYTE,
-				img->get_pixels());
-	} else {
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, img->get_width(),
-				img->get_height(), 0, GL_RGBA, GL_UNSIGNED_BYTE,
-				img->get_pixels());
-	}
 
 	//テクスチャ貼り付け
 	glNormal3d(0, 1, 0);
 	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, texname);
+	glBindTexture(GL_TEXTURE_2D, texnames[0]);
 	glColor3d(0, 0, 0);
 	glBegin(GL_QUADS);
 	glTexCoord2d(0, 1);
