@@ -192,7 +192,7 @@ bool Smartphone::onAccept(Glib::IOCondition condition){
 	Glib::RefPtr<Gio::InetSocketAddress> isockaddr=
 			Glib::RefPtr<Gio::InetSocketAddress>::cast_dynamic(address);
 	std::stringstream ss;
-	ss << isockaddr->get_address();
+	ss << isockaddr->get_address()->to_string();
 	ipaddr=ss.str();
 
 	ws->destroy();
