@@ -296,17 +296,18 @@ bool MyDrawingArea::on_expose_event(GdkEventExpose* e) {
 	}
 #endif
 
-	for (Players::iterator p = scene.p.begin(); p != scene.p.end(); ++p) {
-		color[0] = (float) p->second.r;
-		color[1] = (float) p->second.g;
-		color[2] = (float) p->second.b;
+	for (Players::iterator it = scene.p.begin(); it != scene.p.end(); ++it) {
+		Player &p=it->second;
+		color[0] = (float) p.r;
+		color[1] = (float) p.g;
+		color[2] = (float) p.b;
 		color[3] = (float) 1.0;
 		glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, color);
 		for (int j = 0; j < max_dots; ++j) {
-			if (p->second.dots[j].visible == 1) {
+			if (p.dots[j].visible == 1) {
 				glPushMatrix();
-				glTranslated((p->second.dots[j].x - this->get_width() / 2) / 2,
-						0, (p->second.dots[j].y - this->get_height() / 2) / 2);
+				glTranslated((p.dots[j].x - this->get_width() / 2) / 2,
+						0, (p.dots[j].y - this->get_height() / 2) / 2);
 				glRotated(270, 1, 0, 0);
 				gluDisk(q, z, 2 * z, 120, 10);
 				glPopMatrix();
@@ -417,11 +418,12 @@ bool MyDrawingArea::on_expose_event(GdkEventExpose* e) {
 
 	cc->set_line_width(5.0);
 	cc->set_source_rgb(1.0, 0.0, 0.0);
-	for(Players::iterator p=scene.p.begin(); p!=scene.p.end(); ++p) {
-		cc->set_source_rgb(p->second.r, p->second.g, p->second.b);
+	for(Players::iterator it=scene.p.begin(); it!=scene.p.end(); ++it) {
+		Player &p=it->second;
+		cc->set_source_rgb(p.r, p.g, p.b);
 		for(int j=0; j<max_dots; ++j) {
-			if(p->second.dots[j].visible==1) {
-				cc->arc((double)p->second.dots[j].x, (double)p->second.dots[j].y,
+			if(p.dots[j].visible==1) {
+				cc->arc((double)p.dots[j].x, (double)p.dots[j].y,
 						5.0, 0.0, (double)(2.0*M_PI));
 				cc->stroke();
 			}
