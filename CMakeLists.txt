@@ -13,4 +13,4 @@ link_directories(${GTKMM_LIBRARY_DIRS} ${GTKGLEXT_LIBRARY_DIRS} ${OPENGL_LIBRARY
 
 file(GLOB SOURCES src/*.cpp)
 add_executable(sample ${SOURCES})
-target_link_libraries(sample ${GTKMM_LIBRARIES} ${GTKGLEXT_LIBRARIES} ${OPENGL_LIBRARIES} ${GLUT_LIBRARY})
+target_link_libraries(sample ${GTKMM_LIBRARIES} ${GTKGLEXT_LIBRARIES} ${OPENGL_LIBRARIES} ${GLUT_LIBRARY} ${GTKMM_LIBRARIES})
