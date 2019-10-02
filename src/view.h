@@ -11,10 +11,15 @@
 #define GTKMM3	GTK_VERSION_GE(3,0)
 #ifdef USE_OPENGL
 #include <gtk/gtkgl.h>
+#if defined(__APPLE__)
+#include <OpenGL/gl.h>
+#include <OpenGL/glu.h>
+#else
 #include <GL/gl.h>
 #include <GL/glu.h>
+#endif
 #ifdef USE_OPENGLUT
-#include <GL/glut.h>
+#include <GLUT/glut.h>
 #endif
 #endif
 
