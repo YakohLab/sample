@@ -14,12 +14,15 @@
 #if defined(__APPLE__)
 #include <OpenGL/gl.h>
 #include <OpenGL/glu.h>
+#ifdef USE_OPENGLUT
+#include <GLUT/glut.h>
+#endif
 #else
 #include <GL/gl.h>
 #include <GL/glu.h>
-#endif
 #ifdef USE_OPENGLUT
-#include <GLUT/glut.h>
+#include <GL/glut.h>
+#endif
 #endif
 #endif
 
