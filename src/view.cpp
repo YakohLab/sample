@@ -23,7 +23,6 @@ MyDrawingArea::MyDrawingArea(BaseObjectType* o,
 		const Glib::RefPtr<Gtk::Builder>& g) :
 		Gtk::DrawingArea(o) {
 #ifdef USE_OPENGL
-//	gtk_gl_area_make_current(GTK_GL_AREA(o));
 //	gl_config = gdk_gl_config_new_by_mode(
 //			(GdkGLConfigMode) (GDK_GL_MODE_RGBA | GDK_GL_MODE_DEPTH));
 //	gtk_widget_set_gl_capability(&(o->widget), gl_config, NULL, TRUE,
@@ -36,18 +35,19 @@ void MyDrawingArea::on_realize(void) {
 	Gtk::DrawingArea::on_realize();
 	Gtk::DrawingArea::set_size_request(800, 600);
 #ifdef USE_OPENGL
-//	gtk_gl_area_make_current(GTK_GL_AREA(this->gobj()));
+//	ViewManager &vmr = ViewManager::getInstance();
+//	gtk_gl_area_make_current(GTK_GL_AREA(vmr.glArea->gobj()));
 //	GdkGLContext *gl_context = gtk_widget_get_gl_context(
 //			(GtkWidget *) this->gobj());
 //	GdkGLDrawable *gl_drawable =
 //			gtk_widget_get_gl_drawable((GtkWidget *)this->gobj());
 //	gdk_gl_drawable_gl_begin(gl_drawable, gl_context);
-	glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+//	glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
+//	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 //	if (gdk_gl_drawable_is_double_buffered(gl_drawable)) {
 //		gdk_gl_drawable_swap_buffers(gl_drawable);
 //	} else {
-		glFlush();
+//		glFlush();
 //	}
 //	gdk_gl_drawable_gl_end(gl_drawable);
 
@@ -112,8 +112,7 @@ bool MyDrawingArea::on_expose_event(GdkEventExpose* e) {
 	if (!scene.valid) {
 #ifdef USE_OPENGL
 	ViewManager &vmr = ViewManager::getInstance();
-	std::cout << vmr.glArea->get_type() << std::endl;
-	gtk_gl_area_make_current(GTK_GL_AREA(vmr.glArea));
+	gtk_gl_area_make_current(GTK_GL_AREA(vmr.glArea->gobj()));
 //		GdkGLContext *gl_context = gtk_widget_get_gl_context(
 //				(GtkWidget *) this->gobj());
 //		GdkGLDrawable *gl_drawable =

@@ -88,7 +88,7 @@ public:
 	}
 	Gtk::Window *init(Glib::RefPtr<Gtk::Builder>);
 	MyImageMenuItem *menu[5];
-	Gtk::Widget *glArea;
+	Gtk::GLArea *glArea;
 private:
 	ViewManager(void){};
 	ViewManager(ViewManager&);
