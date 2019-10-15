@@ -23,11 +23,11 @@ MyDrawingArea::MyDrawingArea(BaseObjectType* o,
 		const Glib::RefPtr<Gtk::Builder>& g) :
 		Gtk::DrawingArea(o) {
 #ifdef USE_OPENGL
-	gl_config = gdk_gl_config_new_by_mode(
-			(GdkGLConfigMode) (GDK_GL_MODE_RGBA | GDK_GL_MODE_DEPTH
-					| GDK_GL_MODE_DOUBLE));
-	gtk_widget_set_gl_capability(&(o->widget), gl_config, NULL, TRUE,
-			GDK_GL_RGBA_TYPE);
+//	gtk_gl_area_make_current(GTK_GL_AREA(o));
+//	gl_config = gdk_gl_config_new_by_mode(
+//			(GdkGLConfigMode) (GDK_GL_MODE_RGBA | GDK_GL_MODE_DEPTH));
+//	gtk_widget_set_gl_capability(&(o->widget), gl_config, NULL, TRUE,
+//			GDK_GL_RGBA_TYPE);
 #endif
 }
 
@@ -36,19 +36,20 @@ void MyDrawingArea::on_realize(void) {
 	Gtk::DrawingArea::on_realize();
 	Gtk::DrawingArea::set_size_request(800, 600);
 #ifdef USE_OPENGL
-	GdkGLContext *gl_context = gtk_widget_get_gl_context(
-			(GtkWidget *) this->gobj());
-	GdkGLDrawable *gl_drawable =
-			gtk_widget_get_gl_drawable((GtkWidget *)this->gobj());
-	gdk_gl_drawable_gl_begin(gl_drawable, gl_context);
+//	gtk_gl_area_make_current(GTK_GL_AREA(this->gobj()));
+//	GdkGLContext *gl_context = gtk_widget_get_gl_context(
+//			(GtkWidget *) this->gobj());
+//	GdkGLDrawable *gl_drawable =
+//			gtk_widget_get_gl_drawable((GtkWidget *)this->gobj());
+//	gdk_gl_drawable_gl_begin(gl_drawable, gl_context);
 	glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	if (gdk_gl_drawable_is_double_buffered(gl_drawable)) {
-		gdk_gl_drawable_swap_buffers(gl_drawable);
-	} else {
+//	if (gdk_gl_drawable_is_double_buffered(gl_drawable)) {
+//		gdk_gl_drawable_swap_buffers(gl_drawable);
+//	} else {
 		glFlush();
-	}
-	gdk_gl_drawable_gl_end(gl_drawable);
+//	}
+//	gdk_gl_drawable_gl_end(gl_drawable);
 
 	img = Gdk::Pixbuf::create_from_file("sample.jpg");
 	glGenTextures(1, texnames);
@@ -110,19 +111,22 @@ bool MyDrawingArea::on_expose_event(GdkEventExpose* e) {
 #endif
 	if (!scene.valid) {
 #ifdef USE_OPENGL
-		GdkGLContext *gl_context = gtk_widget_get_gl_context(
-				(GtkWidget *) this->gobj());
-		GdkGLDrawable *gl_drawable =
-				gtk_widget_get_gl_drawable((GtkWidget *)this->gobj());
-		gdk_gl_drawable_gl_begin(gl_drawable, gl_context);
+	ViewManager &vmr = ViewManager::getInstance();
+	std::cout << vmr.glArea->get_type() << std::endl;
+	gtk_gl_area_make_current(GTK_GL_AREA(vmr.glArea));
+//		GdkGLContext *gl_context = gtk_widget_get_gl_context(
+//				(GtkWidget *) this->gobj());
+//		GdkGLDrawable *gl_drawable =
+//				gtk_widget_get_gl_drawable((GtkWidget *)this->gobj());
+//		gdk_gl_drawable_gl_begin(gl_drawable, gl_context);
 		glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		if (gdk_gl_drawable_is_double_buffered(gl_drawable)) {
-			gdk_gl_drawable_swap_buffers(gl_drawable);
-		} else {
+//		if (gdk_gl_drawable_is_double_buffered(gl_drawable)) {
+//			gdk_gl_drawable_swap_buffers(gl_drawable);
+//		} else {
 			glFlush();
-		}
-		gdk_gl_drawable_gl_end(gl_drawable);
+//		}
+//		gdk_gl_drawable_gl_end(gl_drawable);
 #else
 		cc->set_source_rgb(0.8, 0.8, 0.8);
 		cc->paint();
@@ -137,14 +141,14 @@ bool MyDrawingArea::on_expose_event(GdkEventExpose* e) {
 
 #ifdef USE_OPENGL
 	int z = ls / 30;
-	GdkGLContext *gl_context = gtk_widget_get_gl_context(
-			(GtkWidget *) this->gobj());
-	GdkGLDrawable *gl_drawable =
-			gtk_widget_get_gl_drawable((GtkWidget *)this->gobj());
+//	GdkGLContext *gl_context = gtk_widget_get_gl_context(
+//			(GtkWidget *) this->gobj());
+//	GdkGLDrawable *gl_drawable =
+//			gtk_widget_get_gl_drawable((GtkWidget *)this->gobj());
 
 	// std::cout << scene.p[0].scale << ", " << scene.p[0].angle << std::endl;
 
-	gdk_gl_drawable_gl_begin(gl_drawable, gl_context);
+//	gdk_gl_drawable_gl_begin(gl_drawable, gl_context);
 	glViewport(0, 0, this->get_width(), this->get_height());
 
 	glMatrixMode(GL_PROJECTION);
@@ -327,7 +331,7 @@ bool MyDrawingArea::on_expose_event(GdkEventExpose* e) {
 	glRotated(pitch, 1.0, 0.0, 0.0);
 	glRotated(roll, 0.0, 0.0, 1.0);
 	glRotated(-scene.p[0].angle * 180 / M_PI, 0.0, 1.0, 0.0);
-	gdk_gl_draw_teapot(true, lh / 4 * scene.p[0].scale);
+//	gdk_gl_draw_teapot(true, lh / 4 * scene.p[0].scale);
 	glPopMatrix();
 
 	// 文字列を2次元座標系で表示する
@@ -350,12 +354,12 @@ bool MyDrawingArea::on_expose_event(GdkEventExpose* e) {
 	}
 #endif
 
-	if (gdk_gl_drawable_is_double_buffered(gl_drawable)) {
-		gdk_gl_drawable_swap_buffers(gl_drawable);
-	} else {
+//	if (gdk_gl_drawable_is_double_buffered(gl_drawable)) {
+//		gdk_gl_drawable_swap_buffers(gl_drawable);
+//	} else {
 		glFlush();
-	}
-	gdk_gl_drawable_gl_end(gl_drawable);
+//	}
+//	gdk_gl_drawable_gl_end(gl_drawable);
 
 #else
 #if GTKMM3
@@ -617,6 +621,7 @@ Gtk::Window *ViewManager::init(Glib::RefPtr<Gtk::Builder> builder) {
 	builder->get_widget("server", server);
 	builder->get_widget("client", client);
 	builder->get_widget_derived("drawingarea1", drawingArea);
+	builder->get_widget("drawingarea2", glArea);
 	builder->get_widget_derived("statusbar1", statusbar);
 	builder->get_widget_derived("Start", menu[0]);
 	builder->get_widget_derived("Stop", menu[1]);

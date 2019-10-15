@@ -13,7 +13,7 @@ int main(int argc, char *argv[]) {
 	Gtk::Window *w;
 	Gtk::Main kit(argc, argv);
 #ifdef USE_OPENGL
-	gdk_gl_init(&argc, &argv);
+//	gdk_gl_init(&argc, &argv);
 #ifdef USE_OPENGLUT
 	glutInit(&argc, argv);
 #endif

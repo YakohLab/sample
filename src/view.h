@@ -10,7 +10,7 @@
 #include <gtkmm.h>
 #define GTKMM3	GTK_VERSION_GE(3,0)
 #ifdef USE_OPENGL
-#include <gtk/gtkgl.h>
+#include <gtk/gtk.h>
 #if defined(__APPLE__)
 #include <OpenGL/gl.h>
 #include <OpenGL/glu.h>
@@ -44,7 +44,7 @@ protected:
 #endif
 private:
 #ifdef USE_OPENGL
-	GdkGLConfig *gl_config;
+//	GdkGLConfig *gl_config;
 #endif
 };
 
@@ -88,6 +88,7 @@ public:
 	}
 	Gtk::Window *init(Glib::RefPtr<Gtk::Builder>);
 	MyImageMenuItem *menu[5];
+	Gtk::Widget *glArea;
 private:
 	ViewManager(void){};
 	ViewManager(ViewManager&);
