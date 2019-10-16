@@ -17,26 +17,26 @@ const int ss_divisor = 3; // frames
 #ifdef USE_OPENGL
 GLuint texnames[1];
 Glib::RefPtr<Gdk::Pixbuf> img;
-#endif
 
 MyDrawingArea::MyDrawingArea(BaseObjectType* o,
 		const Glib::RefPtr<Gtk::Builder>& g) :
 		Gtk::DrawingArea(o) {
-#ifdef USE_OPENGL
 //	gl_config = gdk_gl_config_new_by_mode(
 //			(GdkGLConfigMode) (GDK_GL_MODE_RGBA | GDK_GL_MODE_DEPTH));
 //	gtk_widget_set_gl_capability(&(o->widget), gl_config, NULL, TRUE,
 //			GDK_GL_RGBA_TYPE);
-#endif
 }
 
-void MyDrawingArea::on_realize(void) {
-//		std::cout << "Realized" << std::endl;
-	Gtk::DrawingArea::on_realize();
-	Gtk::DrawingArea::set_size_request(800, 600);
-#ifdef USE_OPENGL
-//	ViewManager &vmr = ViewManager::getInstance();
-//	gtk_gl_area_make_current(GTK_GL_AREA(vmr.glArea->gobj()));
+MyGLArea::MyGLArea(BaseObjectType* o,
+		const Glib::RefPtr<Gtk::Builder>& g) :
+		Gtk::GLArea(o) {
+	std::cout << "GLArea is constructed." << std::endl;
+}
+
+void MyGLArea::on_realize(void) {
+	Gtk::GLArea::on_realize();
+	ViewManager &vmr = ViewManager::getInstance();
+	gtk_gl_area_make_current(GTK_GL_AREA(vmr.glArea->gobj()));
 //	GdkGLContext *gl_context = gtk_widget_get_gl_context(
 //			(GtkWidget *) this->gobj());
 //	GdkGLDrawable *gl_drawable =
@@ -73,10 +73,9 @@ void MyDrawingArea::on_realize(void) {
 				img->get_height(), 0, GL_RGBA, GL_UNSIGNED_BYTE,
 				img->get_pixels());
 	}
-#endif
+	return;
 }
 
-#ifdef USE_OPENGL
 void showPlayer(int x, int y) {
 	GLfloat color[4];
 	GLUquadricObj *q;
@@ -93,26 +92,15 @@ void showPlayer(int x, int y) {
 	gluSphere(q, 10, 100, 100);
 	glPopMatrix();
 }
-#endif
 
-#if GTKMM3
-bool MyDrawingArea::on_draw(const Cairo::RefPtr<Cairo::Context>& cc ) {
-	Gtk::DrawingArea::on_draw(cc);
+bool MyGLArea::on_render(const Glib::RefPtr<Gdk::GLContext> &glc){
+	Gtk::GLArea::on_render(glc);
 	Manager &mgr = Manager::getInstance();
 	Scene &scene=mgr.scene;
-#else
-bool MyDrawingArea::on_expose_event(GdkEventExpose* e) {
-	Cairo::RefPtr<Cairo::Context> cc =
-			this->get_window()->create_cairo_context();
-	Gtk::DrawingArea::on_expose_event(e);
-	Manager &mgr = Manager::getInstance();
-	Scene &scene = mgr.scene;
 
-#endif
-	if (!scene.valid) {
-#ifdef USE_OPENGL
 	ViewManager &vmr = ViewManager::getInstance();
 	gtk_gl_area_make_current(GTK_GL_AREA(vmr.glArea->gobj()));
+	if (!scene.valid) {
 //		GdkGLContext *gl_context = gtk_widget_get_gl_context(
 //				(GtkWidget *) this->gobj());
 //		GdkGLDrawable *gl_drawable =
@@ -126,19 +114,13 @@ bool MyDrawingArea::on_expose_event(GdkEventExpose* e) {
 			glFlush();
 //		}
 //		gdk_gl_drawable_gl_end(gl_drawable);
-#else
-		cc->set_source_rgb(0.8, 0.8, 0.8);
-		cc->paint();
-#endif
 		return true;
 	}
 
-	//	std::cout << "Exposed" << std::endl;
 	int ls = (int) fmin(this->get_width() * 0.5, this->get_height() * 0.5);
 	int lm = (int) fmin(this->get_width() * 0.4, this->get_height() * 0.4);
 	int lh = (int) fmin(this->get_width() * 0.25, this->get_height() * 0.25);
 
-#ifdef USE_OPENGL
 	int z = ls / 30;
 //	GdkGLContext *gl_context = gtk_widget_get_gl_context(
 //			(GtkWidget *) this->gobj());
@@ -360,7 +342,6 @@ bool MyDrawingArea::on_expose_event(GdkEventExpose* e) {
 //	}
 //	gdk_gl_drawable_gl_end(gl_drawable);
 
-#else
 #if GTKMM3
 #else
 	MySmartphone &smapho=MySmartphone::getInstance();
@@ -373,6 +354,42 @@ bool MyDrawingArea::on_expose_event(GdkEventExpose* e) {
 		smapho.sendPixbuf((Glib::RefPtr<Gdk::Pixbuf>)pixbuf);
 	}
 #endif
+	return true;
+}
+#endif
+
+void MyDrawingArea::on_realize(void) {
+//		std::cout << "Realized" << std::endl;
+	Gtk::DrawingArea::on_realize();
+	Gtk::DrawingArea::set_size_request(800, 600);
+}
+
+
+#if GTKMM3
+bool MyDrawingArea::on_draw(const Cairo::RefPtr<Cairo::Context>& cc ) {
+	Gtk::DrawingArea::on_draw(cc);
+	Manager &mgr = Manager::getInstance();
+	Scene &scene=mgr.scene;
+#else
+bool MyDrawingArea::on_expose_event(GdkEventExpose* e) {
+	Cairo::RefPtr<Cairo::Context> cc =
+			this->get_window()->create_cairo_context();
+	Gtk::DrawingArea::on_expose_event(e);
+	Manager &mgr = Manager::getInstance();
+	Scene &scene = mgr.scene;
+#endif
+
+	if (!scene.valid) {
+		cc->set_source_rgb(0.8, 0.8, 0.8);
+		cc->paint();
+		return true;
+	}
+
+	//	std::cout << "Exposed" << std::endl;
+	int ls = (int) fmin(this->get_width() * 0.5, this->get_height() * 0.5);
+	int lm = (int) fmin(this->get_width() * 0.4, this->get_height() * 0.4);
+	int lh = (int) fmin(this->get_width() * 0.25, this->get_height() * 0.25);
+
 	cc->set_source_rgb(0.8, 0.8, 0.8);
 	cc->paint();
 	cc->set_line_width(1.0);
@@ -432,7 +449,6 @@ bool MyDrawingArea::on_expose_event(GdkEventExpose* e) {
 			}
 		}
 	}
-#endif
 	scene.valid = false;
 
 	return true;
@@ -620,7 +636,7 @@ Gtk::Window *ViewManager::init(Glib::RefPtr<Gtk::Builder> builder) {
 	builder->get_widget("server", server);
 	builder->get_widget("client", client);
 	builder->get_widget_derived("drawingarea1", drawingArea);
-	builder->get_widget("drawingarea2", glArea);
+	builder->get_widget_derived("drawingarea2", glArea);
 	builder->get_widget_derived("statusbar1", statusbar);
 	builder->get_widget_derived("Start", menu[0]);
 	builder->get_widget_derived("Stop", menu[1]);

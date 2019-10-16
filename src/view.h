@@ -8,7 +8,8 @@
 #define USE_OPENGL
 #define USE_OPENGLUT
 #include <gtkmm.h>
-#define GTKMM3	GTK_VERSION_GE(3,0)
+// #define GTKMM3	GTK_VERSION_GE(3,0)
+#define GTKMM3 true
 #ifdef USE_OPENGL
 #include <gtk/gtk.h>
 #if defined(__APPLE__)
@@ -46,6 +47,14 @@ private:
 #ifdef USE_OPENGL
 //	GdkGLConfig *gl_config;
 #endif
+};
+
+class MyGLArea: public Gtk::GLArea {
+public:
+	MyGLArea(BaseObjectType*, const Glib::RefPtr<Gtk::Builder>&);
+protected:
+	void on_realize(void);
+	bool on_render(const Glib::RefPtr< Gdk::GLContext >&);
 };
 
 class MyImageMenuItem: public Gtk::ImageMenuItem {
@@ -88,7 +97,7 @@ public:
 	}
 	Gtk::Window *init(Glib::RefPtr<Gtk::Builder>);
 	MyImageMenuItem *menu[5];
-	Gtk::GLArea *glArea;
+	MyGLArea *glArea;
 private:
 	ViewManager(void){};
 	ViewManager(ViewManager&);
