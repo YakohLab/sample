@@ -13,6 +13,13 @@ int main(int argc, char *argv[]) {
 	Gtk::Window *w;
 	Gtk::Main kit(argc, argv);
 
+#ifdef USE_OPENGL
+//	gdk_gl_init(&argc, &argv);
+#ifdef USE_OPENGLUT
+	glutInit(&argc, argv);
+#endif
+#endif
+
 	MySmartphone &smapho = MySmartphone::getInstance();
 	smapho.open(8888);
 
@@ -27,12 +34,6 @@ int main(int argc, char *argv[]) {
 		return 1;
 	}
 	w=vmr.init(builder);
-#ifdef USE_OPENGL
-//	gdk_gl_init(&argc, &argv);
-#ifdef USE_OPENGLUT
-	glutInit(&argc, argv);
-#endif
-#endif
 	kit.run(*w);
 	return 0;
 }

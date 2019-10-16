@@ -4,6 +4,8 @@
  */
 #include <iostream>
 #include <iomanip>
+#include <string>
+#include <vector>
 #include <cmath>
 #include <sstream>
 
@@ -19,209 +21,170 @@ const int ss_divisor = 3; // frames
 GLuint texnames[1];
 Glib::RefPtr<Gdk::Pixbuf> img;
 //=====
-/* position and color information for each vertex */
-struct vertex_info {
-  float position[3];
-  float color[3];
+
+enum {
+  X_AXIS,
+  Y_AXIS,
+  Z_AXIS,
+
+  N_AXIS
 };
 
-/* the vertex data is constant */
-static const struct vertex_info vertex_data[] = {
-  { {  0.0f,  0.500f, 0.0f }, { 1.f, 0.f, 0.f } },
-  { {  0.5f, -0.366f, 0.0f }, { 0.f, 1.f, 0.f } },
-  { { -0.5f, -0.366f, 0.0f }, { 0.f, 0.f, 1.f } },
+static const GLfloat vertex_data[] = {
+  0.f,   0.5f,   0.f, 1.f,
+  0.5f, -0.366f, 0.f, 1.f,
+ -0.5f, -0.366f, 0.f, 1.f,
 };
 
-static void
-init_buffers (guint  position_index,
-              guint  color_index,
-              guint *vao_out)
+static void compute_mvp(float *res,
+                        float phi,
+                        float theta,
+                        float psi)
 {
-  guint vao, buffer;
+  float x       {phi * ((float)G_PI / 180.f)};
+  float y       {theta * ((float)G_PI / 180.f)};
+  float z       {psi * ((float)G_PI / 180.f)};
+  float c1      {cosf (x)};
+  float s1      {sinf (x)};
+  float c2      {cosf (y)};
+  float s2      {sinf (y)};
+  float c3      {cosf (z)};
+  float s3      {sinf (z)};
+  float c3c2    {c3 * c2};
+  float s3c1    {s3 * c1};
+  float c3s2s1  {c3 * s2 * s1};
+  float s3s1    {s3 * s1};
+  float c3s2c1  {c3 * s2 * c1};
+  float s3c2    {s3 * c2};
+  float c3c1    {c3 * c1};
+  float s3s2s1  {s3 * s2 * s1};
+  float c3s1    {c3 * s1};
+  float s3s2c1  {s3 * s2 * c1};
+  float c2s1    {c2 * s1};
+  float c2c1    {c2 * c1};
 
-  /* we need to create a VAO to store the other buffers */
-  glGenVertexArrays (1, &vao);
-  glBindVertexArray (vao);
-
-  /* this is the VBO that holds the vertex data */
-  glGenBuffers (1, &buffer);
-  glBindBuffer (GL_ARRAY_BUFFER, buffer);
-  glBufferData (GL_ARRAY_BUFFER, sizeof (vertex_data), vertex_data, GL_STATIC_DRAW);
-
-  /* enable and set the position attribute */
-  glEnableVertexAttribArray (position_index);
-  glVertexAttribPointer (position_index, 3, GL_FLOAT, GL_FALSE,
-                         sizeof (struct vertex_info),
-                         (GLvoid *) (G_STRUCT_OFFSET (struct vertex_info, position)));
-
-  /* enable and set the color attribute */
-  glEnableVertexAttribArray (color_index);
-  glVertexAttribPointer (color_index, 3, GL_FLOAT, GL_FALSE,
-                         sizeof (struct vertex_info),
-                         (GLvoid *) (G_STRUCT_OFFSET (struct vertex_info, color)));
-
-  /* reset the state; we will re-enable the VAO when needed */
-  glBindBuffer (GL_ARRAY_BUFFER, 0);
-  glBindVertexArray (0);
-
-  /* the VBO is referenced by the VAO */
-  glDeleteBuffers (1, &buffer);
-
-  if (vao_out != NULL)
-    *vao_out = vao;
+  /* apply all three rotations using the three matrices:
+   *
+   * ⎡  c3 s3 0 ⎤ ⎡ c2  0 -s2 ⎤ ⎡ 1   0  0 ⎤
+   * ⎢ -s3 c3 0 ⎥ ⎢  0  1   0 ⎥ ⎢ 0  c1 s1 ⎥
+   * ⎣   0  0 1 ⎦ ⎣ s2  0  c2 ⎦ ⎣ 0 -s1 c1 ⎦
+   */
+  res[0] = c3c2;  res[4] = s3c1 + c3s2s1;  res[8] = s3s1 - c3s2c1; res[12] = 0.f;
+  res[1] = -s3c2; res[5] = c3c1 - s3s2s1;  res[9] = c3s1 + s3s2c1; res[13] = 0.f;
+  res[2] = s2;    res[6] = -c2s1;         res[10] = c2c1;          res[14] = 0.f;
+  res[3] = 0.f;   res[7] = 0.f;           res[11] = 0.f;           res[15] = 1.f;
 }
 
-static guint
-create_shader (int          shader_type,
-               const char  *source,
-               GError     **error,
-               guint       *shader_out)
+void MyGLArea::init_buffers()
 {
-  guint shader = glCreateShader (shader_type);
-  glShaderSource (shader, 1, &source, NULL);
-  glCompileShader (shader);
+  glGenVertexArrays(1, &m_Vao);
+  glBindVertexArray(m_Vao);
+
+  glGenBuffers(1, &m_Buffer);
+  glBindBuffer(GL_ARRAY_BUFFER, m_Buffer);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_data), vertex_data, GL_STATIC_DRAW);
+  glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
+
+static GLuint create_shader(int type, const char *src)
+{
+  auto shader = glCreateShader(type);
+  glShaderSource(shader, 1, &src, nullptr);
+  glCompileShader(shader);
 
   int status;
-  glGetShaderiv (shader, GL_COMPILE_STATUS, &status);
-  if (status == GL_FALSE)
-    {
-      int log_len;
-      glGetShaderiv (shader, GL_INFO_LOG_LENGTH, &log_len);
+  glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
+  if(status == GL_FALSE)
+  {
+    int log_len;
+    glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &log_len);
 
-      char *buffer = (char *)g_malloc (log_len + 1);
-      glGetShaderInfoLog (shader, log_len, NULL, buffer);
-/*
-      g_set_error (error, GLAREA_ERROR, GLAREA_ERROR_SHADER_COMPILATION,
-                   "Compilation failure in %s shader: %s",
-                   shader_type == GL_VERTEX_SHADER ? "vertex" : "fragment",
-                   buffer);
-*/
-      g_free (buffer);
+    std::string log_space(log_len+1, ' ');
+    glGetShaderInfoLog(shader, log_len, nullptr, (GLchar*)log_space.c_str());
 
-      glDeleteShader (shader);
-      shader = 0;
-    }
+    std::cerr << "Compile failure in " <<
+      (type == GL_VERTEX_SHADER ? "vertex" : "fragment") <<
+      " shader: " << log_space << std::endl;
 
-  if (shader_out != NULL)
-    *shader_out = shader;
+    glDeleteShader(shader);
 
-  return shader != 0;
+    return 0;
+  }
+
+  return shader;
 }
 
-static gboolean
-init_shaders (guint   *program_out,
-              guint   *mvp_location_out,
-              guint   *position_location_out,
-              guint   *color_location_out,
-              GError **error)
+void MyGLArea::init_shaders()
 {
-  guint program = 0;
-  guint mvp_location = 0;
-  guint vertex = 0, fragment = 0;
-  guint position_location = 0;
-  guint color_location = 0;
-  int status = 0;
-  const char vertex_source[] = " \
-#version 130 \
-in vec3 position; \
-in vec3 color; \
-uniform mat4 mvp; \
-smooth out vec4 vertexColor; \
-void main() { \
-  gl_Position = mvp * vec4(position, 1.0); \
-  vertexColor = vec4(color, 1.0); \
-}";
-  const char fragment_source[] = " \
-#version 130 \
-smooth in vec4 vertexColor; \
-out vec4 outputColor; \
-void main() { \
-  outputColor = vertexColor; \
-}";
-  /* load the vertex shader */
-  create_shader (GL_VERTEX_SHADER, vertex_source, error, &vertex);
-  if (vertex == 0)
-    goto out;
+  auto vshader_bytes = Gio::Resource::lookup_data_global("/glarea/glarea-vertex.glsl");
+  if(!vshader_bytes)
+  {
+    std::cerr << "Failed fetching vertex shader resource" << std::endl;
+    m_Program = 0;
+    return;
+  }
+  gsize vshader_size {vshader_bytes->get_size()};
+  auto vertex = create_shader(GL_VERTEX_SHADER,
+                         (const char*)vshader_bytes->get_data(vshader_size));
 
-  /* load the fragment shader */
+  if(vertex == 0)
+  {
+    m_Program = 0;
+    return;
+  }
 
-  create_shader (GL_FRAGMENT_SHADER, fragment_source, error, &fragment);
-  if (fragment == 0)
-    goto out;
+  auto fshader_bytes = Gio::Resource::lookup_data_global("/glarea/glarea-fragment.glsl");
+  if(!fshader_bytes)
+  {
+    std::cerr << "Failed fetching fragment shader resource" << std::endl;
+    glDeleteShader(vertex);
+    m_Program = 0;
+    return;
+  }
+  gsize fshader_size {fshader_bytes->get_size()};
+  auto fragment = create_shader(GL_FRAGMENT_SHADER,
+                           (const char*)fshader_bytes->get_data(fshader_size));
 
-  /* link the vertex and fragment shaders together */
-  program = glCreateProgram ();
-  glAttachShader (program, vertex);
-  glAttachShader (program, fragment);
-  glLinkProgram (program);
+  if(fragment == 0)
+  {
+    glDeleteShader(vertex);
+    m_Program = 0;
+    return;
+  }
 
-  glGetProgramiv (program, GL_LINK_STATUS, &status);
-  if (status == GL_FALSE)
-    {
-      int log_len = 0;
-      glGetProgramiv (program, GL_INFO_LOG_LENGTH, &log_len);
+  m_Program = glCreateProgram();
+  glAttachShader(m_Program, vertex);
+  glAttachShader(m_Program, fragment);
 
-      char *buffer = (char *)g_malloc (log_len + 1);
-      glGetProgramInfoLog (program, log_len, NULL, buffer);
-/*
-      g_set_error (error, GLAREA_ERROR, GLAREA_ERROR_SHADER_LINK,
-                   "Linking failure in program: %s", buffer);
-*/
-      g_free (buffer);
+  glLinkProgram(m_Program);
 
-      glDeleteProgram (program);
-      program = 0;
+  int status;
+  glGetProgramiv(m_Program, GL_LINK_STATUS, &status);
+  if(status == GL_FALSE)
+  {
+    int log_len;
+    glGetProgramiv(m_Program, GL_INFO_LOG_LENGTH, &log_len);
 
-      goto out;
-    }
+    std::string log_space(log_len+1, ' ');
+    glGetProgramInfoLog(m_Program, log_len, nullptr, (GLchar*)log_space.c_str());
 
-  /* get the location of the "mvp" uniform */
-  mvp_location = glGetUniformLocation (program, "mvp");
+    std::cerr << "Linking failure: " << log_space << std::endl;
 
-  /* get the location of the "position" and "color" attributes */
-  position_location = glGetAttribLocation (program, "position");
-  color_location = glGetAttribLocation (program, "color");
+    glDeleteProgram(m_Program);
+    m_Program = 0;
+  }
+  else
+  {
+    /* Get the location of the "mvp" uniform */
+    m_Mvp = glGetUniformLocation(m_Program, "mvp");
 
-  /* the individual shaders can be detached and destroyed */
-  glDetachShader (program, vertex);
-  glDetachShader (program, fragment);
-
-out:
-  if (vertex != 0)
-    glDeleteShader (vertex);
-  if (fragment != 0)
-    glDeleteShader (fragment);
-
-  if (program_out != NULL)
-    *program_out = program;
-  if (mvp_location_out != NULL)
-    *mvp_location_out = mvp_location;
-  if (position_location_out != NULL)
-    *position_location_out = position_location;
-  if (color_location_out != NULL)
-    *color_location_out = color_location;
-
-  return program != 0;
-}
-
-static void
-init_mvp (float *res)
-{
-  /* initialize a matrix as an identity matrix */
-  res[0] = 1.f; res[4] = 0.f;  res[8] = 0.f; res[12] = 0.f;
-  res[1] = 0.f; res[5] = 1.f;  res[9] = 0.f; res[13] = 0.f;
-  res[2] = 0.f; res[6] = 0.f; res[10] = 1.f; res[14] = 0.f;
-  res[3] = 0.f; res[7] = 0.f; res[11] = 0.f; res[15] = 1.f;
+    glDetachShader(m_Program, vertex);
+    glDetachShader(m_Program, fragment);
+  }
+  glDeleteShader(vertex);
+  glDeleteShader(fragment);
 }
 //=====
-MyDrawingArea::MyDrawingArea(BaseObjectType* o,
-		const Glib::RefPtr<Gtk::Builder>& g) :
-		Gtk::DrawingArea(o) {
-//	gl_config = gdk_gl_config_new_by_mode(
-//			(GdkGLConfigMode) (GDK_GL_MODE_RGBA | GDK_GL_MODE_DEPTH));
-//	gtk_widget_set_gl_capability(&(o->widget), gl_config, NULL, TRUE,
-//			GDK_GL_RGBA_TYPE);
-}
 
 MyGLArea::MyGLArea(BaseObjectType* o,
 		const Glib::RefPtr<Gtk::Builder>& g) :
@@ -229,50 +192,31 @@ MyGLArea::MyGLArea(BaseObjectType* o,
 	std::cout << "GLArea is constructed." << std::endl;
 }
 
-bool MyGLArea::on_draw(const Cairo::RefPtr<Cairo::Context>&cc){
-	Gtk::GLArea::on_draw(cc);
-
-	cc->set_line_width(1.0);
-	cc->set_source_rgb(0, 0, 0);
-	cc->move_to(0, 0);
-	cc->line_to(200, 100);
-	cc->stroke();
-
-	cc->set_font_size(16);
-	cc->move_to(4, 20);
-	cc->show_text(std::string("OpenGL"));
-
-	return true;
-}
-
 void MyGLArea::on_realize(void) {
 	Gtk::GLArea::on_realize();
+	make_current();
 	Gtk::GLArea::set_size_request(800, 600);
 
+	std::cout << "GLArea is realized." << std::endl;
+
+	std::cout << glGetString(GL_VERSION) << std::endl;
+	std::cout << glGetString(GL_EXTENSIONS) << std::endl;
+
 	ViewManager &vmr = ViewManager::getInstance();
-	gtk_gl_area_make_current(GTK_GL_AREA(vmr.glArea->gobj()));
 
+  try
+  {
+//    vmr.glArea->throw_if_error();
+    init_buffers();
+    init_shaders();
+  }
+  catch(const Gdk::GLError& gle)
+  {
+    std::cerr << "An error occured making the context current during realize:" << std::endl;
+    std::cerr << gle.domain() << "-" << gle.code() << "-" << gle.what() << std::endl;
+  }
 //=====
-  /* initialize the shaders and retrieve the program data */
-  GError *error = NULL;
-  if (!init_shaders (&vmr.glArea->program,
-                     &vmr.glArea->mvp_location,
-                     &vmr.glArea->position_index,
-                     &vmr.glArea->color_index,
-                     &error))
-    {
-      /* set the GtkGLArea in error state, so we'll see the error message
-       * rendered inside the viewport
-       */
-      gtk_gl_area_set_error (GTK_GL_AREA (vmr.glArea->gobj()), error);
-      g_error_free (error);
-      return;
-    }
 
-  /* initialize the vertex buffers */
-  init_buffers (vmr.glArea->position_index, vmr.glArea->color_index, &vmr.glArea->vao);
-
-    init_mvp (vmr.glArea->mvp);
 //=====
 //	GdkGLContext *gl_context = gtk_widget_get_gl_context(
 //			(GtkWidget *) this->gobj());
@@ -330,31 +274,57 @@ void showPlayer(int x, int y) {
 	glPopMatrix();
 }
 
+void MyGLArea::draw_triangle()
+{
+  float mvp[16];
+
+  compute_mvp(mvp,
+              m_RotationAngles[X_AXIS],
+              m_RotationAngles[Y_AXIS],
+              m_RotationAngles[Z_AXIS]);
+
+  glUseProgram(m_Program);
+
+  glUniformMatrix4fv(m_Mvp, 1, GL_FALSE, &mvp[0]);
+
+  glBindBuffer(GL_ARRAY_BUFFER, m_Vao);
+  glEnableVertexAttribArray(0);
+  glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, nullptr);
+
+  glDrawArrays(GL_TRIANGLES, 0, 3);
+
+  glDisableVertexAttribArray(0);
+  glBindBuffer(GL_ARRAY_BUFFER, 0);
+  glUseProgram(0);
+}
+
+
 bool MyGLArea::on_render(const Glib::RefPtr<Gdk::GLContext> &glc){
 	Gtk::GLArea::on_render(glc);
 	Manager &mgr = Manager::getInstance();
 	Scene &scene=mgr.scene;
 
 	ViewManager &vmr = ViewManager::getInstance();
-	gtk_gl_area_make_current(GTK_GL_AREA(vmr.glArea->gobj()));
-  glClearColor (0.5, 0.5, 0.5, 1.0);
-  glClear (GL_COLOR_BUFFER_BIT);
-/* load our program */
-  glUseProgram (vmr.glArea->program);
+	vmr.glArea->make_current();
 
-  /* update the "mvp" matrix we use in the shader */
-  glUniformMatrix4fv (vmr.glArea->mvp_location, 1, GL_FALSE, &(vmr.glArea->mvp[0]));
+  try
+  {
+    vmr.glArea->throw_if_error();
+    glClearColor(0.5, 0.5, 0.5, 1.0);
+    glClear(GL_COLOR_BUFFER_BIT);
 
-  /* use the buffers in the VAO */
-  glBindVertexArray (vmr.glArea->vao);
-  /* draw the three vertices as a triangle */
-  glDrawArrays (GL_TRIANGLES, 0, 3);
+    draw_triangle();
 
-  /* we finished using the buffers and program */
-  glBindVertexArray (0);
-  glUseProgram (0);
-    glFlush ();
-   return true; 
+    glFlush();
+
+    return true;
+  }
+  catch(const Gdk::GLError& gle)
+  {
+    std::cerr << "An error occurred in the render callback of the GLArea" << std::endl;
+    std::cerr << gle.domain() << "-" << gle.code() << "-" << gle.what() << std::endl;
+    return false;
+  }
 
 	if (!scene.valid) {
 //		GdkGLDrawable *gl_drawable =

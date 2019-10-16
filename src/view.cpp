@@ -14,6 +14,15 @@
 const int ss_divisor = 3; // frames
 #endif
 
+MyDrawingArea::MyDrawingArea(BaseObjectType* o,
+		const Glib::RefPtr<Gtk::Builder>& g) :
+		Gtk::DrawingArea(o) {
+//	gl_config = gdk_gl_config_new_by_mode(
+//			(GdkGLConfigMode) (GDK_GL_MODE_RGBA | GDK_GL_MODE_DEPTH));
+//	gtk_widget_set_gl_capability(&(o->widget), gl_config, NULL, TRUE,
+//			GDK_GL_RGBA_TYPE);
+}
+
 void MyDrawingArea::on_realize(void) {
 //		std::cout << "Realized" << std::endl;
 	Gtk::DrawingArea::on_realize();

@@ -55,14 +55,16 @@ public:
 protected:
 	void on_realize(void);
 	bool on_render(const Glib::RefPtr< Gdk::GLContext >&);
-	bool on_draw(const Cairo::RefPtr<Cairo::Context>&);
-public:
-  float mvp[16];
-  guint vao;
-  guint program;
-  guint mvp_location;
-  guint position_index;
-  guint color_index;
+
+  GLuint m_Vao {0};
+  GLuint m_Buffer {0};
+  GLuint m_Program {0};
+  GLuint m_Mvp {0};
+  std::vector<float> m_RotationAngles;
+
+  void init_buffers();
+  void init_shaders();
+  void draw_triangle();
 };
 
 class MyImageMenuItem: public Gtk::ImageMenuItem {
