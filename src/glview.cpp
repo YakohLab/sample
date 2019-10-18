@@ -30,10 +30,15 @@ enum {
   N_AXIS
 };
 
-static const GLfloat vertex_data[] = {
-  0.f,   0.5f,   0.f, 1.f,
-  0.5f, -0.366f, 0.f, 1.f,
- -0.5f, -0.366f, 0.f, 1.f,
+struct vertex_info {
+	float position[3];
+	float color[3];
+};
+
+static const struct vertex_info vertex_data[] = {
+  { {  0.0f,  0.500f, 0.0f }, { 1.f, 0.f, 0.f } },
+  { {  0.5f, -0.366f, 0.0f }, { 0.f, 1.f, 0.f } },
+  { { -0.5f, -0.366f, 0.0f }, { 0.f, 0.f, 1.f } },
 };
 
 static void compute_mvp(float *res,
@@ -83,7 +88,19 @@ void MyGLArea::init_buffers()
   glGenBuffers(1, &m_Buffer);
   glBindBuffer(GL_ARRAY_BUFFER, m_Buffer);
   glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_data), vertex_data, GL_STATIC_DRAW);
+
+  glEnableVertexAttribArray(position_index);
+  glVertexAttribPointer (position_index, 3, GL_FLOAT, GL_FALSE,
+                         sizeof (struct vertex_info),
+                         (GLvoid *) (G_STRUCT_OFFSET (struct vertex_info, position)));
+
+   glEnableVertexAttribArray (color_index);
+   glVertexAttribPointer (color_index, 3, GL_FLOAT, GL_FALSE,
+                         sizeof (struct vertex_info),
+                         (GLvoid *) (G_STRUCT_OFFSET (struct vertex_info, color)));
+
   glBindBuffer(GL_ARRAY_BUFFER, 0);
+  glBindVertexArray(0);
 }
 
 static GLuint create_shader(int type, const char *src)
@@ -188,15 +205,12 @@ void main() \n\
 MyGLArea::MyGLArea(BaseObjectType* o,
 		const Glib::RefPtr<Gtk::Builder>& g) :
 		Gtk::GLArea(o) {
-	std::cout << "GLArea is constructed." << std::endl;
 }
 
 void MyGLArea::on_realize(void) {
 	Gtk::GLArea::on_realize();
 	make_current();
-	Gtk::GLArea::set_size_request(800, 600);
-
-	std::cout << glGetString(GL_VERSION) << std::endl;
+	Gtk::GLArea::set_size_request(600, 400);
 
   try
   {
@@ -279,14 +293,17 @@ void MyGLArea::draw_triangle()
 
   glUniformMatrix4fv(m_Mvp, 1, GL_FALSE, &mvp[0]);
 
-  glBindBuffer(GL_ARRAY_BUFFER, m_Vao);
-  glEnableVertexAttribArray(0);
-  glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, nullptr);
+  glBindVertexArray(m_Vao);
+
+//  glBindBuffer(GL_ARRAY_BUFFER, m_Vao);
+//  glEnableVertexAttribArray(m_Vao);
+//  glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, nullptr);
 
   glDrawArrays(GL_TRIANGLES, 0, 3);
 
-  glDisableVertexAttribArray(0);
-  glBindBuffer(GL_ARRAY_BUFFER, 0);
+//  glDisableVertexAttribArray(0);
+//  glBindBuffer(GL_ARRAY_BUFFER, 0);
+  glBindVertexArray(0);
   glUseProgram(0);
 }
 

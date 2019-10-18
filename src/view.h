@@ -60,6 +60,8 @@ protected:
   GLuint m_Buffer {0};
   GLuint m_Program {0};
   GLuint m_Mvp {0};
+  GLuint position_index;
+  GLuint color_index;
   std::vector<float> m_RotationAngles;
 
   void init_buffers();

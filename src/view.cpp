@@ -26,7 +26,7 @@ MyDrawingArea::MyDrawingArea(BaseObjectType* o,
 void MyDrawingArea::on_realize(void) {
 //		std::cout << "Realized" << std::endl;
 	Gtk::DrawingArea::on_realize();
-	Gtk::DrawingArea::set_size_request(800, 600);
+	Gtk::DrawingArea::set_size_request(600, 400);
 }
 
 #if GTKMM3
