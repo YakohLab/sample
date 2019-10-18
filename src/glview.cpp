@@ -116,16 +116,17 @@ static GLuint create_shader(int type, const char *src)
 
 void MyGLArea::init_shaders()
 {
-  auto vshader_bytes = Gio::Resource::lookup_data_global("/glarea/glarea-vertex.glsl");
-  if(!vshader_bytes)
-  {
-    std::cerr << "Failed fetching vertex shader resource" << std::endl;
-    m_Program = 0;
-    return;
-  }
-  gsize vshader_size {vshader_bytes->get_size()};
-  auto vertex = create_shader(GL_VERTEX_SHADER,
-                         (const char*)vshader_bytes->get_data(vshader_size));
+	char vshader[] = " \
+#version 130 \n\
+in vec3 position; \n\
+in vec3 color; \n\
+uniform mat4 mvp; \n\
+smooth out vec4 vertexColor; \n\
+void main() { \n\
+  gl_Position = mvp * vec4(position, 1.0); \n\
+  vertexColor = vec4(color, 1.0); \n\
+}";
+  auto vertex = create_shader(GL_VERTEX_SHADER, vshader);
 
   if(vertex == 0)
   {
@@ -133,17 +134,14 @@ void MyGLArea::init_shaders()
     return;
   }
 
-  auto fshader_bytes = Gio::Resource::lookup_data_global("/glarea/glarea-fragment.glsl");
-  if(!fshader_bytes)
-  {
-    std::cerr << "Failed fetching fragment shader resource" << std::endl;
-    glDeleteShader(vertex);
-    m_Program = 0;
-    return;
-  }
-  gsize fshader_size {fshader_bytes->get_size()};
-  auto fragment = create_shader(GL_FRAGMENT_SHADER,
-                           (const char*)fshader_bytes->get_data(fshader_size));
+  char fshader[] = " \n\
+#version 130 \n\
+smooth in vec4 vertexColor; \n\
+out vec4 outputColor; \n\
+void main() { \n\
+  outputColor = vertexColor; \n\
+}";
+  auto fragment = create_shader(GL_FRAGMENT_SHADER, fshader);
 
   if(fragment == 0)
   {
@@ -202,11 +200,9 @@ void MyGLArea::on_realize(void) {
 	std::cout << glGetString(GL_VERSION) << std::endl;
 	std::cout << glGetString(GL_EXTENSIONS) << std::endl;
 
-	ViewManager &vmr = ViewManager::getInstance();
-
   try
   {
-//    vmr.glArea->throw_if_error();
+    throw_if_error();
     init_buffers();
     init_shaders();
   }
@@ -215,6 +211,7 @@ void MyGLArea::on_realize(void) {
     std::cerr << "An error occured making the context current during realize:" << std::endl;
     std::cerr << gle.domain() << "-" << gle.code() << "-" << gle.what() << std::endl;
   }
+  
 //=====
 
 //=====
@@ -278,10 +275,7 @@ void MyGLArea::draw_triangle()
 {
   float mvp[16];
 
-  compute_mvp(mvp,
-              m_RotationAngles[X_AXIS],
-              m_RotationAngles[Y_AXIS],
-              m_RotationAngles[Z_AXIS]);
+  compute_mvp(mvp, 0, 0, 0);
 
   glUseProgram(m_Program);
 
@@ -304,13 +298,13 @@ bool MyGLArea::on_render(const Glib::RefPtr<Gdk::GLContext> &glc){
 	Manager &mgr = Manager::getInstance();
 	Scene &scene=mgr.scene;
 
-	ViewManager &vmr = ViewManager::getInstance();
-	vmr.glArea->make_current();
-
+#define HOGE
+#ifdef HOGE
+	make_current();
   try
   {
-    vmr.glArea->throw_if_error();
-    glClearColor(0.5, 0.5, 0.5, 1.0);
+    throw_if_error();
+    glClearColor(scene.tm.tm_sec/60.0, 0.5, 0.5, 1.0);
     glClear(GL_COLOR_BUFFER_BIT);
 
     draw_triangle();
@@ -325,7 +319,7 @@ bool MyGLArea::on_render(const Glib::RefPtr<Gdk::GLContext> &glc){
     std::cerr << gle.domain() << "-" << gle.code() << "-" << gle.what() << std::endl;
     return false;
   }
-
+#endif
 	if (!scene.valid) {
 //		GdkGLDrawable *gl_drawable =
 //				gtk_widget_get_gl_drawable((GtkWidget *)this->gobj());
@@ -369,7 +363,6 @@ bool MyGLArea::on_render(const Glib::RefPtr<Gdk::GLContext> &glc){
 	glClearColor(scene.tm.tm_sec/60.0, 0.4f, 0.2f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-#ifdef HOGE
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
@@ -542,7 +535,7 @@ bool MyGLArea::on_render(const Glib::RefPtr<Gdk::GLContext> &glc){
 	glRotated(-scene.p[0].angle * 180 / M_PI, 0.0, 1.0, 0.0);
 //	gdk_gl_draw_teapot(true, lh / 4 * scene.p[0].scale);
 	glPopMatrix();
-#endif
+
 	// 文字列を2次元座標系で表示する
 #ifdef USE_OPENGLUT
 	glMatrixMode(GL_PROJECTION);
