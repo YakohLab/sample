@@ -117,14 +117,14 @@ static GLuint create_shader(int type, const char *src)
 void MyGLArea::init_shaders()
 {
 	char vshader[] = " \
-#version 130 \n\
-in vec3 position; \n\
-in vec3 color; \n\
-uniform mat4 mvp; \n\
-smooth out vec4 vertexColor; \n\
-void main() { \n\
-  gl_Position = mvp * vec4(position, 1.0); \n\
-  vertexColor = vec4(color, 1.0); \n\
+#version 330 \n\
+layout (location=0) in vec3 vertex_pos; \n\
+layout (location=1) in vec4 vertex_color; \n\
+out vec4 color; \n\
+void main() \n\
+{ \n\
+    gl_Position = vec4(vertex_pos, 1.0); \n\
+    color = vertex_color; \n\
 }";
   auto vertex = create_shader(GL_VERTEX_SHADER, vshader);
 
@@ -135,11 +135,12 @@ void main() { \n\
   }
 
   char fshader[] = " \n\
-#version 130 \n\
-smooth in vec4 vertexColor; \n\
-out vec4 outputColor; \n\
-void main() { \n\
-  outputColor = vertexColor; \n\
+#version 330 \n\
+in vec4 color; \n\
+layout (location=0) out vec4 frag_color; \n\
+void main() \n\
+{ \n\
+    frag_color = color; \n\
 }";
   auto fragment = create_shader(GL_FRAGMENT_SHADER, fshader);
 
@@ -195,10 +196,7 @@ void MyGLArea::on_realize(void) {
 	make_current();
 	Gtk::GLArea::set_size_request(800, 600);
 
-	std::cout << "GLArea is realized." << std::endl;
-
 	std::cout << glGetString(GL_VERSION) << std::endl;
-	std::cout << glGetString(GL_EXTENSIONS) << std::endl;
 
   try
   {
