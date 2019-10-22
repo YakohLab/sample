@@ -56,17 +56,20 @@ protected:
 	void on_realize(void);
 	bool on_render(const Glib::RefPtr< Gdk::GLContext >&);
 
-  GLuint m_Vao {0};
-  GLuint m_Buffer {0};
-  GLuint m_Program {0};
-  GLuint m_Mvp {0};
-  GLuint position_index;
-  GLuint color_index;
+  guint vao {0};
+  guint buffer {0};
+  guint program {0};
+  guint mvp_location {0};
+  guint position_index;
+  guint color_index;
   std::vector<float> m_RotationAngles;
+  float mvp[16];
 
   void init_buffers();
   void init_shaders();
   void draw_triangle();
+private:
+    void init_mvp (float *res);
 };
 
 class MyImageMenuItem: public Gtk::ImageMenuItem {

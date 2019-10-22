@@ -22,14 +22,6 @@ GLuint texnames[1];
 Glib::RefPtr<Gdk::Pixbuf> img;
 //=====
 
-enum {
-  X_AXIS,
-  Y_AXIS,
-  Z_AXIS,
-
-  N_AXIS
-};
-
 struct vertex_info {
 	float position[3];
 	float color[3];
@@ -82,11 +74,11 @@ static void compute_mvp(float *res,
 
 void MyGLArea::init_buffers()
 {
-  glGenVertexArrays(1, &m_Vao);
-  glBindVertexArray(m_Vao);
+  glGenVertexArrays(1, &vao);
+  glBindVertexArray(vao);
 
-  glGenBuffers(1, &m_Buffer);
-  glBindBuffer(GL_ARRAY_BUFFER, m_Buffer);
+  glGenBuffers(1, &buffer);
+  glBindBuffer(GL_ARRAY_BUFFER, buffer);
   glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_data), vertex_data, GL_STATIC_DRAW);
 
   glEnableVertexAttribArray(position_index);
@@ -99,14 +91,16 @@ void MyGLArea::init_buffers()
                          sizeof (struct vertex_info),
                          (GLvoid *) (G_STRUCT_OFFSET (struct vertex_info, color)));
 
-  glBindBuffer(GL_ARRAY_BUFFER, 0);
-  glBindVertexArray(0);
+//  glBindBuffer(GL_ARRAY_BUFFER, 0);
+//  glBindVertexArray(0);
+
+//  glDeleteBuffers (1, &buffer);
 }
 
-static GLuint create_shader(int type, const char *src)
+static GLuint create_shader(int shader_type, const char *source)
 {
-  auto shader = glCreateShader(type);
-  glShaderSource(shader, 1, &src, nullptr);
+  auto shader = glCreateShader(shader_type);
+  glShaderSource(shader, 1, &source, nullptr);
   glCompileShader(shader);
 
   int status;
@@ -120,7 +114,7 @@ static GLuint create_shader(int type, const char *src)
     glGetShaderInfoLog(shader, log_len, nullptr, (GLchar*)log_space.c_str());
 
     std::cerr << "Compile failure in " <<
-      (type == GL_VERTEX_SHADER ? "vertex" : "fragment") <<
+      (shader_type == GL_VERTEX_SHADER ? "vertex" : "fragment") <<
       " shader: " << log_space << std::endl;
 
     glDeleteShader(shader);
@@ -147,7 +141,7 @@ void main() \n\
 
   if(vertex == 0)
   {
-    m_Program = 0;
+    program = 0;
     return;
   }
 
@@ -164,47 +158,48 @@ void main() \n\
   if(fragment == 0)
   {
     glDeleteShader(vertex);
-    m_Program = 0;
+    program = 0;
     return;
   }
 
-  m_Program = glCreateProgram();
-  glAttachShader(m_Program, vertex);
-  glAttachShader(m_Program, fragment);
+  program = glCreateProgram();
+  glAttachShader(program, vertex);
+  glAttachShader(program, fragment);
 
-  glLinkProgram(m_Program);
+  glLinkProgram(program);
 
   int status;
-  glGetProgramiv(m_Program, GL_LINK_STATUS, &status);
+  glGetProgramiv(program, GL_LINK_STATUS, &status);
   if(status == GL_FALSE)
   {
     int log_len;
-    glGetProgramiv(m_Program, GL_INFO_LOG_LENGTH, &log_len);
+    glGetProgramiv(program, GL_INFO_LOG_LENGTH, &log_len);
 
     std::string log_space(log_len+1, ' ');
-    glGetProgramInfoLog(m_Program, log_len, nullptr, (GLchar*)log_space.c_str());
+    glGetProgramInfoLog(program, log_len, nullptr, (GLchar*)log_space.c_str());
 
     std::cerr << "Linking failure: " << log_space << std::endl;
 
-    glDeleteProgram(m_Program);
-    m_Program = 0;
+    glDeleteProgram(program);
+    program = 0;
   }
   else
   {
     /* Get the location of the "mvp" uniform */
-    m_Mvp = glGetUniformLocation(m_Program, "mvp");
+    mvp_location = glGetUniformLocation(program, "mvp");
 
-    glDetachShader(m_Program, vertex);
-    glDetachShader(m_Program, fragment);
+//    glDetachShader(program, vertex);
+//    glDetachShader(program, fragment);
   }
-  glDeleteShader(vertex);
-  glDeleteShader(fragment);
+//  glDeleteShader(vertex);
+//  glDeleteShader(fragment);
 }
 //=====
 
 MyGLArea::MyGLArea(BaseObjectType* o,
 		const Glib::RefPtr<Gtk::Builder>& g) :
 		Gtk::GLArea(o) {
+	init_mvp(mvp);
 }
 
 void MyGLArea::on_realize(void) {
@@ -215,8 +210,8 @@ void MyGLArea::on_realize(void) {
   try
   {
     throw_if_error();
-    init_buffers();
     init_shaders();
+    init_buffers();
   }
   catch(const Gdk::GLError& gle)
   {
@@ -283,26 +278,37 @@ void showPlayer(int x, int y) {
 	glPopMatrix();
 }
 
+void MyGLArea::init_mvp (float *res)
+{
+  /* initialize a matrix as an identity matrix */
+  res[0] = 1.f; res[4] = 0.f;  res[8] = 0.f; res[12] = 0.f;
+  res[1] = 0.f; res[5] = 1.f;  res[9] = 0.f; res[13] = 0.f;
+  res[2] = 0.f; res[6] = 0.f; res[10] = 1.f; res[14] = 0.f;
+  res[3] = 0.f; res[7] = 0.f; res[11] = 0.f; res[15] = 1.f;
+}
+
 void MyGLArea::draw_triangle()
 {
-  float mvp[16];
-
   compute_mvp(mvp, 0, 0, 0);
 
-  glUseProgram(m_Program);
+  glUseProgram(program);
 
-  glUniformMatrix4fv(m_Mvp, 1, GL_FALSE, &mvp[0]);
+  glUniformMatrix4fv(mvp_location, 1, GL_FALSE, &mvp[0]);
 
-  glBindVertexArray(m_Vao);
+  glBindVertexArray(vao);
 
-//  glBindBuffer(GL_ARRAY_BUFFER, m_Vao);
-//  glEnableVertexAttribArray(m_Vao);
+////////
+//  glBindBuffer(GL_ARRAY_BUFFER, vao);
+//  glEnableVertexAttribArray(vao);
 //  glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, nullptr);
+////////
 
   glDrawArrays(GL_TRIANGLES, 0, 3);
 
+////
 //  glDisableVertexAttribArray(0);
 //  glBindBuffer(GL_ARRAY_BUFFER, 0);
+////
   glBindVertexArray(0);
   glUseProgram(0);
 }
